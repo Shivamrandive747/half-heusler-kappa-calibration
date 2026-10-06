@@ -7,6 +7,7 @@ is what the journal gets and the PNG is what gets LOOKED at before it is called 
 that has never been viewed is not a finished figure.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 from pathlib import Path
 
@@ -43,7 +44,8 @@ LIGHTGREY = "#D9D9D9"
 # the same colour in every figure. A reader learns the scheme once in Figure 2 and can then read
 # Figures 3-5 without consulting a legend at all:
 #
-#     measurement        near-black, filled, solid   -- the ground truth is always the darkest ink
+#     measurement        vermillion, filled, solid   -- the ground truth; blue's colour-blind-safe
+#                                                    partner (author, 2026-10-06: no black blocks)
 #     uncorrected DFT    grey, open, DASHED          -- always visibly provisional
 #     our calibration    accent blue, solid          -- the paper's contribution, one accent only
 #     issued prediction  accent blue, OPEN marker    -- same colour, hollow: no measurement exists
@@ -52,7 +54,8 @@ LIGHTGREY = "#D9D9D9"
 # Two rules follow and must not be broken. Nothing else in the paper may use the accent blue, or it
 # stops meaning "our result". And every role carries a marker or line style as well as a hue, so
 # the encoding survives greyscale printing and colour-vision deficiency.
-MEASURED = "#1A1A1A"
+MEASURED = VERMILLION
+MEASURED_LIGHT = "#FBE3D4"   # fill for measurement boxes and bars that carry text
 RAW_DFT = "#9AA0A6"
 OURS = BLUE
 PREDICTED = BLUE
@@ -87,13 +90,18 @@ def use_style() -> None:
     plt.style.use(STYLE)
 
 
-def nested_calibrate(d, fit_cp, apply_cp, cluster_of):
+def nested_calibrate(d, cp_without_cluster, apply_cp, cluster_of):
     """Calibrate each compound with its OWN chemistry cluster held out of the (c, p) fit.
 
     Every figure that quotes an accuracy statistic must use this, not a single fit over the whole
     set. A review found the figures scoring an in-sample calibration against leave-one-out nulls
     and printing 30% beside a table that reported 31.0% -- the method held to a weaker standard
     than its own baselines, in the one panel whose title advertises that the nulls are held out.
+
+    `cp_without_cluster(label)` returns the (c, p) fitted without that cluster -- since 2026-10-05
+    shared_constant.shared_cp_without_cluster, the shared constant fitted on published calculations
+    (PREREG_shared_constant_on_calculations rule 4), no longer a fit on the other clusters' model
+    predictions.
 
     Returns the frame with a `k_cal` column and the per-fold constants in `_c`, `_p`.
     """
@@ -104,7 +112,7 @@ def nested_calibrate(d, fit_cp, apply_cp, cluster_of):
         te, tr = d[clus == cl], d[clus != cl]
         if not len(te) or len(tr) < 4:
             continue
-        ci, pi = fit_cp(tr)
+        ci, pi = cp_without_cluster(cl)
         if not np.isfinite(ci):
             continue
         out.append(te.assign(k_cal=te.k_pred.values * apply_cp(te["T"].values, ci, pi),
@@ -149,6 +157,77 @@ def band_2x(ax, lo: float, hi: float, color: str = "#EDEDED", alpha: float = 1.0
     ax.plot([lo, hi], [lo, hi], color="#6E6E6E", lw=0.8, ls="--", zorder=2)
 
 
+# ---------------------------------------------------------------------------------------------
+# ONE CONDUCTIVITY SCALE FOR THE WHOLE PAPER.
+#
+# Every figure that draws a lattice thermal conductivity used to compute its own limits from its
+# own data, so the same quantity appeared at four different scales: Figure 2 spanned 2-30, Figure 4
+# spanned 0.3-20, Figure 5 was hardcoded to 0.62-44 and Figure 6 fitted itself to its own bars. A
+# reader comparing a 5 W/m/K prediction in Figure 5 against a 5 W/m/K measurement in Figure 2 had to
+# re-read both axes to find out they were the same number. Figure 4 even carried a comment claiming
+# it used "the same conductivity ticks as Figures 2, 3 and 5" -- the TICKS were harmonised while the
+# LIMITS were not, which is the half of the job that does not survive being looked at.
+#
+# The range is the union of what the figures actually draw, not a round number: the lowest drawn
+# value is the lower 90% bound of the Sb-Pd prediction near 0.6, and the highest is a calculated
+# value near 32. `warn_clip` fails loudly rather than silently cropping a point, because a shared
+# axis that hides data is worse than four inconsistent ones.
+# 0.5-35 rather than a range wide enough to swallow every outlier. One out-of-domain compound in
+# Figure 4 measures 0.24, and extending the floor to reach it cost every panel in the paper half a
+# decade of empty space -- Figure 2's cloud, which filled its panel, retreated into the top corner.
+# A single deliberately-recessive point is not worth that, so it is drawn ON the axis edge by
+# `edge_markers` and labelled, which is what a journal figure does with an out-of-range value.
+# The floor is 0.38 rather than 0.5 for one specific reason: LaSbPt's lower 90% bound in Figure 6
+# sits at 0.40, and truncating the whisker of an interval plot removes the very thing the interval
+# is there to show. A scatter point can be moved to the edge and flagged; the end of a whisker
+# cannot. 0.12 of a decade is a cheap price for drawing every interval in full.
+KAPPA_LIM = (0.38, 35.0)
+KAPPA_TICKS = (0.5, 1, 2, 3, 5, 10, 20, 30)
+KAPPA_LABEL = "$\\kappa_L$ (W m$^{-1}$ K$^{-1}$)"
+
+
+def warn_clip(vals, tag: str) -> int:
+    """Report any conductivity the shared scale would cut off. Returns how many."""
+    v = np.asarray([x for x in np.ravel(np.asarray(vals, dtype=float))
+                    if np.isfinite(x) and x > 0], dtype=float)
+    if not len(v):
+        return 0
+    below = int((v < KAPPA_LIM[0]).sum())
+    above = int((v > KAPPA_LIM[1]).sum())
+    if below or above:
+        print(f"  CLIPPED in {tag}: {below} value(s) below {KAPPA_LIM[0]}, "
+              f"{above} above {KAPPA_LIM[1]} (data range "
+              f"{v.min():.2f}-{v.max():.2f}) -- widen KAPPA_LIM or exclude them deliberately")
+    return below + above
+
+
+def edge_markers(ax, x, y, axis: str = "y", color: str = "#B8BCC0") -> int:
+    """Draw points that fall below the shared scale ON the axis floor, as open triangles.
+
+    Dropping a point silently is not an option, and stretching the axis for one outlier costs every
+    other figure. The triangle says "this value is off the scale, in this direction", which is the
+    convention a reader already knows, and the count is annotated so nothing is hidden.
+    """
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    lo = KAPPA_LIM[0]
+    ok = np.isfinite(x) & np.isfinite(y) & (x > 0) & (y > 0)
+    below = ok & ((y < lo) if axis == "y" else (x < lo))
+    if not below.any():
+        return 0
+    if axis == "y":
+        xs, ys, mark = np.clip(x[below], lo * 1.05, None), np.full(int(below.sum()), lo * 1.10), "v"
+    else:
+        xs, ys, mark = np.full(int(below.sum()), lo * 1.10), np.clip(y[below], lo * 1.05, None), "<"
+    ax.scatter(xs, ys, marker=mark, s=20, facecolors="none", edgecolors=color, lw=0.9, zorder=6)
+    return int(below.sum())
+
+
+def kappa_ticks(ax, both: bool = True) -> None:
+    """The shared conductivity tick set, restricted to what the shared limits show."""
+    log_ticks(ax, [v for v in KAPPA_TICKS if KAPPA_LIM[0] <= v <= KAPPA_LIM[1]], both=both)
+
+
 def log_ticks(ax, values=(2, 3, 5, 10, 20, 30, 50), both: bool = True) -> None:
     """Label a log axis at readable values rather than at decades.
 
@@ -173,9 +252,26 @@ def parity_axes(ax, lo: float, hi: float, xlabel: str, ylabel: str) -> None:
     ax.set_ylabel(ylabel)
 
 
-def panel_label(ax, letter: str, dx: float = -0.16, dy: float = 1.04) -> None:
-    ax.text(dx, dy, f"({letter})", transform=ax.transAxes, fontsize=9, fontweight="bold",
-            va="top", ha="left")
+def panel_label(ax, letter: str, dx: float = -0.16, dy: float = 1.04, *,
+                outside: bool = False, loc: str = "upper left") -> None:
+    """A boxed "(a)" inside the axes, as in Paliwal and Alam, Phys. Rev. Materials 9 (2025).
+
+    Placing it inside the frame keeps the label attached to its panel when a journal reflows the
+    float, and costs no margin: an outside label has to be paid for in whitespace on every panel
+    of a nine-panel grid. `dx`/`dy` are honoured only with `outside=True`, which is kept for the
+    rare panel whose upper corners are both occupied by data.
+    """
+    if outside:
+        ax.text(dx, dy, f"({letter})", transform=ax.transAxes, fontsize=9, fontweight="bold",
+                va="top", ha="left")
+        return
+    x, y, ha, va = {"upper left": (0.035, 0.965, "left", "top"),
+                    "upper right": (0.965, 0.965, "right", "top"),
+                    "lower left": (0.035, 0.035, "left", "bottom"),
+                    "lower right": (0.965, 0.035, "right", "bottom")}[loc]
+    ax.text(x, y, f"({letter})", transform=ax.transAxes, fontsize=8.5, fontweight="bold",
+            va=va, ha=ha, zorder=20,
+            bbox=dict(boxstyle="square,pad=0.28", fc="white", ec="#BBBBBB", lw=0.5, alpha=0.92))
 
 
 def annotate_n(ax, n: int, where: str = "lower right") -> None:

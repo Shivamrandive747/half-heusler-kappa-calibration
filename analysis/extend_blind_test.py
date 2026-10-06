@@ -37,6 +37,7 @@ RULES KEPT FROM THE FIRST VERSION:
     MgAgSb, a real ultralow-kappa half Heusler).
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import json
 import sys
@@ -55,8 +56,15 @@ SUPPORT = "data/exports/kappa_v2/cluster_support_real.csv"
 OUT_CSV = "data/exports/kappa_v2/blind_test_calibrated.csv"
 OUT_JSON = "data/exports/kappa_v2/blind_test_calibrated.json"
 REVIEW_FLOOR = 1.0          # W/m/K -- flagged for review only, never excluded
-CS = np.linspace(0.10, 1.20, 111)
-PS = np.linspace(-1.5, 1.5, 61)
+# The grids are ROUNDED to their own spacing. np.linspace(0.10, 1.20, 111) returns
+# 0.5099999999999999 for the point that is 0.51 by construction, and linspace(-1.5, 1.5, 61)
+# returns 0.8000000000000003 for 0.80. Those residues are not harmless: the SHAPE form scans CS at
+# a fixed p, its objective is nearly flat between adjacent c values, and a 1e-16 shift in p flips
+# which of two neighbouring grid points wins. With three held-out folds the family median is one of
+# three numbers, so that flip moved Sb-Pd's reported error from 32.7% to 60.3% on identical data.
+# A grid search returns grid values.
+CS = np.round(np.linspace(0.10, 1.20, 111), 2)
+PS = np.round(np.linspace(-1.5, 1.5, 61), 2)
 
 
 def fit_cp(d: pd.DataFrame) -> tuple[float, float]:

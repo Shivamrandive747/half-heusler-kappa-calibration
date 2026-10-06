@@ -1,0 +1,272 @@
+{
+  "_generated_by": "test_range_gate.py",
+  "lab_factor": 1.33,
+  "issue_bar_pct": 25.0,
+  "groups": {
+    "inside": {
+      "n": 19,
+      "median_ape": 18.8,
+      "within_bar": 11,
+      "max_margin": 1.0
+    },
+    "marginal": {
+      "n": 6,
+      "median_ape": 17.4,
+      "within_bar": 3,
+      "max_margin": 1.33
+    },
+    "clear": {
+      "n": 2,
+      "median_ape": 18.4,
+      "within_bar": 1,
+      "max_margin": 1.55
+    }
+  },
+  "mannwhitney_p_marginal_vs_inside": 0.514,
+  "mannwhitney_p_outside_vs_inside": 0.449,
+  "per_compound": [
+    {
+      "compound": "YNiSb",
+      "family": "Ni-Sb",
+      "kappa_pred_300": 4.14,
+      "mates_lo": 2.73,
+      "mates_hi": 14.5,
+      "margin": 1.0,
+      "heldout_ape": 5.6
+    },
+    {
+      "compound": "HoNiSb",
+      "family": "Ni-Sb",
+      "kappa_pred_300": 3.55,
+      "mates_lo": 2.27,
+      "mates_hi": 14.5,
+      "margin": 1.0,
+      "heldout_ape": 10.5
+    },
+    {
+      "compound": "TbSbPt",
+      "family": "Sb-Pt",
+      "kappa_pred_300": 3.14,
+      "mates_lo": 2.11,
+      "mates_hi": 3.8,
+      "margin": 1.0,
+      "heldout_ape": 8.3
+    },
+    {
+      "compound": "LuNiSb",
+      "family": "Ni-Sb",
+      "kappa_pred_300": 4.7,
+      "mates_lo": 2.27,
+      "mates_hi": 14.5,
+      "margin": 1.0,
+      "heldout_ape": 8.0
+    },
+    {
+      "compound": "ScNiSb",
+      "family": "Ni-Sb",
+      "kappa_pred_300": 7.26,
+      "mates_lo": 2.27,
+      "mates_hi": 14.5,
+      "margin": 1.0,
+      "heldout_ape": 18.0
+    },
+    {
+      "compound": "NbFeSb",
+      "family": "Fe-Sb",
+      "kappa_pred_300": 9.82,
+      "mates_lo": 8.19,
+      "mates_hi": 13.5,
+      "margin": 1.0,
+      "heldout_ape": 17.3
+    },
+    {
+      "compound": "DyNiSb",
+      "family": "Ni-Sb",
+      "kappa_pred_300": 4.21,
+      "mates_lo": 2.27,
+      "mates_hi": 14.5,
+      "margin": 1.0,
+      "heldout_ape": 16.4
+    },
+    {
+      "compound": "ZrCoSb",
+      "family": "Co-Sb",
+      "kappa_pred_300": 9.41,
+      "mates_lo": 3.01,
+      "mates_hi": 13.03,
+      "margin": 1.0,
+      "heldout_ape": 13.4
+    },
+    {
+      "compound": "ErNiSb",
+      "family": "Ni-Sb",
+      "kappa_pred_300": 5.07,
+      "mates_lo": 2.27,
+      "mates_hi": 14.5,
+      "margin": 1.0,
+      "heldout_ape": 18.4
+    },
+    {
+      "compound": "TmNiSb",
+      "family": "Ni-Sb",
+      "kappa_pred_300": 4.54,
+      "mates_lo": 2.27,
+      "mates_hi": 14.5,
+      "margin": 1.0,
+      "heldout_ape": 18.8
+    },
+    {
+      "compound": "HfCoSb",
+      "family": "Co-Sb",
+      "kappa_pred_300": 8.08,
+      "mates_lo": 3.01,
+      "mates_hi": 15.37,
+      "margin": 1.0,
+      "heldout_ape": 24.9
+    },
+    {
+      "compound": "TaCoSn",
+      "family": "Co-Sn",
+      "kappa_pred_300": 8.03,
+      "mates_lo": 3.55,
+      "mates_hi": 12.8,
+      "margin": 1.0,
+      "heldout_ape": 59.6
+    },
+    {
+      "compound": "TiCoSb",
+      "family": "Co-Sb",
+      "kappa_pred_300": 11.66,
+      "mates_lo": 3.01,
+      "mates_hi": 15.37,
+      "margin": 1.0,
+      "heldout_ape": 36.2
+    },
+    {
+      "compound": "ZrNiSn",
+      "family": "Ni-Sn",
+      "kappa_pred_300": 4.45,
+      "mates_lo": 3.0,
+      "mates_hi": 7.49,
+      "margin": 1.0,
+      "heldout_ape": 33.3
+    },
+    {
+      "compound": "TaFeSb",
+      "family": "Fe-Sb",
+      "kappa_pred_300": 8.98,
+      "mates_lo": 8.19,
+      "mates_hi": 17.1,
+      "margin": 1.0,
+      "heldout_ape": 30.4
+    },
+    {
+      "compound": "TiNiSn",
+      "family": "Ni-Sn",
+      "kappa_pred_300": 4.61,
+      "mates_lo": 3.0,
+      "mates_hi": 7.49,
+      "margin": 1.0,
+      "heldout_ape": 27.9
+    },
+    {
+      "compound": "HfNiSn",
+      "family": "Ni-Sn",
+      "kappa_pred_300": 5.27,
+      "mates_lo": 3.0,
+      "mates_hi": 6.36,
+      "margin": 1.0,
+      "heldout_ape": 63.8
+    },
+    {
+      "compound": "NbCoSn",
+      "family": "Co-Sn",
+      "kappa_pred_300": 4.54,
+      "mates_lo": 3.55,
+      "mates_hi": 12.8,
+      "margin": 1.0,
+      "heldout_ape": 40.9
+    },
+    {
+      "compound": "HoSbPd",
+      "family": "Sb-Pd",
+      "kappa_pred_300": 2.27,
+      "mates_lo": 2.22,
+      "mates_hi": 3.6,
+      "margin": 1.0,
+      "heldout_ape": 61.5
+    },
+    {
+      "compound": "DySbPt",
+      "family": "Sb-Pt",
+      "kappa_pred_300": 3.86,
+      "mates_lo": 2.11,
+      "mates_hi": 3.8,
+      "margin": 1.015,
+      "heldout_ape": 6.5
+    },
+    {
+      "compound": "LuSbPt",
+      "family": "Sb-Pt",
+      "kappa_pred_300": 3.92,
+      "mates_lo": 2.11,
+      "mates_hi": 3.8,
+      "margin": 1.031,
+      "heldout_ape": 3.1
+    },
+    {
+      "compound": "ScSbPd",
+      "family": "Sb-Pd",
+      "kappa_pred_300": 2.66,
+      "mates_lo": 1.98,
+      "mates_hi": 2.48,
+      "margin": 1.071,
+      "heldout_ape": 27.2
+    },
+    {
+      "compound": "YSbPt",
+      "family": "Sb-Pt",
+      "kappa_pred_300": 2.55,
+      "mates_lo": 2.9,
+      "mates_hi": 3.8,
+      "margin": 1.139,
+      "heldout_ape": 34.1
+    },
+    {
+      "compound": "ErSbPd",
+      "family": "Sb-Pd",
+      "kappa_pred_300": 4.2,
+      "mates_lo": 1.98,
+      "mates_hi": 3.6,
+      "margin": 1.168,
+      "heldout_ape": 108.2
+    },
+    {
+      "compound": "TiSnPt",
+      "family": "Sn-Pt",
+      "kappa_pred_300": 11.26,
+      "mates_lo": 14.94,
+      "mates_hi": 20.0,
+      "margin": 1.328,
+      "heldout_ape": 7.7
+    },
+    {
+      "compound": "ErBiPd",
+      "family": "Bi-Pd",
+      "kappa_pred_300": 4.8,
+      "mates_lo": 3.17,
+      "mates_hi": 3.53,
+      "margin": 1.358,
+      "heldout_ape": 25.3
+    },
+    {
+      "compound": "VFeSb",
+      "family": "Fe-Sb",
+      "kappa_pred_300": 8.71,
+      "mates_lo": 13.5,
+      "mates_hi": 17.1,
+      "margin": 1.549,
+      "heldout_ape": 11.4
+    }
+  ]
+}

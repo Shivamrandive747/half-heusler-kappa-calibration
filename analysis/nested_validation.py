@@ -26,6 +26,14 @@ TEST while both were predicted by the identical model -- leakage through the sha
 compounds contain only ~27 clusters, so the effective sample is much smaller than it looks, and the
 honest split respects that.
 
+WHERE THE CONSTANT IS FITTED (since 2026-10-05, paper/evidence/PREREG_shared_constant_on_calculations.md).
+The candidate (c, p) are no longer fitted on the design half's MODEL PREDICTIONS. Each candidate is
+fitted on the published calculation / measurement pairs (shared_constant.pairs()) with every pair of
+the TEST half's chemistry clusters removed; the published combination (capped power, per-compound)
+is exactly shared_constant.shared_cp_without_clusters(test clusters). The design half still SELECTS
+form, objective and threshold by scoring the model predictions under each candidate, and the choice
+is frozen and applied to the test half, so the winner's curse is still measured.
+
 WHAT IS SWEPT (the same space that was explored informally):
   forms      capped power law  min(c*(T/300)^p, 1)   -- the published choice
              uncapped power    c*(T/300)^p
@@ -34,6 +42,7 @@ WHAT IS SWEPT (the same space that was explored informally):
   threshold  minimum chemistry support in {0, 2, 3, 4, 6}
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import argparse
 import json
@@ -104,6 +113,29 @@ def fit(form: str, objective: str, d: pd.DataFrame) -> tuple[float, float]:
     return float(CS[i]), (0.0 if form == "flat" else float(PS[j]))
 
 
+_ALT_FITS: dict = {}
+
+
+def calc_fit(form: str, objective: str, test_clusters) -> tuple[float, float]:
+    """A candidate constant fitted on the CALCULATION pairs without the test half's clusters.
+
+    The published combination comes from the central module (identical grid and objective to the
+    deployed constant). The alternative forms/objectives -- candidates the design half may select,
+    not the shared constant itself -- are fitted by this module's own `fit` on the same pairs with the
+    same exclusion.
+    """
+    import shared_constant as SCN
+    if form == "capped_power" and objective == "per_compound":
+        return SCN.shared_cp_without_clusters(test_clusters)
+    labels = frozenset("?" if (x is None or (isinstance(x, float) and x != x)) else str(x)
+                       for x in test_clusters)
+    key = (form, objective, labels)
+    if key not in _ALT_FITS:
+        P = SCN.pairs()
+        _ALT_FITS[key] = fit(form, objective, P[~P.chem.isin(labels)])
+    return _ALT_FITS[key]
+
+
 def per_compound(d: pd.DataFrame, form: str, c: float, p: float) -> pd.DataFrame:
     k = d.k_pred.values * factor(form, c, p, d["T"].values.astype(float))
     t = d.assign(_k=k, _ape=100 * np.abs(k - d.k_ref.values) / d.k_ref.values,
@@ -155,10 +187,12 @@ def main(repeats: int = 200, seed: int = 0, klass: str = "all",
             continue
 
         # ---- explore on the DESIGN half only -----------------------------------
+        # each candidate's constant is fitted on the calculation pairs without the TEST half's
+        # clusters (prereg rule 4); the design half's model predictions only SELECT among them
         best = None
         for form in FORMS:
             for obj in OBJECTIVES:
-                c, p = fit(form, obj, des)
+                c, p = calc_fit(form, obj, tst_c)
                 gd = per_compound(des, form, c, p)
                 for th in THRESHOLDS:
                     s = gd[gd.sib >= th]

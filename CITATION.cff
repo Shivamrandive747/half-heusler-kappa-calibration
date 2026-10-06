@@ -10,8 +10,8 @@
 #     paper/manuscript.tex, then re-run: python check_tex_structure.py
 cff-version: 1.2.0
 title: >-
-  Calibrating first-principles lattice thermal conductivity to experiment:
-  a curated half-Heusler dataset and a validated transfer function
+  Predicting the experimental lattice thermal conductivity of half-Heusler compounds
+  by machine learning and transfer-function calibration
 message: If you use this dataset or code, please cite both the paper and this archive.
 type: dataset
 
@@ -48,8 +48,8 @@ abstract: >-
   calculations are tiered separately and never pooled, together with a
   two-parameter transfer function that maps a published Boltzmann-transport
   calculation onto the experimental scale. Published calculations exceed measured
-  values by a median factor of 1.55; within a declared domain of applicability the
-  correction places 86.8 per cent of held-out compounds within a factor of two of
+  values by a median factor of 1.69; within a declared domain of applicability the
+  correction places 87.2 per cent of held-out compounds within a factor of two of
   measurement under leave-one-chemistry-out validation.
 
 keywords:

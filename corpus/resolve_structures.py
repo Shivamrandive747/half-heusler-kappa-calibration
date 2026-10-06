@@ -61,6 +61,7 @@ lattice constants and agree to a median of 1.82%, 90% within 5%, 99% within 10%.
 ordinary exchange-correlation-functional scatter (PBE vs PBEsol vs LDA), not error.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import ast
 import json

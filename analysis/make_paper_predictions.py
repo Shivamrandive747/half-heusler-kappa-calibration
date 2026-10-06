@@ -13,9 +13,10 @@ model (33.8% vs 42.1% median error, chemistry held out):
 
     kappa_measured = kappa_BTE x min(c (T/300)^p, 1)
 
-(c, p) are refitted here from the current blind test every run. They are NOT constants: across one
-day's runs c moved 0.37 -> 0.49 -> 0.54 as the reference set changed by under 2%, so the value is
-written into every output row and must be quoted with its provenance.
+(c, p) come from shared_constant.shared_cp(): fitted every run on the published calculation /
+measurement pairs (PREREG_shared_constant_on_calculations.md; until 2026-10-05 they were refitted on
+the ML model's blind-test predictions). They move with the reference set, so the value is written
+into every output row and must be quoted with its provenance.
 
 ONE GLOBAL CALIBRATION, NOT PER-FAMILY. The (Y,Z) families demonstrably differ in their raw
 BTE/measured ratio (Sb-Pd 3.45, Ni-Sb 1.69, Sb-Pt 1.43 against a pooled 1.81), and an adversarial
@@ -49,8 +50,10 @@ quoted. That catches the same two compounds for a reason that survives inspectio
 ScSbPt as well, which the mass rule missed.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import glob
+import os
 import json
 import sys
 import warnings
@@ -62,12 +65,19 @@ import pandas as pd
 from pymatgen.core import Composition, Element
 
 import extend_blind_test as E
+from transfer_forms import apply_family
 from run_loco_chemistry import cluster_of, sites
 
 TRAIN = "data/Target_Materials/HEUSLER_KAPPA_TRAINING_SET.csv"
 OUT = "data/Target_Materials/PAPER_PREDICTIONS.csv"
 SP = "paper/evidence"
-EXCLUDE_FAMILY = {"Bi-Pd"}
+# A family excluded here is excluded on grounds OTHER than its calibration error -- that is judged
+# from family_calibration.json below. Bi-Pd was listed here from 2026-09-04 on the ML surrogate's
+# "0% within 2x", a route the paper does not deploy; on the deployed route it validates at 23.9%.
+EXCLUDE_FAMILY: set[str] = set()
+FAMILY_ISSUE_MAX = 25.0
+CALC_DISAGREE_MAX = 2.0   # = source_consensus.FACTOR: independent calculations further apart than this have no median   # a family whose own held-out (or in-sample, if anchored) error is above this may not issue
+_fc_path_early = "data/exports/kappa_v2/family_calibration.json"
 RADIO = {"U", "Ac", "Th", "Pa", "Np", "Pu", "Tc", "Pm", "Ra", "Po", "At", "Rn", "Fr"}
 FLUCT = {"Ce": "4f valence fluctuation / Kondo -- kappa often anomalous",
          "Sm": "Sm can be di- or trivalent, so the VEC=18 assumption is unsafe",
@@ -84,10 +94,64 @@ def red(f):
         return None
 
 
+def source_key(df: pd.DataFrame) -> pd.Series:
+    """One identity per calculation/measurement source: source_doi, else source_url, else source.
+
+    WHY NOT source_doi ALONE. 3,807 tier-1 rows (2,268 half Heusler, 47 compounds) come from the
+    "BTE master (PhononDB/Carrete/npj/SciRep)" harvest with NO source_doi; their provenance is the
+    NIMS MDR PhononDB dataset in source_url. pandas drops NaN keys in a groupby, so grouping on
+    source_doi silently removed every one of those calculations from the calculation-disagreement
+    check and from the independent-source counts (FIXPASS S8, 2026-10-05). Used by
+    family_calibration.resolve_calculations and by every source count here.
+    """
+    def col(c):
+        if c not in df.columns:
+            return pd.Series([np.nan] * len(df), index=df.index, dtype=object)
+        s = df[c].astype(object)
+        return s.where(s.notna() & (s.astype(str).str.strip() != ""), np.nan)
+    return (col("source_doi").fillna(col("source_url")).fillna(col("source"))
+            .fillna("unlabelled").astype(str))
+
+
 def yzfam(f):
     try:
         e = sorted(Composition(str(f)).elements, key=lambda x: (x.X if x.X else 99.0))
         return f"{e[1]}-{e[2]}" if len(e) == 3 else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def yzfam_split(f):
+    """The bonding family, further split by whether the X site carries a 4f shell.
+
+    Returns "Sb-Pd:4f" or "Sb-Pd:d". The X site is the most electropositive of the three, the same
+    rule used everywhere else in this pipeline.
+
+    WHAT THIS SEPARATES, measured rather than assumed. `is_lanthanoid` is True for La through Lu and
+    False for Sc and Y, so this divides the lanthanides from the two group-3 transition metals that
+    sit in the same column. It does NOT single out La: La(III) is 4f-empty chemically, but pymatgen
+    classes it as a lanthanoid by position. An earlier version of this work assumed the opposite and
+    built an argument about LaBiPd on it; the argument was wrong and has been withdrawn.
+
+    WHY IT IS NOT APPLIED ANYWHERE. Splitting a family removes members, and the error of a family
+    constant scales with 1/(number of members), so a split could only pay where the homogeneity it
+    gains beats the sample it costs. Measured on all three families where the partition can be
+    formed (test_4f_split.py), it never does: the deployed constant moves by at most 0.01 across the
+    two sub-families that can be scored (Ni-Sb 0.450 -> 0.440, Sb-Pt 0.590 -> 0.580), no issued
+    prediction moves by more than 2.2%, and held-out error worsens wherever it can be recomputed
+    (Ni-Sb 9.7 -> 11.4%, Sb-Pt 6.4 -> 16.6%). Sb-Pd's partition has two members and cannot be scored
+    at all; relaxing that rule makes it appear to reach 6.6%, which is one favourable pair out of a
+    distribution its own family spans 5.4-33.7% of.
+
+    This function is therefore retained only to produce that negative result.
+    family_calibration.SPLIT_FAMILIES is empty and stays empty.
+    """
+    base = yzfam(f)
+    if base is None:
+        return None
+    try:
+        x = sorted(Composition(str(f)).elements, key=lambda e: (e.X if e.X else 99.0))[0]
+        return f"{base}:{'4f' if Element(str(x)).is_lanthanoid else 'd'}"
     except Exception:  # noqa: BLE001
         return None
 
@@ -114,7 +178,28 @@ def _load_spacegroups() -> None:
     """
     if _SG:
         return
-    for path in glob.glob("data/external/*.csv"):
+    # TWO FURTHER EXCLUSIONS, each the same principle as the Alexandria skip (2026-09-30).
+    #
+    # 1 A row a database itself marks is_hypothetical is a structure someone computed, not a phase
+    #   anyone made. The Methods say a generated structure is not evidence that a phase forms, and
+    #   a hypothetical row is exactly that. VFeSb's only non-cubic record was a JARVIS row with
+    #   is_hypothetical = True and no ICSD id, and it alone flagged a known cubic half Heusler as
+    #   polymorphic and removed it from the validation set. Skipping such rows changes seven
+    #   compounds, each by the stated rule: VFeSb enters the domain; HfPtPb, LiZnP, TaCoSi and TiSiPd
+    #   lose a hypothetical non-cubic record; ZnNiSn and LaBiPt lose a hypothetical cubic one.
+    # 2 SPACEGROUPS_frozen.csv is this loader's own output, frozen for the public release, which
+    #   does not ship the raw harvest files. Reading it back while the raw files ARE present made the
+    #   table a fixpoint: a record removed at its source survived in the frozen copy. It is used only
+    #   when it is the sole structure file, which is the release case it exists for.
+    paths = sorted(glob.glob("data/external/*.csv"))
+    raw = [p_ for p_ in paths if "spacegroups_frozen" not in p_.lower()]
+    _read_spacegroups(raw)
+    if not _SG:
+        _read_spacegroups([p_ for p_ in paths if "spacegroups_frozen" in p_.lower()])
+
+
+def _read_spacegroups(paths) -> None:
+    for path in paths:
         if "alexandria" in path.lower():
             continue
         try:
@@ -129,8 +214,10 @@ def _load_spacegroups() -> None:
             continue
         sg = pd.to_numeric(d[sc], errors="coerce")
         src = d.get("structure_source", pd.Series([""] * len(d))).astype(str)
-        for f_, s_, o_ in zip(d[fc], sg, src):
-            if pd.isna(s_) or "alexandria" in o_.lower():
+        hyp = (d["is_hypothetical"].astype(str).str.strip().str.lower().isin(("true", "1"))
+               if "is_hypothetical" in d.columns else pd.Series(False, index=d.index))
+        for f_, s_, o_, h_ in zip(d[fc], sg, src, hyp):
+            if pd.isna(s_) or "alexandria" in o_.lower() or h_:
                 continue
             rr = red(f_)
             if rr:
@@ -157,7 +244,10 @@ def measured_family_range(tr: pd.DataFrame) -> dict:
     out = {}
     for fam, sub in m.groupby("fam"):
         per = sub.groupby("red").k.median()
-        if len(per) >= 3:
+        # Two measured members define a span as surely as three; requiring three let PrBiPd,
+        # YBiPd and NdBiPd issue below every measured Bi-Pd value while Sb-Pt candidates at the
+        # same margin were flagged. The member count travels with the span so a reader can weigh it.
+        if len(per) >= 2:
             out[fam] = (float(per.min()), float(per.max()), int(len(per)))
     return out
 
@@ -167,17 +257,36 @@ def main() -> int:
     assert not bad, f"VEC rule is broken -- known-good compounds not at 18: {bad}"
     print(f"VEC sanity check passed on {len(SANITY)} known-good compounds (all = 18)")
 
-    g = pd.read_csv(f"{SP}/PROVEN_all_scored.csv")
-    g["fam"] = g.compound.map(yzfam)
-    ok = g[~g.broken & g.ratio.between(0.5, 2.0)]
-    nok = ok.groupby("fam").compound.size()
-    allf = g[~g.broken].groupby("fam").agg(err=("ape_med", "median"), bias=("ratio", "median"),
-                                           n_all=("compound", "size"))
-    PF = {f: (int(nok[f]), float(allf.err[f]), float(allf.bias[f]))
-          for f in nok.index
-          if nok[f] >= 2 and f not in EXCLUDE_FAMILY and f in allf.index}
+    # WHICH FAMILIES MAY ISSUE -- read from the deployed route's own record, not the surrogate's.
+    #
+    # Until 2026-09-19 this read PROVEN_all_scored.csv, the ML-surrogate blind test, and excluded
+    # any family the SURROGATE scored badly (Bi-Pd: "0% within 2x"). But the manuscript states the
+    # surrogate is a fallback and the deployed route calibrates PUBLISHED calculations; on that
+    # route Bi-Pd is validated leave-one-out at 23.9%. Nine Bi-Pd candidates were being refused on a
+    # number from a model the paper does not deploy. The gate now reads family_calibration.json:
+    #   validated  n >= 2, held-out error < FAMILY_ISSUE_MAX  -> may issue
+    #   anchored   n = 1, in-sample error < FAMILY_ISSUE_MAX  -> may issue, labelled as anchored
+    #   fails      otherwise                                   -> FLAGGED, with the family's figure
+    # EXCLUDE_FAMILY is retained only for a family excluded on grounds OTHER than its error.
+    _fcj = json.load(open(_fc_path_early))["families"] if os.path.exists(_fc_path_early) else {}
+    PF = {}
+    for f, r in _fcj.items():
+        if not r.get("adopted"):
+            continue
+        loo = r.get("loo_family_ape")
+        err = loo if loo is not None else r.get("insample_ape")
+        if err is None or f in EXCLUDE_FAMILY:
+            continue
+        basis = ("validated" if loo is not None else "anchored") if float(err) < FAMILY_ISSUE_MAX else "fails"
+        PF[f] = (int(r["n_members"]), float(err), 1.0, basis, r.get("c_members_spread"))
 
-    tr = pd.read_csv(TRAIN, low_memory=False)
+    # A PREPRINT AND ITS JOURNAL VERSION ARE ONE SOURCE. Without dedupe() the prediction table
+    # counted Miyazaki 2021 and arxiv:2010.12467v1 as two independent calculations agreeing to
+    # the last decimal, and eleven of thirteen issued values read "n_src = 2" on that basis. The
+    # caption already promised "a preprint and its journal version counting as one"; the code
+    # did not do it. Applied here, at load, so every downstream count is canonical.
+    import source_identity as _SI
+    tr = _SI.dedupe(pd.read_csv(TRAIN, low_memory=False))
     tr["red"] = tr.formula.map(red)
     tr["tier"] = pd.to_numeric(tr.method_tier, errors="coerce")
     tr["k"] = pd.to_numeric(tr.kappa_L, errors="coerce")
@@ -192,22 +301,16 @@ def main() -> int:
                                "reduced model|bte-approx", regex=True)
     dft = dft[~_not_bte]
 
-    # THE CALIBRATION MUST BE FITTED ON THE DOMAIN IT IS APPLIED TO.
-    #
-    # This previously fitted on every half Heusler in the blind test, including the thirteen that
-    # fail the very screens applied below. The result was a prediction file carrying c=0.500,
-    # p=0.950 while the manuscript's Methods and Results reported c=0.51, p=0.80 -- two different
-    # calibrations for one method, which is the defect that got three earlier headline numbers
-    # withdrawn. Every issued prediction now uses the same constants the paper reports.
-    D = pd.read_csv("data/exports/kappa_v2/target_blind_test.csv")
-    Dh = D[D.klass == "half"].copy()
-    Dh["_vec"] = Dh.compound.map(vec)
-    _sd = {x: structure_status(str(x)) for x in Dh.compound.unique()}
-    Dh["_ind"] = (Dh._vec == 18) & Dh.compound.map(lambda x: _sd[x][0] and not _sd[x][1])
-    dom = Dh[Dh._ind]
-    print(f"calibration fitted on the {dom.compound.nunique()} in-domain compounds "
-          f"(of {Dh.compound.nunique()} half Heuslers in the blind test)")
-    c, p = E.fit_cp(dom)
+    # THE SHARED CONSTANT IS FITTED ON PUBLISHED CALCULATIONS VS MEASUREMENTS (since 2026-10-05,
+    # paper/evidence/PREREG_shared_constant_on_calculations.md). It used to be fitted here on the ML
+    # model's blind-test predictions for the in-domain compounds, where the exponent moved with the
+    # model's seed (p = 0.75-1.25). One module supplies it everywhere; every issued prediction uses
+    # the constant the paper reports. (History: before the domain fix this fitted on every half
+    # Heusler of the blind test and carried c=0.500, p=0.950 against the paper's c=0.51, p=0.80.)
+    import shared_constant as SCN
+    c, p = SCN.shared_cp()
+    print(f"shared constant from shared_constant.shared_cp(): "
+          f"{SCN.pairs().compound.nunique()} compounds, {len(SCN.pairs())} calculation/measurement rows")
     # CONFORMAL BANDS MUST COME FROM THE POPULATION THEY DESCRIBE.
     #
     # These previously read interval_validation.json's "half, support>=3" set: 46 compounds
@@ -216,17 +319,73 @@ def main() -> int:
     # The 90% band that produced was 3.21x where the in-domain validation supports 2.24x, so every
     # issued interval was about 43% wider than the evidence warrants. A band that is too wide is
     # not "conservative"; it is a coverage claim the method does not make.
-    cf = json.load(open("data/exports/kappa_v2/conformal_indomain.json"))["levels"]
+    # THE BAND DESCRIBES THE ERROR AT THE QUOTED TEMPERATURE (PREREG amendment B, 2026-10-05):
+    # "levels" holds the residual at the bin nearest 300 K, "levels_500K" (when present) the residual
+    # nearest 500 K, each the median over the five model seeds. A value quoted at 500 K takes the
+    # 500 K band; every other value the 300 K band.
+    _cfj = json.load(open("data/exports/kappa_v2/conformal_indomain.json"))
+    cf = _cfj["levels"]
     b50 = cf["0.50"]["factor"]
     b90 = cf["0.90"]["factor"]
-    print(f"calibration refitted now: kappa_meas = kappa_BTE x min({c:.3f}(T/300)^{p:+.3f}, 1)")
-    print(f"bands (multiply/divide): {b50:.2f} at 50%, {b90:.2f} at 90%")
+    _cf5 = _cfj.get("levels_500K")
+    b50_500 = _cf5["0.50"]["factor"] if _cf5 else b50
+    b90_500 = _cf5["0.90"]["factor"] if _cf5 else b90
+    print(f"shared calibration: kappa_meas = kappa_BTE x min({c:.3f}(T/300)^{p:+.3f}, 1)")
+    print(f"bands (multiply/divide): {b50:.2f} at 50%, {b90:.2f} at 90% (300 K); "
+          f"{b50_500:.2f} / {b90_500:.2f} for values quoted at 500 K"
+          + ("" if _cf5 else " (no 500 K band on file: the 300 K band is used)"))
+    import family_calibration as _FC   # bte_at; imported here, not at module level (circular)
+
+    # PER-FAMILY CALIBRATION, for families whose measured members agree with each other.
+    #
+    # The global (c, p) above is the shared constant (published calculations vs measurements).
+    # family_calibration.py additionally fits a constant -- or a constant and an exponent where the
+    # family has four members and real temperature coverage -- for families whose BTE/measured
+    # ratios span less than 1.4x, validated leave-one-COMPOUND-out inside the family. That protocol
+    # matters: the earlier rejection of per-family calibration held out the whole CHEMISTRY, which
+    # removes the family itself and therefore answers a different question. A family with fewer
+    # than three measured members has nothing to fit and keeps the global pair, which is every
+    # family the conditional predictions sit in.
+    FAMCAL = {}
+    _fc_path = "data/exports/kappa_v2/family_calibration.json"
+    if os.path.exists(_fc_path):
+        _fc = json.load(open(_fc_path))
+        # form, parameters AND validity range -- not just (c, p). Two reasons the shape of this
+        # dict matters. A family may carry a form that is NOT a rescaling (MATTHIESSEN is
+        # 1/k = 1/(f k) + 1/K0), so applying it as c*(T/300)^p would silently produce a wrong
+        # number with nothing raising an error. And a family's arm is fitted over the temperatures
+        # its own members were measured at; outside that window it has no evidence and the global
+        # arm is used instead.
+        FAMCAL = {f: dict(form=r["form"], params=r.get("params", [r["c"], r["p"]]),
+                          t_lo=r.get("valid_t_lo"), t_hi=r.get("valid_t_hi"),
+                          c=r["c"], p=r["p"])
+                  for f, r in _fc["families"].items() if r.get("adopted")}
+        if abs(_fc["global"]["c"] - c) > 1e-9 or abs(_fc["global"]["p"] - p) > 1e-9:
+            raise SystemExit(
+                f"family_calibration.json was built against a global arm of "
+                f"c={_fc['global']['c']}, p={_fc['global']['p']} but this run fitted "
+                f"c={c:.3f}, p={p:.3f}. Re-run family_calibration.py before continuing -- a family "
+                f"arm compared against a stale global arm is not a valid comparison.")
+        print("family calibrations adopted: " + (", ".join(
+            f"{f} ({v['form']}, {v['params']}, valid {v['t_lo']}-{v['t_hi']} K)"
+            for f, v in sorted(FAMCAL.items())) or "none"))
+    else:
+        print("no family_calibration.json -- every compound uses the global calibration")
     FR = measured_family_range(tr)
+    # the range gate's own test; without it a marginal extrapolation is withheld as before
+    RG = (json.load(open("paper/evidence/range_gate_test.json"))
+          if os.path.exists("paper/evidence/range_gate_test.json") else None)
     print("measured room-temperature span per family (the extrapolation reference):")
     for f_, (lo_, hi_, n_) in sorted(FR.items()):
         print(f"    {f_:<9}{lo_:>6.1f} - {hi_:<6.1f} W/m/K   from {n_} measured compounds")
     print()
 
+    # every full calculation, measured compounds included, for the family-consistency pick above
+    BTE_ALL = tr[(tr.tier == 1) & tr.k.notna() & (tr.k > 0) & tr["T"].between(200, 1300)
+                 & ~tr.method.astype(str).str.lower().str.contains(
+                     "not bte|semi-empirical|slack|debye-callaway|reduced-model|reduced model|"
+                     "bte-approx", regex=True)].copy()
+    BTE_ALL["fam"] = BTE_ALL.red.map(yzfam)
     rows = []
     for r_, sub in dft.groupby("red"):
         fam = yzfam(r_)
@@ -235,6 +394,45 @@ def main() -> int:
         has_cubic, also_hex, sgs = structure_status(r_)
         rad = [e for e in els if e in RADIO]
         fl = [e for e in els if e in FLUCT]
+        # CALCULATIONS THAT DISAGREE CANNOT BE CALIBRATED. Independent published calculations of the
+        # same compound normally agree to ~1.4x (median across the corpus); TiNiPb's two say 19.5
+        # and 109 W/m/K. A median of two such numbers is not a value, and a constant applied to it
+        # is not a prediction. The rating script refused this case ("D -- DFT inputs disagree") but
+        # this script, the one that writes the paper's table, did not -- so TiNiPb was issued at
+        # 44.7 W/m/K the moment its family earned a constant. Same factor as source_consensus.
+        _s3 = sub[sub["T"].between(280, 320)]
+        # grouped on source_key, not source_doi: PhononDB calculations carry no DOI and a NaN key
+        # is dropped by groupby, which hid them from this check (FIXPASS S8)
+        _byd = _s3.groupby(source_key(_s3)).k.median() if len(_s3) else pd.Series(dtype=float)
+        calc_spread = float(_byd.max() / _byd.min()) if len(_byd) >= 2 and _byd.min() > 0 else 1.0
+        # CALCULATIONS THAT DISAGREE: THE SAME RULE AS FOR MEASURED COMPOUNDS (author, 2026-10-02).
+        # family_calibration.resolve_calculations drops a contested temperature and keeps the
+        # compound's uncontested ones; only when EVERY calculated temperature is contested does it
+        # keep the one value closest to the family-mates' calculations. A candidate used to be
+        # refused outright instead. TiNiPb is the case: 109.0 and 19.5 W/m/K at 300 K, but an
+        # uncontested 13.9 at 500 K -- so it is quoted at 500 K, and 109.0 is never used.
+        calc_note = ""
+        if calc_spread > CALC_DISAGREE_MAX:
+            _vals = ", ".join(f"{x:.1f}" for x in sorted(_byd))
+            _rest = sub[~sub["T"].between(280, 320)]
+            if len(_rest):
+                sub = _rest
+                calc_note = (f"CALCULATIONS DISAGREE {calc_spread:.1f}x at 300 K ({_vals} W/m/K); "
+                             "that temperature is not used, as for measured compounds, and the "
+                             "prediction is quoted from the remaining calculation")
+            else:
+                _mates = BTE_ALL[(BTE_ALL.fam == fam) & (BTE_ALL.red != r_)
+                                 & BTE_ALL["T"].between(280, 320)].groupby("red").k.median()
+                _basis = f"{fam} family-mates"
+                if not len(_mates):
+                    _mates = BTE_ALL[BTE_ALL["T"].between(280, 320)].groupby("red").k.median()
+                    _basis = "all calculated half Heuslers"
+                _tgt = float(_mates.median())
+                _keep = min(_byd.index, key=lambda s_: abs(np.log(_byd[s_] / _tgt)))
+                sub = sub[(source_key(sub) == _keep) | ~sub["T"].between(280, 320)]
+                calc_note = (f"CALCULATIONS DISAGREE {calc_spread:.1f}x at 300 K ({_vals} W/m/K); "
+                             f"kept {_byd[_keep]:.1f}, the value closest to the median calculation "
+                             f"of its {_basis} ({_tgt:.1f}), as for measured compounds")
         if rad:
             st, why = "REFUSED", f"radioactive/actinide ({','.join(rad)})"
         elif v != 18:
@@ -249,26 +447,105 @@ def main() -> int:
                                   "is the one synthesised")
         elif fl:
             st, why = "FLAGGED", FLUCT[fl[0]]
+        elif PF[fam][3] == "fails":
+            st, why = "FLAGGED", (f"FAMILY CALIBRATION FAILS -- {fam}'s own members are predicted to "
+                                  f"{PF[fam][1]:.1f}% held out (constants span {PF[fam][4]}x); a "
+                                  "prediction from this constant carries that disagreement")
         else:
-            st, why = "ISSUED", ""
+            st, why = "ISSUED", ("" if PF[fam][3] == "validated" else
+                                 f"ANCHORED -- {fam} has one measured member; the constant is that "
+                                 f"compound's own (in-sample {PF[fam][1]:.1f}%), not held out")
+        if calc_note:
+            why = f"{why} | {calc_note}" if why else calc_note
         rec = dict(compound=r_, family=fam, VEC=v, status=st, note=why,
                    spacegroups=str(sgs), x_site=(cluster_of(r_) or "?").replace("half:X=", ""),
                    fam_verified=PF[fam][0], fam_err_pct=round(PF[fam][1], 1),
+                   calibration_basis=PF[fam][3], family_c_spread=PF[fam][4],
+                   calc_spread_300K=round(calc_spread, 2),
                    n_bte_rows=len(sub), n_bte_temps=int(sub["T"].nunique()),
-                   c_used=round(c, 3), p_used=round(p, 3))
+                   n_src_300K=int(source_key(_s3).nunique()) if len(_s3) else 0)
+        # the calibration this compound actually receives
+        _fc_e = FAMCAL.get(fam)
+        c_f = _fc_e["c"] if _fc_e else c
+        p_f = _fc_e["p"] if _fc_e else p
+        rec.update(c_used=round(float(c_f), 3), p_used=round(float(p_f), 3),
+                   calibration_form=(_fc_e["form"] if _fc_e else "GLOBAL"),
+                   calibration_source=(fam if _fc_e else "global"))
+        # THE CALCULATION AT T IS CARRIED THERE THE WAY THE PUBLISHED ROUTE CARRIES IT (FIXPASS S7).
+        # This took the nearest calculated ROW within a flat 150 K and used its value AS IF it were at
+        # T -- so the 600 K values of HfNiPb, TiNiPb, HfCoBi and TiCoBi were their 500 K calculations,
+        # and with several sources at one temperature the row that happened to sort first won. Now:
+        # the median calculation per temperature (as family_calibration.resolve_calculations takes it),
+        # then family_calibration.bte_at -- log-log interpolation between calculated temperatures,
+        # else the 1/T Umklapp carry, capped at 2.5x. The 150 K availability gate is KEPT, so which
+        # columns are filled (and so which compounds are quoted at 500 K) is unchanged; only the value
+        # carried to T changes.
+        _bagg = sub.groupby(sub["T"].round(-1)).k.median().sort_index()
         for T in (300, 600, 900):
-            near = sub.iloc[(sub["T"] - T).abs().values.argsort()[:1]]
-            if not len(near) or abs(float(near["T"].iloc[0]) - T) > 150:
+            near_T = (float(_bagg.index.values[np.abs(_bagg.index.values - T).argmin()])
+                      if len(_bagg) else np.nan)
+            kd = (_FC.bte_at(_bagg, float(T))
+                  if np.isfinite(near_T) and abs(near_T - T) <= 150 else None)
+            if kd is None:
                 rec[f"kappa_BTE_{T}"] = np.nan
                 rec[f"kappa_pred_{T}"] = np.nan
                 continue
-            kd = float(near.k.iloc[0])
             rec[f"kappa_BTE_{T}"] = round(kd, 2)
-            rec[f"kappa_pred_{T}"] = round(kd * min(c * (T / 300.0) ** p, 1.0), 2)
+            # APPLY THE FAMILY'S OWN FORM, and only inside the window it was fitted over.
+            # Outside that window the family has no evidence, so the global arm is used and the row
+            # records it -- a family calibrated on 200-400 K data must not silently correct a 900 K
+            # prediction. apply_family is the single place a form becomes a number, so a
+            # non-rescaling form cannot be mis-applied here.
+            if _fc_e and (_fc_e["t_lo"] is None
+                          or _fc_e["t_lo"] - 50 <= T <= _fc_e["t_hi"] + 50):
+                kp = float(apply_family(_fc_e["form"], _fc_e["params"],
+                                           np.array([float(T)]), np.array([kd]))[0])
+                rec.setdefault("calibration_note", "")
+            else:
+                kp = kd * min(c * (T / 300.0) ** p, 1.0)
+                if _fc_e:
+                    rec["calibration_note"] = (
+                        f"{T} K is outside the {_fc_e['t_lo']}-{_fc_e['t_hi']} K window "
+                        f"{fam} was fitted over; the global arm was used there")
+            rec[f"kappa_pred_{T}"] = round(kp, 2)
+        # QUOTE AT THE TEMPERATURE THE CALCULATION EXISTS AT. TiCoBi and HfNiPb have one full
+        # calculation each, at 500 K, and nothing within 150 K of 300 K, so they were dropped from
+        # this table and sat in the conditional tier although their families clear exactly the
+        # anchored rule HfCoBi is issued on. The transfer function is defined at every temperature
+        # inside the family's fitted window, so such a compound is quoted at its own temperature,
+        # with `quoted_at_K` recording it and its 300 K columns left empty -- the convention
+        # compute_conditional.py already uses, so nothing downstream can mistake 500 K for 300 K.
         if np.isfinite(rec.get("kappa_pred_300", np.nan)):
-            k3 = rec["kappa_pred_300"]
-            rec.update(lo50=round(k3 / b50, 2), hi50=round(k3 * b50, 2),
-                       lo90=round(k3 / b90, 2), hi90=round(k3 * b90, 2))
+            rec.update(quoted_at_K=300, kappa_BTE_quoted=rec["kappa_BTE_300"],
+                       kappa_pred_quoted=rec["kappa_pred_300"])
+        elif _fc_e and _fc_e["t_lo"] is not None:
+            # the median calculation at the calculated temperature nearest 300 K inside the window
+            inwin = _bagg[(_bagg.index >= _fc_e["t_lo"]) & (_bagg.index <= _fc_e["t_hi"])]
+            if len(inwin):
+                Tq = float(inwin.index.values[np.abs(inwin.index.values - 300).argmin()])
+                kd = float(inwin.loc[Tq])
+                rec.update(quoted_at_K=int(round(Tq)), kappa_BTE_quoted=round(kd, 2),
+                           kappa_pred_quoted=round(float(apply_family(
+                               _fc_e["form"], _fc_e["params"], np.array([Tq]),
+                               np.array([kd]))[0]), 2))
+        if np.isfinite(rec.get("kappa_pred_quoted", np.nan)):
+            k3 = rec["kappa_pred_quoted"]
+            _q500 = abs(rec["quoted_at_K"] - 500) < abs(rec["quoted_at_K"] - 300)
+            _b50, _b90 = (b50_500, b90_500) if _q500 else (b50, b90)
+            rec.update(lo50=round(k3 / _b50, 2), hi50=round(k3 * _b50, 2),
+                       lo90=round(k3 / _b90, 2), hi90=round(k3 * _b90, 2),
+                       band_at_K=(500 if (_q500 and _cf5) else 300))
+            # THE FAMILY'S OWN DISAGREEMENT IS PART OF THE INTERVAL. The conformal band above is the
+            # population's residual spread; it does not know that Sb-Pd's three measured members
+            # want constants of 0.26, 0.33 and 0.75 (each on its own paper). A prediction from the
+            # family constant can be wrong by that whole factor, so the range the members
+            # themselves span is carried beside it. Where the family is tight (Sb-Pt 1.03x) it is
+            # narrower than the conformal band; where it is not (Sb-Pd 2.88x) it is the honest one.
+            fr = _fc.get("families", {}).get(fam, {}) if _fc else {}
+            if fr.get("c_members_min") is not None and fr.get("c") not in (None, 0):
+                rec["kappa_family_lo"] = round(k3 * fr["c_members_min"] / fr["c"], 2)
+                rec["kappa_family_hi"] = round(k3 * fr["c_members_max"] / fr["c"], 2)
+                rec["family_c_spread"] = fr.get("c_members_spread")
         if rec["n_bte_temps"] <= 2:
             rec["T_dependence"] = (f"SINGLE POINT -- {rec['n_bte_temps']} BTE temperature(s); the "
                                    "600/900 K values carry the global exponent, not any "
@@ -299,14 +576,26 @@ def main() -> int:
                         if margin < 1.33 else
                         "; the family has never been observed there"))
             rec["extrapolation_margin"] = round(float(margin), 2)
-            if rec["status"] == "ISSUED":
+            # A MARGINAL EXTRAPOLATION IS ISSUED (author's decision, 2026-10-01), on evidence the
+            # gate never had: held out, measured compounds that fell just outside their family-
+            # mates' span were predicted as well as those inside (test_range_gate.py). A clear
+            # extrapolation is still withheld -- the test holds only two such compounds and none as
+            # far out as LaSbPt or the Bi-Pd six.
+            if rec["status"] == "ISSUED" and margin < 1.33 and RG:
+                g = RG["groups"]["marginal"]
+                rec["note"] = ((rec["note"] + " | ") if rec["note"] else "") + (
+                    f"{extra}. Issued: held out, the {g['n']} measured compounds that fell this "
+                    f"close outside their family's span were predicted to a median "
+                    f"{g['median_ape']}%, {g['within_bar']} of {g['n']} under "
+                    f"{RG['issue_bar_pct']:.0f}% (test_range_gate.py)")
+            elif rec["status"] == "ISSUED":
                 rec["status"], rec["note"] = "FLAGGED", extra
             else:
                 rec["note"] = f"{rec['note']} | {extra}"
         rows.append(rec)
 
     R = pd.DataFrame(rows)
-    R = R[R.kappa_pred_300.notna()].sort_values(["status", "fam_err_pct", "compound"])
+    R = R[R.kappa_pred_quoted.notna()].sort_values(["status", "fam_err_pct", "compound"])
     R.to_csv(OUT, index=False)
 
     for st in ("ISSUED", "FLAGGED", "REFUSED"):

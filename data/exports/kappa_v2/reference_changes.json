@@ -1,0 +1,368 @@
+{
+  "generated": "2026-10-05T03:54:57+00:00",
+  "rule": "nanostructured_sources() demotion: milling_time_h >= 10.0 or grain_size_um < 1.0 or 'nano' in synthesis",
+  "n_compounds": 34,
+  "moved": [
+    {
+      "compound": "HfNiSn",
+      "before_doi": "10.1557/jmr.2012.171",
+      "before_rule": "central of 7 labs",
+      "after_doi": "10.1016/j.actamat.2015.11.022",
+      "after_rule": "central of 7 labs; nanostructured source demoted",
+      "before_was_nanostructured": true,
+      "ape_before": 72.9,
+      "ape_after": 118.5,
+      "ape_deployed_before": 29.7,
+      "ape_deployed_after": 63.8,
+      "demoted_specimen": {},
+      "demotion_signal": "title: 'refined grain' (no sample record)",
+      "new_over_old_ratio_300K": null
+    }
+  ],
+  "annotated": [
+    {
+      "compound": "NbCoSn",
+      "doi": "10.3390/ma18133189",
+      "before_rule": "central of 10 labs",
+      "after_rule": "central of 10 labs; nanostructured source demoted"
+    },
+    {
+      "compound": "TaCoSn",
+      "doi": "10.1021/acsami.9b13603",
+      "before_rule": "sole source",
+      "after_rule": "sole source (nanostructured)"
+    },
+    {
+      "compound": "TaFeSb",
+      "doi": "10.1016/j.intermet.2019.04.011",
+      "before_rule": "density 99.1%",
+      "after_rule": "density 99.1%; nanostructured source demoted"
+    },
+    {
+      "compound": "TiCoSb",
+      "doi": "10.1007/s11664-011-1517-0",
+      "before_rule": "central of 23 labs",
+      "after_rule": "central of 23 labs; nanostructured source demoted"
+    },
+    {
+      "compound": "TiNiSn",
+      "doi": "10.1016/j.stam.2004.02.006",
+      "before_rule": "central of 28 labs",
+      "after_rule": "central of 28 labs; nanostructured source demoted"
+    },
+    {
+      "compound": "ZrCoBi",
+      "doi": "10.3390/ma11050728",
+      "before_rule": "density 98.1%",
+      "after_rule": "density 98.1%; nanostructured source demoted"
+    },
+    {
+      "compound": "ZrCoSb",
+      "doi": "10.1143/jjap.46.l673",
+      "before_rule": "central of 13 labs",
+      "after_rule": "central of 13 labs; nanostructured source demoted"
+    },
+    {
+      "compound": "ZrNiPb",
+      "doi": "10.1021/acs.chemmater.6b04898",
+      "before_rule": "sole source",
+      "after_rule": "sole source (nanostructured)"
+    },
+    {
+      "compound": "ZrNiSn",
+      "doi": "10.1038/s41598-017-14013-8",
+      "before_rule": "central of 38 labs",
+      "after_rule": "central of 38 labs; nanostructured source demoted"
+    }
+  ],
+  "moved_since_2026_09_18_snapshot": [
+    {
+      "compound": "HfNiSn",
+      "before_doi": "10.1007/s11664-009-1032-8",
+      "before_rule": "central of 8 labs",
+      "after_doi": "10.1016/j.actamat.2015.11.022",
+      "after_rule": "central of 7 labs; nanostructured source demoted",
+      "ape_global_after": 118.5,
+      "ape_deployed_after": 63.8
+    },
+    {
+      "compound": "HfSnPt",
+      "before_doi": "10.1063/1.2364721",
+      "before_rule": "closest to consensus",
+      "after_doi": "10.1109/ict.2006.331294",
+      "after_rule": "family paper (3 Sn-Pt members)",
+      "ape_global_after": 31.6,
+      "ape_deployed_after": 41.1
+    },
+    {
+      "compound": "NbFeSb",
+      "before_doi": "10.1016/j.actamat.2020.07.028",
+      "before_rule": "central of 7 labs",
+      "after_doi": "10.1039/c7tc01570d",
+      "after_rule": "central of 6 labs",
+      "ape_global_after": 28.7,
+      "ape_deployed_after": 17.3
+    },
+    {
+      "compound": "ScNiSb",
+      "before_doi": "10.1103/physrevapplied.14.054046",
+      "before_rule": "central of 4 labs",
+      "after_doi": "10.3390/ma12101723",
+      "after_rule": "central of 4 labs",
+      "ape_global_after": 18.0,
+      "ape_deployed_after": 18.0
+    },
+    {
+      "compound": "TaFeSb",
+      "before_doi": "10.1038/s41467-018-08223-5",
+      "before_rule": "methodology on record",
+      "after_doi": "10.1016/j.intermet.2019.04.011",
+      "after_rule": "density 99.1%; nanostructured source demoted",
+      "ape_global_after": 22.6,
+      "ape_deployed_after": 30.4
+    },
+    {
+      "compound": "TiCoSb",
+      "before_doi": "10.1109/ict.2006.331297",
+      "before_rule": "central of 24 labs",
+      "after_doi": "10.1007/s11664-011-1517-0",
+      "after_rule": "central of 23 labs; nanostructured source demoted",
+      "ape_global_after": 38.9,
+      "ape_deployed_after": 36.2
+    },
+    {
+      "compound": "TiNiSn",
+      "before_doi": "10.1016/j.intermet.2006.08.008",
+      "before_rule": "central of 32 labs",
+      "after_doi": "10.1016/j.stam.2004.02.006",
+      "after_rule": "central of 28 labs; nanostructured source demoted",
+      "ape_global_after": 40.1,
+      "ape_deployed_after": 27.9
+    },
+    {
+      "compound": "ZrCoBi",
+      "before_doi": "10.1038/s41467-018-04958-3",
+      "before_rule": "methodology on record",
+      "after_doi": "10.3390/ma11050728",
+      "after_rule": "density 98.1%; nanostructured source demoted",
+      "ape_global_after": 25.5,
+      "ape_deployed_after": 6.3
+    },
+    {
+      "compound": "ZrCoSb",
+      "before_doi": "10.2320/matertrans.46.1481",
+      "before_rule": "central of 15 labs",
+      "after_doi": "10.1143/jjap.46.l673",
+      "after_rule": "central of 13 labs; nanostructured source demoted",
+      "ape_global_after": 11.2,
+      "ape_deployed_after": 13.4
+    }
+  ],
+  "family_loo_before_after": {
+    "Co-Sb": {
+      "members": [
+        "HfCoSb",
+        "TiCoSb",
+        "ZrCoSb"
+      ],
+      "moved": [
+        "TiCoSb",
+        "ZrCoSb"
+      ],
+      "loo_ape_before": 10.3,
+      "loo_ape_after": 24.9
+    },
+    "Fe-Sb": {
+      "members": [
+        "NbFeSb",
+        "TaFeSb",
+        "VFeSb"
+      ],
+      "moved": [
+        "NbFeSb",
+        "TaFeSb"
+      ],
+      "loo_ape_before": 29.6,
+      "loo_ape_after": 17.3
+    },
+    "Ni-Sb": {
+      "members": [
+        "DyNiSb",
+        "ErNiSb",
+        "HoNiSb",
+        "LuNiSb",
+        "ScNiSb",
+        "TmNiSb",
+        "YNiSb"
+      ],
+      "moved": [
+        "ScNiSb"
+      ],
+      "loo_ape_before": 16.4,
+      "loo_ape_after": 16.4
+    },
+    "Ni-Sn": {
+      "members": [
+        "HfNiSn",
+        "TiNiSn",
+        "ZrNiSn"
+      ],
+      "moved": [
+        "HfNiSn",
+        "TiNiSn"
+      ],
+      "loo_ape_before": 27.9,
+      "loo_ape_after": 33.3
+    },
+    "Sn-Pt": {
+      "members": [
+        "HfSnPt",
+        "TiSnPt",
+        "ZrSnPt"
+      ],
+      "moved": [
+        "HfSnPt"
+      ],
+      "loo_ape_before": 22.7,
+      "loo_ape_after": 21.7
+    }
+  },
+  "all_choices": {
+    "DyNiSb": {
+      "doi": "10.1103/physrevapplied.14.054046",
+      "rule": "sole source"
+    },
+    "DySbPt": {
+      "doi": "10.1002/adma.73841",
+      "rule": "sole source"
+    },
+    "ErBiPd": {
+      "doi": "10.1063/1.2196109",
+      "rule": "sole source"
+    },
+    "ErNiSb": {
+      "doi": "10.1103/physrevapplied.14.054046",
+      "rule": "density 97.3%"
+    },
+    "ErSbPd": {
+      "doi": "10.1088/1361-6463/aac567",
+      "rule": "sole source"
+    },
+    "GdBiPd": {
+      "doi": "10.2320/matertrans.e-mra2007807",
+      "rule": "sole source"
+    },
+    "HfCoSb": {
+      "doi": "10.2320/matertrans.47.1445",
+      "rule": "methodology on record"
+    },
+    "HfNiSn": {
+      "doi": "10.1016/j.actamat.2015.11.022",
+      "rule": "central of 7 labs; nanostructured source demoted"
+    },
+    "HfSnPt": {
+      "doi": "10.1109/ict.2006.331294",
+      "rule": "family paper (3 Sn-Pt members)"
+    },
+    "HoNiSb": {
+      "doi": "10.1557/proc-545-421",
+      "rule": "sole source"
+    },
+    "HoSbPd": {
+      "doi": "10.1088/1361-6463/aac567",
+      "rule": "family paper (2 Sb-Pd members)"
+    },
+    "LaBiPd": {
+      "doi": "10.2320/matertrans.e-mra2007807",
+      "rule": "sole source"
+    },
+    "LuNiSb": {
+      "doi": "10.1103/physrevapplied.14.054046",
+      "rule": "density 98.5%"
+    },
+    "LuSbPt": {
+      "doi": "10.1002/adma.73841",
+      "rule": "sole source"
+    },
+    "NbCoSn": {
+      "doi": "10.3390/ma18133189",
+      "rule": "central of 10 labs; nanostructured source demoted"
+    },
+    "NbFeSb": {
+      "doi": "10.1039/c7tc01570d",
+      "rule": "central of 6 labs"
+    },
+    "ScNiSb": {
+      "doi": "10.3390/ma12101723",
+      "rule": "central of 4 labs"
+    },
+    "ScSbPd": {
+      "doi": "10.1088/0953-8984/15/4/304",
+      "rule": "sole source"
+    },
+    "TaCoSn": {
+      "doi": "10.1021/acsami.9b13603",
+      "rule": "sole source (nanostructured)"
+    },
+    "TaFeSb": {
+      "doi": "10.1016/j.intermet.2019.04.011",
+      "rule": "density 99.1%; nanostructured source demoted"
+    },
+    "TbSbPt": {
+      "doi": "10.1002/adma.73841",
+      "rule": "sole source"
+    },
+    "TiCoSb": {
+      "doi": "10.1007/s11664-011-1517-0",
+      "rule": "central of 23 labs; nanostructured source demoted"
+    },
+    "TiNiSn": {
+      "doi": "10.1016/j.stam.2004.02.006",
+      "rule": "central of 28 labs; nanostructured source demoted"
+    },
+    "TiSnPt": {
+      "doi": "10.1109/ict.2006.331294",
+      "rule": "sole source"
+    },
+    "TmNiSb": {
+      "doi": "10.1103/physrevapplied.14.054046",
+      "rule": "density 96.9%"
+    },
+    "VFeSb": {
+      "doi": "10.1007/s11664-016-4804-y",
+      "rule": "central of 7 labs"
+    },
+    "YNiSb": {
+      "doi": "10.1557/proc-545-421",
+      "rule": "methodology on record"
+    },
+    "YSbPt": {
+      "doi": "10.1063/1.3663569",
+      "rule": "methodology on record"
+    },
+    "ZrCoBi": {
+      "doi": "10.3390/ma11050728",
+      "rule": "density 98.1%; nanostructured source demoted"
+    },
+    "ZrCoSb": {
+      "doi": "10.1143/jjap.46.l673",
+      "rule": "central of 13 labs; nanostructured source demoted"
+    },
+    "ZrNiPb": {
+      "doi": "10.1021/acs.chemmater.6b04898",
+      "rule": "sole source (nanostructured)"
+    },
+    "ZrNiSn": {
+      "doi": "10.1038/s41598-017-14013-8",
+      "rule": "central of 38 labs; nanostructured source demoted"
+    },
+    "ZrSbIr": {
+      "doi": "10.1088/1361-6463/ac1dd8",
+      "rule": "sole source"
+    },
+    "ZrSnPt": {
+      "doi": "10.1109/ict.2006.331294",
+      "rule": "sole source"
+    }
+  }
+}

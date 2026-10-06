@@ -24,12 +24,13 @@ python analysis/run_target_blind_test.py --seed 0
 python analysis/compute_seed_averaged.py
 ```
 
-The second prints a per-seed table and the seed-averaged headline: **33.7 % median error, 86.8 %
-within a factor of two**, over 38 in-domain compounds.
+The second prints a per-seed table and the five-seed headline: **33.1 % median error, 87.2 %
+within a factor of two**, over 39 in-domain compounds, with each compound's chemistry cluster held
+out of both the model and the calibration.
 
 ### Why the headline is a median over five seeds
 
-The regression model has random components, and the median error moves from 31.0 % to 40.0 %
+The regression model has random components, and the median error moves from 24.6 % to 35.4 %
 depending on the seed. A single-seed number reports the seed as much as the method, so every
 model-dependent figure in the paper is the median over seeds 0–4, quoted with its range. To
 regenerate all five:
@@ -45,26 +46,34 @@ Each seed refits a model per chemistry cluster, so this takes a while. `compute_
 reads seed 0 from `data/exports/kappa_v2/target_blind_test.csv` and seeds 1–4 from the
 `paper/evidence/blind_d2_s*.csv` files.
 
-Expected per-seed values, for checking your run:
+Expected per-seed values, for checking your run (from
+`data/exports/kappa_v2/seed_averaged_indomain.json`):
 
 | seed | median error | within 2× | within 30 % | bias |
 |---|---|---|---|---|
-| 0 | 31.0 % | 86.8 % | 47.4 % | 1.00 |
-| 3 | 33.7 % | 81.6 % | 42.1 % | 0.91 |
+| 0 | 31.7 % | 87.2 % | 46.2 % | 0.89 |
+| 1 | 35.4 % | 87.2 % | 46.2 % | 0.83 |
+| 2 | 24.6 % | 87.2 % | 59.0 % | 0.88 |
+| 3 | 35.1 % | 89.7 % | 46.2 % | 0.90 |
+| 4 | 33.1 % | 89.7 % | 38.5 % | 1.00 |
+| **median** | **33.1 %** | **87.2 %** | **46.2 %** | **0.90** |
+
+The headline is the median column, never a single seed.
 
 ### The rest of the numbers
 
 ```bash
-python analysis/run_loco_chemistry.py            # leave-one-chemistry-out validation
-python analysis/extend_blind_test.py             # fits c and p; the calibrated blind test
-python analysis/compute_conformal_indomain.py    # the 1.31 / 1.92 / 2.24 interval bands
-python analysis/compute_null_baselines.py        # the two compound-blind nulls
-python analysis/compute_family_null.py           # the family power-law baseline
-python analysis/compute_baselines_ablation.py    # Slack/Debye-Callaway, and the exponent ablation
-python analysis/compute_results_indomain.py      # the per-family calibration test
+python analysis/family_calibration.py            # per-family constants, leave-one-out within each family
+python analysis/compute_deployed_route.py         # calibrating published calculations: family vs shared constant
+python analysis/compute_conformal_indomain.py    # the prediction-interval bands
 python analysis/compute_interlab_ceiling.py      # inter-laboratory reproducibility of the data
-python analysis/make_paper_predictions.py        # Table 2: the five issued predictions
-python analysis/compute_conditional.py           # Table S1: the ten conditional estimates
+python analysis/compare_models_production.py     # the four regressors on identical rows and folds
+python analysis/make_paper_predictions.py        # Table 3: issued, flagged and refused predictions
+python analysis/compute_conditional.py           # Table S1: the conditional estimates
+python analysis/compute_null_baselines.py        # the two compound-blind nulls
+python analysis/compute_results_indomain.py      # in-domain results by family
+python analysis/compute_baselines_ablation.py    # Slack/Debye-Callaway, and the one-parameter ablation
+python analysis/compute_family_null.py           # the family power-law baseline
 python analysis/make_paper_numbers.py            # the registry the manuscript quotes from
 ```
 
@@ -74,10 +83,35 @@ manuscript should be traceable to it or to `paper/evidence/evidence_chain.csv`.
 ### The figures
 
 ```bash
-python paper/fig01_corpus.py        # ... through fig08_method.py
+python paper/fig08_method.py        # Fig. 1  the method
+python paper/fig01_corpus.py        # Fig. 2  the corpus
+python paper/fig02_offset.py        # Fig. 3  the calculation-measurement offset
+python paper/fig09_family.py        # Fig. 4  family constants and held-out curves (uses fig03_curves.py)
+python paper/fig15_model_blind.py   # Fig. 5  the model step and the end-to-end blind test
+python paper/fig05_predictions.py   # Fig. 6  the issued predictions
 ```
 
-They write into `paper/figures/`. Run them from the repository root, not from `paper/`.
+The supplementary figures come from `fig11_shap.py`, `fig12_dataset.py`, `fig13_parity_models.py`,
+`fig14_feature_corr.py` and `fig06_landscape.py`. Some figure scripts also write registry inputs
+(`fig01_corpus.py`, `fig02_offset.py`, `fig03_curves.py`, `fig04_blind.py`, `fig11_shap.py`,
+`fig12_dataset.py`), so run them before `make_paper_numbers.py` when regenerating everything. They
+write into `paper/figures/`. Run them from the repository root, not from `paper/`.
+
+### The whole chain in one command
+
+```bash
+PY=python bash rerun_downstream.sh
+```
+
+runs every step above, and the supporting tests, in dependency order and reports each exit status.
+Seven steps that depend on inputs not redistributed with this archive are omitted (commented out in
+the script). Their outputs ship as fixed tables in `data/Target_Materials/` and
+`release_data/predictions/`, and every later step reads those.
+
+Two small frozen files stand in for working-copy inputs that are not distributed:
+`data/Target_Materials/SCORED_TARGETS_frozen.csv` (the 68 measured compounds the blind test can
+score) and `data/external/REFERENCE_EVIDENCE_frozen.json` (the sample-quality, nanostructure and
+documented-source records the reference-laboratory rule reads from the sample database).
 
 ### The gates
 
@@ -129,19 +163,19 @@ Two things about that list are worth stating plainly rather than leaving you to 
   must run after `build_training_set.py` and `add_recovered_compounds.py`, and before anything
   else. Nothing enforces that ordering.
 - **`run_perchem_tier_experiment.py` is named as an experiment but is a required build step.** It
-  is the only writer of `HEUSLER_KAPPA_TIER3_GAP_ROWS.csv`, which thirteen scripts read — including
+  is the only writer of `HEUSLER_KAPPA_TIER3_GAP_ROWS.csv`, which several scripts read — including
   the blind test. Skip it and the blind test fails on a missing file.
 
 ### What Route B does not include
 
-The **LLM extraction** described in Section 2.1 of the paper needs a Gemini API key and access to
+The **LLM extraction** described in the Methods of the paper needs a Gemini API key and access to
 the source publications, which we cannot redistribute:
 
 ```bash
 pip install -e ".[extract]"     # then see pipeline/s04_extract.py and prompts/extraction_system.md
 ```
 
-It contributed 31 of 4,094 experimental rows — 0.76 %. `pipeline/s04_extract.py` carries the
+Its rows are already in the shipped corpus, each with its source DOI. `pipeline/s04_extract.py` carries the
 3000-byte source-length gate that stops the model being handed a title-only stub, which it will
 otherwise answer with fluent and entirely fabricated measurements. `corpus/quarantine_stubs.py`
 flags the affected rows. Both are shipped because the paper describes the method, and a method

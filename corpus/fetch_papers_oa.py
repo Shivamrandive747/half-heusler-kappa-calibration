@@ -28,6 +28,7 @@ Every attempt -- success or failure, with the reason -- is written to `paper_fet
 failures become the input to lane B rather than vanishing.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import argparse
 import re
@@ -82,6 +83,30 @@ def mdpi_si_urls(doi: str) -> list[str]:
     if not doi.startswith("10.3390/"):
         return []
     return [f"https://www.mdpi.com/article/{doi}/s1"]
+
+
+def pdf_identity(content: bytes, doi: str, title: str) -> str:
+    """'ok' if the PDF text carries its own DOI or title; 'mismatch' if it carries neither;
+    'unchecked' if no text could be extracted (scanned) -- accepted, but flagged in the log.
+
+    Same rule as verify_pdf_identity.py, applied at the moment of download so a wrong paper is
+    never stored under a DOI in the first place.
+    """
+    try:
+        import fitz  # pymupdf
+        txt = " ".join(p.get_text() for p in fitz.open(stream=content, filetype="pdf"))
+    except Exception:  # noqa: BLE001
+        return "unchecked"
+    if len(txt.strip()) < 200:
+        return "unchecked"
+    norm = lambda x: re.sub(r"[^a-z0-9]+", " ", str(x or "").lower()).strip()  # noqa: E731
+    nt = norm(txt)
+    if norm(doi) in nt or doi.lower() in txt.lower():
+        return "ok"
+    words = norm(title).split()[:8]
+    if words and " ".join(words) in nt:
+        return "ok"
+    return "mismatch"
 
 
 def get(s: requests.Session, url: str, timeout: int = 60):
@@ -187,8 +212,21 @@ def main(limit: int | None, sleep: float, si_only: bool, min_score: int,
                     continue
                 r = get(s, str(url))
                 if looks_pdf(r) and len(r.content) > MIN_PDF:
+                    # IS IT THE RIGHT PAPER? 361 of 1,173 stored PDFs were a different paper --
+                    # a landing-page redirect, a "related article", a publisher's default. The
+                    # extractor then read the wrong paper faithfully and filed its samples under
+                    # this DOI. A download is accepted only if its text carries this DOI or the
+                    # first eight words of the recorded title; otherwise it is kept aside as
+                    # .WRONG.pdf for inspection and the next source is tried.
+                    ident = pdf_identity(r.content, doi, str(row.get("title") or ""))
+                    if ident == "mismatch":
+                        (PDF_DIR / f"{stem}.WRONG-{src}.pdf").write_bytes(r.content)
+                        log.append(dict(doi=doi, kind="pdf", via=src, ok=False,
+                                        status="wrong-paper", url=url))
+                        time.sleep(sleep)
+                        continue
                     pdf_path.write_bytes(r.content)
-                    log.append(dict(doi=doi, kind="pdf", via=src, ok=True,
+                    log.append(dict(doi=doi, kind="pdf", via=src, ok=True, identity=ident,
                                     bytes=len(r.content), url=url))
                     got_pdf += 1
                     break

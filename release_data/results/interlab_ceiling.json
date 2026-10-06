@@ -1,0 +1,171 @@
+{
+  "scope": "in-domain half Heuslers (VEC 18, cubic C1b, not polymorphic); deduped; deposits excluded",
+  "population": {
+    "compounds": 17,
+    "compounds_with_tier0": 39,
+    "compounds_with_2plus_labs": 21,
+    "rows": 2774,
+    "T_range": [
+      200,
+      1200
+    ],
+    "min_pairs": 3
+  },
+  "within_2x": {
+    "pooled_pairs": 0.8998809681259092,
+    "per_compound_mean": 0.9047374043612041,
+    "per_compound_median": 0.9508196721311475
+  },
+  "n_pairs": 7561,
+  "median_disagreement_x": 1.334947503798263,
+  "p90_disagreement_x": 2.0023844409820146,
+  "median_disagreement_x_per_compound": 1.3624633262589505,
+  "per_compound": [
+    {
+      "compound": "NbFeSb",
+      "pairs": 44,
+      "labs": 6,
+      "within_2x": 0.5227272727272727,
+      "median_factor": 1.9548720577846193
+    },
+    {
+      "compound": "ScNiSb",
+      "pairs": 23,
+      "labs": 4,
+      "within_2x": 0.6086956521739131,
+      "median_factor": 1.3624633262589505
+    },
+    {
+      "compound": "TiCoSb",
+      "pairs": 1139,
+      "labs": 23,
+      "within_2x": 0.8296751536435469,
+      "median_factor": 1.3849241634649017
+    },
+    {
+      "compound": "TmNiSb",
+      "pairs": 7,
+      "labs": 3,
+      "within_2x": 0.8571428571428571,
+      "median_factor": 1.7751165695427675
+    },
+    {
+      "compound": "VFeSb",
+      "pairs": 100,
+      "labs": 7,
+      "within_2x": 0.86,
+      "median_factor": 1.3964976430006306
+    },
+    {
+      "compound": "TiNiSn",
+      "pairs": 1994,
+      "labs": 28,
+      "within_2x": 0.8801404212637913,
+      "median_factor": 1.3521284552258188
+    },
+    {
+      "compound": "ZrNiSn",
+      "pairs": 3299,
+      "labs": 38,
+      "within_2x": 0.9242194604425583,
+      "median_factor": 1.3316949544413088
+    },
+    {
+      "compound": "NbCoSn",
+      "pairs": 416,
+      "labs": 12,
+      "within_2x": 0.9471153846153846,
+      "median_factor": 1.2729224688329333
+    },
+    {
+      "compound": "HfNiSn",
+      "pairs": 61,
+      "labs": 7,
+      "within_2x": 0.9508196721311475,
+      "median_factor": 1.211162659503936
+    },
+    {
+      "compound": "LuNiSb",
+      "pairs": 4,
+      "labs": 2,
+      "within_2x": 1.0,
+      "median_factor": 1.0628653301346636
+    },
+    {
+      "compound": "HfCoSb",
+      "pairs": 22,
+      "labs": 3,
+      "within_2x": 1.0,
+      "median_factor": 1.3982044926434614
+    },
+    {
+      "compound": "ErNiSb",
+      "pairs": 7,
+      "labs": 2,
+      "within_2x": 1.0,
+      "median_factor": 1.2151088880601009
+    },
+    {
+      "compound": "TaFeSb",
+      "pairs": 6,
+      "labs": 2,
+      "within_2x": 1.0,
+      "median_factor": 1.5491486031220782
+    },
+    {
+      "compound": "YSbPt",
+      "pairs": 5,
+      "labs": 3,
+      "within_2x": 1.0,
+      "median_factor": 1.424408765608333
+    },
+    {
+      "compound": "ZrCoBi",
+      "pairs": 6,
+      "labs": 2,
+      "within_2x": 1.0,
+      "median_factor": 1.6030973944925924
+    },
+    {
+      "compound": "HfSnPt",
+      "pairs": 9,
+      "labs": 2,
+      "within_2x": 1.0,
+      "median_factor": 1.018778507629255
+    },
+    {
+      "compound": "ZrCoSb",
+      "pairs": 414,
+      "labs": 13,
+      "within_2x": 1.0,
+      "median_factor": 1.2684843323491375
+    }
+  ],
+  "other_scopes": {
+    "all_half_heuslers": {
+      "population": {
+        "compounds": 20,
+        "compounds_with_tier0": 50,
+        "compounds_with_2plus_labs": 24,
+        "rows": 3005,
+        "T_range": [
+          200,
+          1200
+        ],
+        "min_pairs": 3
+      },
+      "within_2x": {
+        "pooled_pairs": 0.9007463663742307,
+        "per_compound_mean": 0.9106934603736903,
+        "per_compound_median": 0.9754098360655737
+      },
+      "n_pairs": 7637,
+      "median_disagreement_x": 1.3318108530988169,
+      "p90_disagreement_x": 1.9967829155627772,
+      "median_disagreement_x_per_compound": 1.3572958907423847
+    }
+  },
+  "threshold_note": "make_paper_predictions / test_range_gate / make_paper_numbers hard-code 1.33 (the old pooled median over the pre-pivot 64-compound set). The comparable figures are median_disagreement_x (pooled) and median_disagreement_x_per_compound; the threshold is not changed here.",
+  "note": "The 79.5% literal previously quoted is not computed anywhere in this repository. Use these figures and always state the weighting.",
+  "_generated_by": "compute_interlab_ceiling.py"
+}

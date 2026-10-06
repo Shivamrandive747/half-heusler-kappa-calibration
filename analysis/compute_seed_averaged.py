@@ -11,6 +11,7 @@ in-domain protocol -- domain screen, nested calibration, both nulls leave-one-ch
 applied to each seed's predictions in turn.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import glob
 import json
@@ -41,12 +42,16 @@ def in_domain(d):
 
 
 def nested(d):
+    """Shared constant per held-out chemistry cluster, fitted on the published calculation pairs
+    WITHOUT that cluster (shared_constant.py; PREREG_shared_constant_on_calculations rule 4) -- no
+    longer on the other clusters' model predictions."""
+    import shared_constant as SCN
     out = []
     for cl in sorted(set(d.chem)):
         te, tr = d[d.chem == cl], d[d.chem != cl]
         if not len(te) or len(tr) < 4:
             continue
-        c, p = E.fit_cp(tr)
+        c, p = SCN.shared_cp_without_cluster(cl)
         if np.isfinite(c):
             out.append(te.assign(k=te.k_pred.values * E.apply_cp(te["T"].values, c, p)))
     return pd.concat(out) if out else None
@@ -89,12 +94,14 @@ def fit_c_only(d):
 
 
 def nested_c_only(d):
+    """One-parameter ablation, c fitted on the calculation pairs without the held-out cluster."""
+    import shared_constant as SCN
     out = []
     for cl in sorted(set(d.chem)):
         te, tr = d[d.chem == cl], d[d.chem != cl]
         if not len(te) or len(tr) < 4:
             continue
-        c = fit_c_only(tr)
+        c = SCN.shared_c_only_without_cluster(cl)
         if np.isfinite(c):
             out.append(te.assign(k=te.k_pred.values * min(c, 1.0)))
     return pd.concat(out) if out else None

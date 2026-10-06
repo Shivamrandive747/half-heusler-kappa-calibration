@@ -1,32 +1,92 @@
 {
   "_generated_by": "compute_family_null.py",
+  "seed": 0,
+  "seed_note": "model arm from target_blind_test.csv (seed 0); the family null is seed-free",
   "model": {
-    "n": 38,
-    "median_ape": 31.0,
-    "within_2x": 86.8
+    "n": 39,
+    "median_ape": 31.7,
+    "within_2x": 87.2
   },
   "family_null": {
-    "n": 31,
-    "median_ape": 28.2,
-    "within_2x": 87.1
+    "n": 34,
+    "median_ape": 25.4,
+    "within_2x": 91.2
   },
   "head_to_head": {
-    "n": 31,
-    "model": 33.3,
-    "family": 28.2,
-    "wilcoxon_p": 0.224,
-    "model_better_pct": 41.9
+    "n": 34,
+    "model": 31.6,
+    "family": 25.4,
+    "wilcoxon_p": 0.987,
+    "model_better_pct": 50.0
   },
   "family_null_cannot_cover": [
     "AlVNi",
-    "NbFeSb",
-    "TaFeSb",
     "YNiBi",
     "ZrCoBi",
     "ZrNiPb",
     "ZrSbIr"
   ],
-  "issued_covered_by_family_null": [],
+  "issued_family_null_coverage": {
+    "ErSbPt": {
+      "family": "Sb-Pt",
+      "measured_family_members": 4,
+      "family_null_could_predict": true
+    },
+    "GdNiSb": {
+      "family": "Ni-Sb",
+      "measured_family_members": 8,
+      "family_null_could_predict": true
+    },
+    "GdSbPt": {
+      "family": "Sb-Pt",
+      "measured_family_members": 4,
+      "family_null_could_predict": true
+    },
+    "HfCoBi": {
+      "family": "Co-Bi",
+      "measured_family_members": 1,
+      "family_null_could_predict": false
+    },
+    "HfNiPb": {
+      "family": "Ni-Pb",
+      "measured_family_members": 1,
+      "family_null_could_predict": false
+    },
+    "HoSbPt": {
+      "family": "Sb-Pt",
+      "measured_family_members": 4,
+      "family_null_could_predict": true
+    },
+    "TbNiSb": {
+      "family": "Ni-Sb",
+      "measured_family_members": 8,
+      "family_null_could_predict": true
+    },
+    "TiCoBi": {
+      "family": "Co-Bi",
+      "measured_family_members": 1,
+      "family_null_could_predict": false
+    },
+    "TiNiPb": {
+      "family": "Ni-Pb",
+      "measured_family_members": 1,
+      "family_null_could_predict": false
+    },
+    "TmSbPt": {
+      "family": "Sb-Pt",
+      "measured_family_members": 4,
+      "family_null_could_predict": true
+    }
+  },
+  "issued_covered_by_family_null": [
+    "ErSbPt",
+    "GdNiSb",
+    "GdSbPt",
+    "HoSbPt",
+    "TbNiSb",
+    "TmSbPt"
+  ],
+  "_issued_coverage_meaning": "For each compound the paper issues: how many MEASURED compounds its bonding family has, and so whether the calculation-free family power law could have produced a number for it. Where it could, the transfer function has to justify its extra machinery; where it could not, it is the only route to a value.",
   "within_family": [
     {
       "fam": "Bi-Pd",
@@ -38,55 +98,62 @@
     {
       "fam": "Co-Sb",
       "n": 3,
-      "rho_model": -0.5,
+      "rho_model": -1.0,
       "rho_family": -1.0,
-      "family_spread": 1.12
+      "family_spread": 1.85
     },
     {
       "fam": "Co-Sn",
       "n": 3,
-      "rho_model": 0.5,
+      "rho_model": -0.5,
       "rho_family": 0.5,
-      "family_spread": 1.78
+      "family_spread": 1.73
+    },
+    {
+      "fam": "Fe-Sb",
+      "n": 3,
+      "rho_model": -0.5,
+      "rho_family": -0.5,
+      "family_spread": 1.49
     },
     {
       "fam": "Ni-Sb",
       "n": 8,
-      "rho_model": 0.929,
-      "rho_family": -0.667,
-      "family_spread": 1.36
+      "rho_model": 0.952,
+      "rho_family": -0.548,
+      "family_spread": 1.57
     },
     {
       "fam": "Ni-Sn",
       "n": 3,
       "rho_model": 0.5,
-      "rho_family": -1.0,
-      "family_spread": 1.16
+      "rho_family": -0.5,
+      "family_spread": 1.44
     },
     {
       "fam": "Sb-Pd",
       "n": 4,
-      "rho_model": -0.2,
-      "rho_family": -0.8,
-      "family_spread": 1.24
+      "rho_model": -0.4,
+      "rho_family": -1.0,
+      "family_spread": 1.39
     },
     {
       "fam": "Sb-Pt",
       "n": 4,
-      "rho_model": 0.6,
+      "rho_model": 0.0,
       "rho_family": -1.0,
-      "family_spread": 1.45
+      "family_spread": 1.09
     },
     {
       "fam": "Sn-Pt",
       "n": 3,
-      "rho_model": 0.5,
+      "rho_model": -0.5,
       "rho_family": -0.5,
-      "family_spread": 1.22
+      "family_spread": 1.23
     }
   ],
   "within_family_median_rho": {
-    "model": 0.5,
-    "family_null": -0.9
+    "model": -0.4,
+    "family_null": -0.548
   }
 }

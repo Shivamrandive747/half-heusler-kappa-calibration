@@ -1,45 +1,47 @@
 {
+  "_generated_by": "compute_domain_headline.py",
+  "_fit": "shared constant fitted on published calculations vs measurements; each compound scored with its chemistry cluster removed from that fit (c, p shown are the deployed values). Describes the effect of the screens; the headline is the seed-averaged nested figure.",
   "rows": [
     {
       "scope": "all half Heuslers (no screen)",
-      "n": 51,
-      "c": 0.5,
-      "p": 0.95,
-      "median_ape": 35.8,
-      "within_2x": 78.4,
-      "uncorrected": 54.3
+      "n": 50,
+      "c": 0.42,
+      "p": 0.7,
+      "median_ape": 36.4,
+      "within_2x": 76.0,
+      "uncorrected": 48.1
     },
     {
       "scope": "VEC = 18",
-      "n": 43,
-      "c": 0.57,
-      "p": 0.85,
-      "median_ape": 31.0,
-      "within_2x": 83.7,
-      "uncorrected": 48.6
+      "n": 44,
+      "c": 0.42,
+      "p": 0.7,
+      "median_ape": 35.4,
+      "within_2x": 84.1,
+      "uncorrected": 39.9
     },
     {
       "scope": "VEC = 18 + cubic, non-polymorphic",
-      "n": 38,
-      "c": 0.51,
-      "p": 0.8,
-      "median_ape": 29.7,
-      "within_2x": 86.8,
-      "uncorrected": 49.0
+      "n": 39,
+      "c": 0.42,
+      "p": 0.7,
+      "median_ape": 31.7,
+      "within_2x": 87.2,
+      "uncorrected": 40.6
     },
     {
       "scope": "EXCLUDED by the screens",
-      "n": 13,
-      "c": 0.19,
-      "p": 0.75,
-      "median_ape": 39.5,
-      "within_2x": 53.8,
-      "uncorrected": 134.8
+      "n": 11,
+      "c": 0.42,
+      "p": 0.7,
+      "median_ape": 86.4,
+      "within_2x": 36.4,
+      "uncorrected": 153.7
     }
   ],
   "excluded": [
+    "AlNiSb",
     "BaAgSb",
-    "CuAgTe",
     "LaSbPd",
     "LiAlGe",
     "LiAlSi",
@@ -48,9 +50,7 @@
     "MgNiSb",
     "NbCoSb",
     "VCoSb",
-    "VFeSb",
-    "VNiSn",
-    "ZnNiSn"
+    "VNiSn"
   ],
   "note": "screens are pre-existing in make_paper_predictions.py; applying them to validation removes an inconsistency, it does not introduce a filter"
 }

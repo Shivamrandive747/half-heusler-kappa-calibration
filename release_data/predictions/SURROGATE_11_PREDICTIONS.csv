@@ -1,0 +1,12 @@
+compound,family,a_conv_A,a_choice,kappa_theory_300,seed_spread_300,kappa_exp_300,transfer,kappa_SDNNFF_300,model_over_SDNNFF,family_members_heldout,family_members_median_err_pct,contains_Zn_Cd,non_cubic_on_record,lit_layers,lit_papers,lit_kappa_papers,lit_kappa_titles
+BaCdSn,Cd-Sn,7.883,JARVIS lowest formation energy,1.42,1.372,0.6,shared constant (family never measured),0.78,1.83,CaCdSn 2%,2.1,True,False,"arxiv,crossref,openalex",2,0,
+CaTePd,Te-Pd,6.805,median a (alkali/alkaline-earth rule),2.12,1.485,0.89,shared constant (family never measured),0.86,2.48,SrTePd 259%,258.5,False,False,"arxiv,crossref,openalex",0,0,
+KCdSb,Cd-Sb,7.424,median a (alkali/alkaline-earth rule),1.69,1.302,0.71,shared constant (family never measured),0.69,2.45,LiCdSb 0%,0.4,True,False,"arxiv,crossref,openalex",4,1,In‐Plane Overdamping and Out‐Plane Localized Vibration Contribute to U
+MgCdSi,Cd-Si,6.381,median a (alkali/alkaline-earth rule),8.01,1.178,3.36,shared constant (family never measured),3.61,2.22,"CaCdSi 129%, SrCdSi 75%",102.1,True,False,"arxiv,crossref,openalex",0,0,
+MgCdSn,Cd-Sn,6.824,median a (alkali/alkaline-earth rule),3.31,1.27,1.39,shared constant (family never measured),0.37,9.07,CaCdSn 2%,2.1,True,False,"arxiv,crossref,openalex",0,0,
+MgZnGe,Zn-Ge,6.197,median a (alkali/alkaline-earth rule),7.8,1.341,3.28,shared constant (family never measured),1.73,4.51,CaZnGe 86%,86.3,True,False,"arxiv,crossref,openalex",2,0,
+MgZnSi,Zn-Si,6.109,median a (alkali/alkaline-earth rule),9.42,1.441,3.95,shared constant (family never measured),1.17,8.07,CaZnSi 72%,72.1,True,False,"arxiv,crossref,openalex",0,0,
+NaCdAs,Cd-As,6.612,median a (alkali/alkaline-earth rule),5.3,1.515,2.22,shared constant (family never measured),1.18,4.48,LiCdAs 77%,76.6,True,False,"arxiv,crossref,openalex",3,1,"Cation-Driven Vibrational Hierarchy in NaCdX (X = As, Sb) Thermoelectr"
+ScBiPt,Bi-Pt,6.538,DXMag lowest hull 0.000,6.76,1.294,2.84,shared constant (family never measured),3.89,1.74,"DyBiPt 8%, ErBiPt 2%, GdBiPt 3%, HoBiPt 6%, LaBiPt 60%, LuBiPt 4%, TbBiPt 31%, TmBiPt 1%, YBiPt 21%",6.2,False,False,"arxiv,crossref,openalex",16,0,
+SrCdSn,Cd-Sn,7.367,median a (alkali/alkaline-earth rule),1.58,1.86,0.66,shared constant (family never measured),1.46,1.08,CaCdSn 2%,2.1,True,False,"arxiv,crossref,openalex",1,0,
+ZrTeOs,Te-Os,6.355,smallest a,12.64,1.152,5.31,shared constant (family never measured),14.86,0.85,TiTeOs 0%,0.5,False,False,"arxiv,crossref,openalex",0,0,

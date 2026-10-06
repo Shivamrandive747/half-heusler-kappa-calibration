@@ -34,6 +34,7 @@ points and 7 more does not change that. What it does is thicken the 1.8-3.8 W/m/
 error is worst and our coverage thinnest, and it costs nothing because the data was already paid for.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import sqlite3
 import sys

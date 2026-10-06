@@ -1,0 +1,53 @@
+{
+  "in_sample": true,
+  "per_row": true,
+  "shared_exponent": 0.7,
+  "n_rows": 429,
+  "n_rows_above_cap": 60,
+  "n_compounds_above_cap": 12,
+  "T_range_above_cap": [
+    330.0,
+    1080.0
+  ],
+  "capped_median_ape": 24.6,
+  "uncapped_median_ape": 12.8,
+  "uncapped_better_pct": 58.0,
+  "max_uncapped_factor": 2.18,
+  "by_family": {
+    "Bi-Pd": {
+      "n": 24,
+      "capped": 28.0,
+      "uncapped": 11.2
+    },
+    "Co-Bi": {
+      "n": 6,
+      "capped": 1.6,
+      "uncapped": 5.7
+    },
+    "Ni-Pb": {
+      "n": 1,
+      "capped": 11.6,
+      "uncapped": 5.0
+    },
+    "Ni-Sb": {
+      "n": 3,
+      "capped": 21.8,
+      "uncapped": 19.5
+    },
+    "Sb-Pt": {
+      "n": 3,
+      "capped": 19.0,
+      "uncapped": 12.3
+    },
+    "Sn-Pt": {
+      "n": 23,
+      "capped": 32.2,
+      "uncapped": 18.3
+    }
+  },
+  "family_form": [
+    "SHAPE_NOCAP"
+  ],
+  "verdict": "Above their own caps: capped 24.6%, uncapped 12.8%; uncapped better on 58% of rows (in-sample, constants fitted under the adopted form). Uncapped, the family value reaches 2.18x the calculation at the highest temperatures.",
+  "_meaning": "above = the family's own power law has passed unity at that temperature, so the capped prediction is the bare calculation. Sb-Pt was the specific worry."
+}

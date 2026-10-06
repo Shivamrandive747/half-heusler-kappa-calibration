@@ -1,0 +1,252 @@
+{
+  "_generated_by": "test_family_on_ml_route.py",
+  "summary": {
+    "global_seed_median": 37.2,
+    "family_seed_median": 33.2,
+    "global_seed_mean": 35.4,
+    "family_seed_mean": 33.6,
+    "global_within2x_seed_median": 87.2,
+    "family_within2x_seed_median": 89.7,
+    "seeds_family_better": 3,
+    "verdict": "NOT BETTER"
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "n": 39,
+      "n_family_arm": 34,
+      "global_median": 29.6,
+      "family_median": 33.2,
+      "global_within2x": 87.2,
+      "family_within2x": 89.7,
+      "family_arm_only_global": 30.6,
+      "family_arm_only_family": 34.4,
+      "n_better": 19,
+      "wilcoxon_p_family_arm": 0.3862
+    },
+    {
+      "seed": 1,
+      "n": 39,
+      "n_family_arm": 33,
+      "global_median": 39.6,
+      "family_median": 35.8,
+      "global_within2x": 87.2,
+      "family_within2x": 89.7,
+      "family_arm_only_global": 40.2,
+      "family_arm_only_family": 35.8,
+      "n_better": 22,
+      "wilcoxon_p_family_arm": 0.0767
+    },
+    {
+      "seed": 2,
+      "n": 39,
+      "n_family_arm": 33,
+      "global_median": 31.6,
+      "family_median": 35.9,
+      "global_within2x": 87.2,
+      "family_within2x": 89.7,
+      "family_arm_only_global": 38.1,
+      "family_arm_only_family": 38.1,
+      "n_better": 20,
+      "wilcoxon_p_family_arm": 0.2476
+    },
+    {
+      "seed": 3,
+      "n": 39,
+      "n_family_arm": 33,
+      "global_median": 39.0,
+      "family_median": 32.1,
+      "global_within2x": 84.6,
+      "family_within2x": 87.2,
+      "family_arm_only_global": 41.9,
+      "family_arm_only_family": 35.0,
+      "n_better": 20,
+      "wilcoxon_p_family_arm": 0.0961
+    },
+    {
+      "seed": 4,
+      "n": 39,
+      "n_family_arm": 33,
+      "global_median": 37.2,
+      "family_median": 31.0,
+      "global_within2x": 87.2,
+      "family_within2x": 87.2,
+      "family_arm_only_global": 42.0,
+      "family_arm_only_family": 32.3,
+      "n_better": 20,
+      "wilcoxon_p_family_arm": 0.1827
+    }
+  ],
+  "per_family_seed_median": [
+    {
+      "fam": "Bi-Pd",
+      "n": 3,
+      "global_": 61.2,
+      "family": 59.7
+    },
+    {
+      "fam": "Co-Bi",
+      "n": 1,
+      "global_": 29.9,
+      "family": 29.9
+    },
+    {
+      "fam": "Co-Sb",
+      "n": 3,
+      "global_": 19.7,
+      "family": 32.8
+    },
+    {
+      "fam": "Co-Sn",
+      "n": 3,
+      "global_": 74.8,
+      "family": 62.6
+    },
+    {
+      "fam": "Fe-Sb",
+      "n": 3,
+      "global_": 40.8,
+      "family": 40.8
+    },
+    {
+      "fam": "Ni-Bi",
+      "n": 1,
+      "global_": 21.7,
+      "family": 21.7
+    },
+    {
+      "fam": "Ni-Pb",
+      "n": 1,
+      "global_": 13.3,
+      "family": 13.3
+    },
+    {
+      "fam": "Ni-Sb",
+      "n": 8,
+      "global_": 25.8,
+      "family": 25.3
+    },
+    {
+      "fam": "Ni-Sn",
+      "n": 3,
+      "global_": 38.9,
+      "family": 27.6
+    },
+    {
+      "fam": "Sb-Ir",
+      "n": 1,
+      "global_": 82.4,
+      "family": 82.4
+    },
+    {
+      "fam": "Sb-Pd",
+      "n": 4,
+      "global_": 45.1,
+      "family": 18.5
+    },
+    {
+      "fam": "Sb-Pt",
+      "n": 4,
+      "global_": 26.0,
+      "family": 24.8
+    },
+    {
+      "fam": "Sn-Pt",
+      "n": 3,
+      "global_": 47.7,
+      "family": 44.7
+    },
+    {
+      "fam": "V-Ni",
+      "n": 1,
+      "global_": 18.5,
+      "family": 18.5
+    }
+  ],
+  "seed0_per_family": [
+    {
+      "fam": "Bi-Pd",
+      "n": 3,
+      "global_": 60.0,
+      "family": 60.0
+    },
+    {
+      "fam": "Co-Bi",
+      "n": 1,
+      "global_": 29.2,
+      "family": 29.2
+    },
+    {
+      "fam": "Co-Sb",
+      "n": 3,
+      "global_": 21.3,
+      "family": 33.2
+    },
+    {
+      "fam": "Co-Sn",
+      "n": 3,
+      "global_": 80.8,
+      "family": 85.5
+    },
+    {
+      "fam": "Fe-Sb",
+      "n": 3,
+      "global_": 20.7,
+      "family": 38.5
+    },
+    {
+      "fam": "Ni-Bi",
+      "n": 1,
+      "global_": 23.5,
+      "family": 23.5
+    },
+    {
+      "fam": "Ni-Pb",
+      "n": 1,
+      "global_": 12.7,
+      "family": 12.7
+    },
+    {
+      "fam": "Ni-Sb",
+      "n": 8,
+      "global_": 24.3,
+      "family": 18.4
+    },
+    {
+      "fam": "Ni-Sn",
+      "n": 3,
+      "global_": 38.9,
+      "family": 24.3
+    },
+    {
+      "fam": "Sb-Ir",
+      "n": 1,
+      "global_": 84.2,
+      "family": 84.2
+    },
+    {
+      "fam": "Sb-Pd",
+      "n": 4,
+      "global_": 32.5,
+      "family": 10.8
+    },
+    {
+      "fam": "Sb-Pt",
+      "n": 4,
+      "global_": 23.3,
+      "family": 24.0
+    },
+    {
+      "fam": "Sn-Pt",
+      "n": 3,
+      "global_": 38.5,
+      "family": 37.9
+    },
+    {
+      "fam": "V-Ni",
+      "n": 1,
+      "global_": 22.3,
+      "family": 22.3
+    }
+  ]
+}

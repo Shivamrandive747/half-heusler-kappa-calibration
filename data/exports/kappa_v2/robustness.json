@@ -1,0 +1,52 @@
+{
+  "n": 38,
+  "median_ape": 31.0,
+  "jackknife": {
+    "lo": 30.6,
+    "hi": 31.5,
+    "most_favourable_to_drop": "ErBiPd",
+    "least_favourable_to_drop": "AlVNi"
+  },
+  "bootstrap_ci": [
+    24.7,
+    40.4
+  ],
+  "nulls": {
+    "constant": {
+      "better_on": 27,
+      "of": 38,
+      "sign_test_p": 0.0139,
+      "median_gain_pp": 15.5,
+      "gain_ci": [
+        1.6,
+        21.7
+      ],
+      "wilcoxon_p": 0.0414,
+      "cluster_level": {
+        "better_on": 12,
+        "of": 18,
+        "sign_test_p": 0.2379,
+        "wilcoxon_p": 0.0665
+      },
+      "flips_to_lose_significance": 2
+    },
+    "powerlaw": {
+      "better_on": 27,
+      "of": 38,
+      "sign_test_p": 0.0139,
+      "median_gain_pp": 16.5,
+      "gain_ci": [
+        2.6,
+        22.9
+      ],
+      "wilcoxon_p": 0.0385,
+      "cluster_level": {
+        "better_on": 13,
+        "of": 18,
+        "sign_test_p": 0.0963,
+        "wilcoxon_p": 0.0665
+      },
+      "flips_to_lose_significance": 2
+    }
+  }
+}

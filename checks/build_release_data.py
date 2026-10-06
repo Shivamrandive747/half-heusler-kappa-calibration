@@ -16,9 +16,12 @@ Run:  python build_release_data.py
 Then: git add release_data && git commit
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
+import glob
 import hashlib
 import io
+import re
 import shutil
 from pathlib import Path
 
@@ -28,9 +31,21 @@ OUT = ROOT / "release_data"
 # (source, destination subdirectory, one-line description for the manifest)
 WANTED: list[tuple[str, str, str]] = [
     ("data/Target_Materials/PAPER_PREDICTIONS.csv", "predictions",
-     "The five issued predictions (Table 2 of the manuscript)."),
+     "Every candidate the method assessed: {n_issued} issued, {n_flagged} flagged, {n_refused} refused, "
+     "each with its status and reason (Table 3 of the manuscript)."),
     ("data/Target_Materials/CONDITIONAL_PREDICTIONS.csv", "predictions",
-     "The ten conditional estimates and the measurement each waits on (Table S1)."),
+     "The {n_conditional} conditional estimates and the measurement each waits on (Table S1)."),
+    ("data/Target_Materials/STRUCTURE_ONLY_29_VERIFIED.csv", "predictions",
+     "Compounds predicted from crystal structure alone that have no published kappa_L: category, "
+     "structure source, model value, seed spread, experimental-scale value, literature status."),
+    ("data/Target_Materials/STRUCTURE_ONLY_12_PREDICTIONS.csv", "predictions",
+     "Structure-only predictions with full structure provenance and family held-out evidence "
+     "(TmPbAu, HfTeOs and the weaker candidates), at 300, 600 and 900 K."),
+    ("data/Target_Materials/CALIBRATED_NEW_PREDICTIONS.csv", "predictions",
+     "New compounds inside a calibrated family (LuSbPd; SmBiPd flagged): two independent routes."),
+    ("data/Target_Materials/SURROGATE_11_PREDICTIONS.csv", "predictions",
+     "Compounds whose only prior kappa_L is a machine-learning surrogate value: our estimates and "
+     "the literature check."),
     ("data/exports/kappa_v2/seed_averaged_indomain.json", "results",
      "Per-seed and seed-median blind-test results; the source of every headline number."),
     ("data/exports/kappa_v2/domain_headline.json", "results",
@@ -46,6 +61,46 @@ WANTED: list[tuple[str, str, str]] = [
     ("data/exports/kappa_v2/interlab_ceiling.json", "results",
      "Inter-laboratory reproducibility of the reference measurements."),
 ]
+
+# THE REMOVED-ROW RECORDS (FIXPASS C5, 2026-10-05). Every data-quality rule writes the rows it removed or
+# re-tiered to an audit CSV, so a reader can see exactly what left the corpus and why. They ship in
+# release_data/audit/. Matched by pattern because each rule names its own file; backup copies never match.
+AUDIT_GLOBS = ["data/Target_Materials/EXCLUDED_*.csv",          # rows removed by a rule (+ the rule)
+               "data/Target_Materials/TIER_MOVES_*.csv",        # rows whose method tier was re-derived
+               "data/external/kappa_starrydata_heusler_duplicate_samples.csv"]  # harvest-time duplicate gate
+AUDIT_DESC = "Removed-row / re-tiered-row record written by a data-quality rule (see its rule column)."
+BACKUP_COPY = re.compile(r"(_backup|backup_|\.bak|\.pre_|_preaudit|\.orig\b|_before_)", re.I)
+
+# PRIVACY. Inputs that are not redistributed must never ship: neither the files themselves, nor any
+# column derived from membership of them, nor one of their identifiers appearing anywhere in a copied
+# file. The names come from the local manifest (private_manifest.py), so this file names none of them;
+# without the manifest only the generic "uuid" column check remains.
+import private_manifest as PM  # noqa: E402
+
+PRIVATE_FILES = PM.private_files()
+PRIVATE_COLUMN = PM.column_pattern()
+
+
+def _private_hits(src: Path, uuids: set) -> list:
+    """Why `src` may not ship (empty list = clean)."""
+    why = []
+    rel = src.relative_to(ROOT).as_posix()
+    if rel in PRIVATE_FILES:
+        why.append("is a non-redistributed input")
+    text = src.read_text(encoding="utf-8", errors="replace")
+    if src.suffix == ".csv":
+        head = text.splitlines()[0] if text else ""
+        cols = [c for c in head.split(",") if PRIVATE_COLUMN.search(c)]
+        if cols:
+            why.append(f"private column(s) {cols}")
+    elif PRIVATE_COLUMN.search(text):
+        why.append("mentions a private column name")
+    if uuids:
+        hit = next((u for u in uuids if u in text), None)
+        if hit:
+            why.append(f"contains a private identifier ({hit[:8]}...)")
+    return why
+
 
 MANIFEST = """# release_data
 
@@ -69,10 +124,27 @@ def main() -> int:
         shutil.rmtree(OUT)
     rows, missing, total = [], [], 0
 
-    for rel, sub, desc in WANTED:
+    # the counts in the descriptions are READ, not typed: "five issued" and "ten conditional"
+    # outlived both numbers by several revisions
+    import pandas as pd
+    _P = pd.read_csv(ROOT / "data/Target_Materials/PAPER_PREDICTIONS.csv")
+    _C = pd.read_csv(ROOT / "data/Target_Materials/CONDITIONAL_PREDICTIONS.csv")
+    counts = dict(n_issued=int((_P.status == "ISSUED").sum()),
+                  n_flagged=int((_P.status == "FLAGGED").sum()),
+                  n_refused=int((_P.status == "REFUSED").sum()), n_conditional=len(_C))
+    uuids = PM.uuids()
+    audit = sorted({Path(f).relative_to(ROOT).as_posix() for g in AUDIT_GLOBS for f in glob.glob(str(ROOT / g))
+                    if not BACKUP_COPY.search(Path(f).name)})
+    refused = []
+    for rel, sub, desc in WANTED + [(a, "audit", AUDIT_DESC) for a in audit]:
+        desc = desc.format(**counts)
         src = ROOT / rel
         if not src.exists():
             missing.append(rel)
+            continue
+        why = _private_hits(src, uuids)
+        if why:
+            refused.append(f"{rel}: {'; '.join(why)}")
             continue
         dst = OUT / sub / src.name
         dst.parent.mkdir(parents=True, exist_ok=True)
@@ -83,6 +155,10 @@ def main() -> int:
         rows.append(f"| `{sub}/{src.name}` | {len(data):,} | `{digest}` | {desc} |")
         print(f"  copied  {sub}/{src.name:<34} {len(data):>9,} bytes")
 
+    if refused:
+        print("\n  !! REFUSED -- non-redistributed data, not copied:")
+        for r in refused:
+            print(f"     {r}")
     if missing:
         print("\n  !! NOT FOUND -- these were promised in LICENSE-DATA but do not exist:")
         for m in missing:
@@ -94,8 +170,9 @@ def main() -> int:
 
     print(f"\n  {len(rows)} files, {total:,} bytes total -> release_data/")
     print("  manifest written to release_data/README.md")
-    if missing:
-        print("\n  FAILED: fix the missing paths or remove them from LICENSE-DATA.")
+    if missing or refused:
+        print("\n  FAILED: fix the missing paths (or remove them from LICENSE-DATA) and strip private "
+              "columns from any refused file.")
         return 1
     print("\n  OK. Next: git add release_data && git commit")
     return 0

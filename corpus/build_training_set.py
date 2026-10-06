@@ -43,6 +43,7 @@ METHOD TIERS ARE CARRIED, NOT COLLAPSED. `method_tier` and `weight` travel with 
 Slack-model estimate (38% median error) can never outvote a phonon-BTE result on the same compound.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import argparse
 import sys
@@ -95,6 +96,30 @@ def main(out: str = OUT, include_doped: bool = False) -> int:
     cut(~d.get("has_struct", pd.Series(False, index=d.index)).fillna(False).astype(bool),
         "no structure from a citable source")
     cut(d.struct_a_A.isna(), "structure record carries no lattice constant")
+    # CORPUS RULES (corpus_rules.py, FIXPASS 2026-10-05), so a rebuild cannot restore what the
+    # apply scripts removed. Tiers are re-derived from the method string AFTER the D7 relabel, so the
+    # NIMS MDR ML-force-constant rows can never come back as tier 1.
+    import corpus_rules as _CR
+    from build_kappa_pool import TIERS as _TIERS, WEIGHT as _WEIGHT, tier_of as _tier_of
+    d, _ = _CR.relabel_nims_mlp(d)
+    d["method_tier"] = d.method.map(_tier_of)
+    d["tier_name"] = d.method_tier.map(_TIERS)
+    d["weight"] = d.method_tier.map(_WEIGHT)
+    cut(d.method_tier == 9, "ML regressor output (tier 9)")
+    _kept, _gone = _CR.fix_typos_and_non_heuslers(d)
+    d = _kept
+    if len(_gone):
+        rejects.append(_gone.assign(reject_reason="corpus_rules D4: " + _gone.reason.astype(str)))
+        print(f"  D4 {len(_gone)} rows relabelled/removed (typo / named non-Heusler)")
+    # D3 before D1: the deposit copies our WF rows that D1 removes (see apply_corpus_rules)
+    _kept, _gone = _CR.handle_deposits(d)
+    cut(~d.index.isin(_kept.index), "corpus_rules D3: data-deposit row copying a primary-source row")
+    d = _kept.loc[d.index]          # same rows; carries the deposit mark on `source`
+    _kept, _gone = _CR.drop_duplicate_samples(d)
+    cut(~d.index.isin(_kept.index), "corpus_rules D1: derived copy of a sample with a published kappa_L curve")
+    import secondary_quotes as _SQ
+    cut(pd.Series([_SQ.is_secondary(s, t) for s, t in zip(d.source_doi, d.method_tier)], index=d.index),
+        "tier-0 value quoted from another paper (secondary_quotes)")
 
     d["stoichiometry"] = "stoichiometric"
     d["parent_formula"] = d.formula

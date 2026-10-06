@@ -38,7 +38,9 @@ matters because a kappa ceiling would also have thrown away genuinely high-condu
 room temperature. Thermoelectrics operate at 300-1200 K; nothing below `T_FLOOR` trains anything.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
+import re
 import sys
 import warnings
 from math import gcd
@@ -77,17 +79,64 @@ ML_REGRESSOR = ("regression", "descriptor model", "random forest", "gradient boo
                 "surrogate", "predicted ltc", "gnn prediction", "graph neural network prediction")
 
 
+# A MEASUREMENT whose method string never says "experiment" (FIXPASS D6/D5, 2026-10-05): a bare
+# "Exp" / "measured" label, or a lattice value written as total minus electronic kappa
+# ("kappa - kappa_e", "κ - κe"). Anchored at the start so a calculation that merely mentions a
+# measured quantity ("BTE with measured lattice constant") is not read as one.
+_MEASURED = re.compile(r"^\s*(exp\.?|measured|measurement)\s*$"
+                       r"|^\s*(κ|kappa)(_?tot(al)?)?\s*[-−–]\s*(κ|kappa)_?e\b", re.I)
+# FULL BTE spelled without the letters "bte" (FIXPASS D6): three(-and-four)-phonon solutions
+# ("3ph", "3ph+4ph", "3+4ph", "SCP+3,4ph"), self-consistent-phonon BTE ("SCP ..."), the relaxation
+# time approximation ("RTA") and "anharmonic lattice dynamics". Read only AFTER every disclaimer.
+_FULL_BTE = re.compile(r"\b3-?ph\b|\b3\s*[+,]\s*4\s*-?ph\b|\bscph?\b|\brta\b"
+                       r"|anharmonic lattice dynamics", re.I)
+# MACHINE-LEARNED FORCE CONSTANTS (FIXPASS D7): phono3py on pypolymlp force constants is an
+# ML-potential BTE -- tier 2 by the TIERS definition above, whatever else the string says.
+_ML_FC = re.compile(r"pypolymlp|machine[- ]learned force constants|\bmlp force constants", re.I)
+
+
 def tier_of(method: str) -> int:
+    """0 measured / 1 full BTE / 2 approximate or ML-potential BTE / 3 semi-empirical / 9 excluded.
+
+    ORDER IS THE RULE. Every disclaimer (semi-empirical / Slack / NOT BTE / approx / ML potential)
+    is read before any keyword that would claim a full BTE, so "Slack model on MLIP elastics" is
+    tier 3 and "phono3py on pypolymlp force constants" is tier 2.
+    """
     m = str(method).lower()
     if any(k in m for k in ML_REGRESSOR):
         return 9                                   # excluded below, never trained on
-    if "experiment" in m or "wiedemann" in m:
+    if "experiment" in m or "wiedemann" in m or _MEASURED.search(m):
         return 0
-    if any(k in m for k in ML_FORCEFIELD):
+    # A semi-empirical model evaluated on ML-potential inputs is still semi-empirical: this test
+    # used to come AFTER the ML-force-field one, so "Slack model on MLIP elastics" read as tier 2.
+    if any(k in m for k in ("semi-empirical", "semi empirical", "slack", "debye-callaway",
+                            "debye callaway")):
+        return 3
+    if _ML_FC.search(m) or any(k in m for k in ML_FORCEFIELD):
         return 2
-    if "not full bte" in m or "reduced-model" in m or "reduced model" in m:
+    # A DISCLAIMER MUST BE READ BEFORE THE KEYWORD IT DISCLAIMS.
+    #
+    # These three lines used to sit AFTER the BTE test below, and the BTE test asks whether "bte"
+    # appears anywhere in the string. It appears inside "NOT BTE". So every row labelled
+    # "semi-empirical (Slack / Debye-Callaway-type, NOT BTE)" was tiered 1 = full BTE at weight 1.0
+    # and trained on as a first-principles calculation: 429 rows across 363 compounds, 8.7% of the
+    # tier-1 pool, from arXiv:2501.11644 (332), PhysRevX 4:011019 "BTE-approx" (77) and an empirical
+    # Slack model on ML-potential elastics (17). Prediction references were never affected, because
+    # make_paper_predictions, compute_conditional and family_calibration all filter on the method
+    # STRING as well as the tier -- only the model's training labels were. Measured reach on a real
+    # prediction: removing those rows moved ScAsPt by 14.2% and HfAsIr by 4.9%.
+    #
+    # Slack and Debye-Callaway are semi-empirical models, so they belong at tier 3 with the rest of
+    # that class; an approximated or reduced BTE is still a transport solve and stays at tier 2.
+    # (the semi-empirical test now sits above the ML-force-field one; see the top of the function)
+    #
+    # "compressed" (FIXPASS D6): arXiv:2503.05913 compresses the 3-ph/4-ph force constants to a
+    # low-rank (PCP) form and scans the rank -- an approximated transport solve, so tier 2 like the
+    # other approximations, not tier 1 although the string contains "3-ph".
+    if ("not full bte" in m or "not bte" in m or "bte-approx" in m or "bte approx" in m
+            or "reduced-model" in m or "reduced model" in m or "compressed" in m):
         return 2
-    if any(k in m for k in ("bte", "shengbte", "phono3py", "tdep", "phonon")):
+    if any(k in m for k in ("bte", "shengbte", "phono3py", "tdep", "phonon")) or _FULL_BTE.search(m):
         return 1
     return 3
 
@@ -233,6 +282,19 @@ def main() -> int:
     d["formula"] = d.formula_raw.map(red)
     d = d[d.formula.notna()]
 
+    # ---- corpus rules that must survive a rebuild (corpus_rules.py, FIXPASS 2026-10-05) -------
+    # D7 before tiering: the NIMS MDR rows arrive with method_class "BTE" and must tier as
+    # ML-force-constant BTE (2). D4: Starrydata typo ZnNiSn (title-gated) and named non-Heuslers.
+    import corpus_rules as CR
+    _audit = []
+    d, _ch = CR.relabel_nims_mlp(d)
+    if len(_ch):
+        print(f"  D7 relabelled {len(_ch)} NIMS MDR rows as phono3py on ML force constants")
+    for _u in CR.unverified_nims(d):
+        print(f"  WARNING: NIMS MDR dataset not verified as MLP or DFT -- read it: {_u}")
+    d, _a = CR.fix_typos_and_non_heuslers(d)
+    _audit.append(_a)
+
     # ---- Heuslers only -------------------------------------------------------
     before = len(d)
     d["heusler"] = d.formula.map(is_heusler_stoich)
@@ -280,6 +342,18 @@ def main() -> int:
     d["tier_name"] = d.method_tier.map(TIERS)
     d["weight"] = d.method_tier.map(WEIGHT)
     d = d.drop_duplicates(subset=["formula", "kappa_L", "temperature_K", "source_doi"])
+    # D3 deposit copies dropped, the rest marked as a deposit; then D1 one copy per Starrydata
+    # sample (D3 first: the deposit copies our WF rows that D1 removes -- see apply_corpus_rules)
+    d, _a = CR.handle_deposits(d)
+    _audit.append(_a)
+    d, _a = CR.drop_duplicate_samples(d)
+    _audit.append(_a)
+    _audit = [x for x in _audit if len(x)]
+    if _audit:
+        _r = pd.concat(_audit, ignore_index=True)
+        print(f"  corpus rules removed/relabelled {len(_r)} rows: "
+              f"{_r.groupby(['rule', 'action']).size().to_dict()}")
+        _r.to_csv("data/external/KAPPA_POOL_corpus_rules_audit.csv", index=False)
 
     print(f"\n{'=' * 72}\nHEUSLER kappa_L POOL\n{'=' * 72}")
     print(f"  rows {len(d)}   DISTINCT HEUSLER COMPOUNDS {d.formula.nunique()}\n")

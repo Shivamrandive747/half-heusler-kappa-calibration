@@ -1,0 +1,12 @@
+{
+  "_generated_by": "paper/fig01_corpus.py",
+  "n_heusler": 960,
+  "n_half": 735,
+  "n_calculated": 284,
+  "n_measured": 50,
+  "n_measured_with_tier1": 39,
+  "n_measured_only": 11,
+  "n_measured_single_publication": 26,
+  "n_single_publication_with_tier1": 19,
+  "n_single_publication_no_tier1": 7
+}

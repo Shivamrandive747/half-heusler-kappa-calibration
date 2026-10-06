@@ -1,457 +1,477 @@
 % =============================================================================================
-% SECTION 2 -- METHODS.  Draft 2 -- merge of the former Section 2 (Dataset) and Section 3 (Method).
+% SECTION 2 -- METHODS.
 %
-% Two structural faults in the split version are fixed here:
+% Condensed 2026-10-05 (research-paper pass). The detailed curation rules, the reference-choice
+% ladder, the quality-control gates, the pairing rules, the boundary-scattering bound, the
+% structure-only search procedure, the populations table and the training-data figure moved to the
+% Supplementary material, section "Extended Methods" (sec:extmethods there). Each is summarised
+% here in one or two sentences with a pointer.
 %
-%   1. The transfer function -- the substantive contribution -- was 487 words and sat AFTER the
-%      816-word regression-model subsection that the deployed route does not even use. The order
-%      is now contribution first, auxiliary component second, and the auxiliary subsection is
-%      titled for what it actually is ("Supplying a calculation where none exists").
-%
-%   2. The tier list reported 505 under a definition that only 289 compounds satisfy. 505 is the
-%      database's first-principles flag; 289 is the stricter method-string match. Both numbers are
-%      correct and are now presented as the refinement they are, with the 214 + 2 remainder.
-%
-% Statements that appeared twice in the split version are stated once here: the TiNiSn/ZrNiSn row
-% imbalance (was in 3.3 and again in 3.5), the fit-objective rule (3.3 and 3.5), and the
-% held-out-nulls principle (3.5, 3.6 and twice more in Results).
-%
-% All labels from the split sections are preserved so existing \ref calls still resolve.
+% Every number below is a key of data/exports/kappa_v2/paper_numbers.json, or arithmetic on such
+% keys (284/50 = 5.7; 1 - c = 0.58; 10^0.270 = 1.86; interval coverage counts = coverage x 39), or a
+% threshold defined in code.
+%   9495 / 960 / 735 / 152        corpus.rows_all / compounds_all / half_heuslers /
+%                                 source_dois_behind_measured
+%   681 / 463 / 284 / 230         training_data.n_labels / n_compounds / n_half_heusler /
+%                                 n_half_heusler_vec18
+%   544 at 300 K, 119 at 500 K    training_data.labels_by_T
+%   45 descriptors; 81 missing    shap_ranking.n_descriptors; shap_ranking.top[bond_min].n_missing
+%   R2 / RMSE / MAE / median err  model_comparison.{catboost,lightgbm,gpr,krr}.*
+%   2.18                          cap_test.max_uncapped_factor
+%   0.41-0.56 / 0.50-0.80 etc.    calibration.stability (leave-one-cluster / -family / bootstrap)
+%   Gemini models, counts, dates  extraction database (FIX_DECISIONS.md, journal compliance)
+%   VEC counting rule             make_paper_predictions.ve / vec (pymatgen group; lanthanides and
+%                                 actinides carry group 3)
+%   100 K temperature bin         run_target_blind_test.py (Tbin = round(T/100)*100)
+%   bands 1.62/2.56/2.85 etc.     conformal_indomain (seed medians, coverage counts)
 % =============================================================================================
 
 \section{Methods}
 \label{sec:method}
 
-We want the \emph{measured} lattice thermal conductivity of a half Heusler, and we obtain it in two
-steps: a transfer function that maps a first-principles value onto the experimental scale, and,
-only where no calculation exists, a regression model that supplies the first-principles value
-itself. The transfer function is the substantive contribution and is described first.
-Figure~\ref{fig:method} shows the whole procedure together with the property that organises it.
-Measurements and calculations run in separate tracks from the corpus onward and meet only at the
-transfer function, so nothing fitted to a calculation is ever scored against another calculation.
+We aim to predict the \emph{measured} lattice thermal conductivity, $\kappa_L$, of half Heuslers. A
+machine-learning model predicts the first-principles (Boltzmann-transport-equation, BTE)
+conductivity, $\kappa_L^{\mathrm{BTE}}$, from the crystal structure (Section~\ref{sec:model}), and a
+transfer function maps any first-principles value onto the experimental scale
+(Section~\ref{sec:transfer}). Where a published calculation exists, the transfer function is applied
+to it directly and the model is not used. Figure~\ref{fig:method} shows the procedure: measurements
+and calculations stay in separate tracks from the corpus onward and meet only at the transfer
+function. Rules stated here only in outline are given in full in the Extended Methods
+(Section~S12 of the Supplementary material).
 
-\begin{figure*}[tp]
+\paragraph{Notation and conventions.} We write $\kappa_L^{\mathrm{BTE}}$ for a calculated
+conductivity and $\kappa_L^{\mathrm{exp}}$ for a value on the experimental scale, whether a
+measurement or a calculation mapped onto that scale. A half Heusler is written XYZ, with X the most
+electropositive element (a rare earth or an early transition metal), Y the late transition metal and
+Z the main-group element. A \emph{bonding family} is the pair of elements on the Y and Z sites,
+labelled by those two elements, as in the \ce{Sb}--\ce{Pt} family; neither the order of the two
+symbols nor the order of the elements in a formula carries meaning. Each prediction for an
+unmeasured compound carries one of three \emph{statuses} (Section~\ref{sec:screening}):
+\emph{issued}, a prediction this paper makes; \emph{flagged}, a calibrated value declined because it
+fails a named check; and \emph{conditional}, an estimate on the shared constant in a family with no
+usable measured member. The word \emph{tier} is reserved for the method tiers 0--3 of
+Section~\ref{sec:tiering}. The \emph{deployed} constants are those used for the issued predictions.
+
+\begin{figure*}[tbp]
   \centering
   \includegraphics[width=\linewidth]{figures/fig08_method.pdf}
-  \caption{\textbf{The method, end to end.} Calculations (upper track) and measurements (lower
-  track) are never pooled: they are tiered, filtered and counted separately and meet only at the
-  transfer function, which is the sole point at which a calculated quantity is mapped onto an
-  experimental one. The dashed region marks what a fold of the validation removes---an entire
-  chemistry cluster, withheld from the regression model \emph{and} from the calibration, since
-  holding one out but not the other would let the transfer function see the compound it is being
-  scored on. Counts are the funnel from \num{289} published calculations and \num{52} measured
-  compounds down to the five issued predictions; equation numbers refer to
-  Section~\ref{sec:method}.}
+  \caption{\textbf{The method, end to end, in seven numbered steps.} Calculations (upper lane, grey,
+  dashed) and measurements (lower lane, orange) are tiered, converted and screened separately, and
+  meet only at the transfer function (blue). A published full Boltzmann-transport calculation
+  (tier~1) is corrected directly; the machine-learning surrogate (pink), trained on tier~1 only,
+  supplies a calculation only where none is published. The measurements fit the shared constants
+  ($c$, $p$) and the per-family constants $c_f$, and separately score the held-out compounds. The
+  green dashed region marks what each fold of the blind test refits with one X-site chemistry
+  cluster removed. Predictions that pass the issue screens are issued; a prediction that fails a
+  named check is flagged; estimates on the shared constant, in families with no usable measured
+  member, are conditional.}
   \label{fig:method}
 \end{figure*}
 
 \subsection{Corpus construction}
 \label{sec:dataset}
-\label{sec:sources}
-\label{sec:composition}
 
-A correction between calculation and experiment can only be fitted where both exist for the same
-compound, so the first requirement is a corpus in which the two are separately identifiable. Ours
-contains \num{967} distinct compounds, of which \num{742} are half Heuslers, drawn from \num{211}
-publications and structure repositories---\num{7823} temperature-resolved values across the
-half-Heusler subset---and every value carries its provenance and a statement of how it was
-obtained.
+A correction from calculation to experiment can be fitted only on compounds that have both, so the
+corpus records calculations and measurements separately. It holds \num{9495} temperature-resolved
+values for \num{960} distinct Heusler compounds, \num{735} of them half Heuslers, and every value
+records its source and how it was obtained.
 
-Experimental values come from the Starrydata curated transport
-database~\cite{katsura2025starrydata}, read at the published snapshot of 1 July
-2025~\cite{mato2025starrydata}, from direct extraction of primary publications, and from targeted
-recovery of measurements that existed in our own extraction records but had never reached the
-training table. The two Starrydata citations are the resource and the dated version actually used,
-so the corpus can be regenerated exactly. Starrydata supplies \SI{95}{\percent} of the experimental
-rows, and those rows trace to \num{150} distinct primary publications, since it aggregates
-digitised transport curves and does not measure anything itself. Seven compounds
-(\ce{AlNiSb}, \ce{AlVNi}, \ce{DySbPt}, \ce{LuSbPt}, \ce{TbSbPt}, \ce{VNiSn}, \ce{ZrSbIr}) enter
-only through direct extraction, and three of them---the \ce{Sb}--\ce{Pt} series members---validate
-a bonding family in which we later issue predictions.
+Experimental values come from the Starrydata curated transport database~\cite{katsura2025starrydata},
+read at its published snapshot of 1 July 2025~\cite{mato2025starrydata}, and from direct extraction
+from primary publications. Starrydata aggregates curves digitised from primary publications; the
+measured half-Heusler values trace to \num{152} distinct publications. For direct extraction,
+multimodal large language models read the full text, tables and figures: Google Gemini
+\texttt{gemini-2.5-flash} (\num{483} extractions, 4--13 July 2026) and \texttt{gemini-2.5-pro}
+(\num{695} extractions, 13 July -- 18 September 2026). A retrieved record with no body text is never
+passed to the model, and every extracted value must pass the physical and provenance gates below,
+so no value enters the corpus on the model's authority alone. First-principles values come from
+AFLOW~\cite{curtarolo2012aflow} (its AAPL transport module~\cite{plata2017an} and its AGL
+Debye--Gr\"{u}neisen estimates~\cite{toher2014highthroug}, kept apart by the tiering below), the
+Materials Project~\cite{jain2013commentary}, JARVIS~\cite{choudhary2020the},
+OQMD~\cite{kirklin2015the} and published phonon-transport studies. Crystal structures come from the
+same repositories, the Crystallography Open Database~\cite{graulis2009crystallog} and
+OPTIMADE-federated sources~\cite{andersen2021optimade}.
 
-Direct extraction from primary publications was performed by a multimodal large language model
-(Google Gemini) reading the full text, tables and figures. The method is
-productive but not trustworthy on its own, and one failure mode is worth recording because it is
-invisible without an explicit check. A publisher's full-text endpoint may return a metadata stub
-carrying only a title and a link, and return it with an HTTP success code; \num{167} such stubs were
-stored as though they were articles. Given a title alone the model does not decline. It returns
-fluent and specific measurements---instrument models, sample densities, figure numbers, whole
-temperature series---that are entirely fabricated. Extraction of \num{45} of those stubs produced
-\num{1571} invented measurements, of which \num{524} thermal-conductivity rows reached the export
-and accounted for \SI{17.4}{\percent} of it before the defect was found. Two safeguards follow.
-Extraction is now gated on the retrieved source exceeding \num{3000} bytes, an order of magnitude
-below the smallest genuine article body and above the largest observed stub, so a title-only record
-is never sent to the model; and affected rows are flagged in place and excluded downstream rather
-than deleted, so the contamination remains auditable. Every surviving value must additionally pass
-the physical and provenance gates below, which are enforced in code. No
-value enters the corpus on the model's authority alone.
-
-First-principles values were drawn from
-AFLOW---transport values from its AAPL module~\cite{plata2017an} and quasi-harmonic estimates from
-AGL~\cite{toher2014highthroug}, which the tiering below keeps apart---the Materials
-Project~\cite{jain2013commentary}, JARVIS~\cite{choudhary2020the}, OQMD~\cite{kirklin2015the} and
-published phonon-transport studies. Crystal structures were taken from the same repositories
-together with COD and OPTIMADE-federated sources~\cite{andersen2021optimade}.
-
-Experiments measure total thermal conductivity, so the lattice component must be separated from the
-electronic one. We do this by Wiedemann--Franz subtraction,
+Experiments measure the total thermal conductivity, so most measured rows separate the lattice part
+by Wiedemann--Franz subtraction,
 %
 \begin{equation}
   \kappa_L = \kappa_\mathrm{tot} - \frac{L T}{\rho},
   \label{eq:wf}
 \end{equation}
 %
-with the Lorenz number $L$ taken from the single-parabolic-band parameterisation of Kim and
-Snyder~\cite{kim2015characteri}, $L = 1.5 + \exp(-|S|/116)$ in units of
-\SI{1e-8}{\watt\ohm\per\kelvin\squared} with the Seebeck coefficient $S$ in
-\si{\micro\volt\per\kelvin}. \SI{85}{\percent} of the experimental rows are obtained this way; the
-remainder are reported as lattice conductivity directly. Equation~\eqref{eq:wf} is a difference of
-two measured quantities and is only as trustworthy as the resistivity entering it, so we require
-$\rho$ to lie in \SIrange{1e-8}{1e-2}{\ohm\meter}, the range physically available to a dense
-intermetallic. Rows carrying $\rho$ of order \SI{10}{\ohm\meter}---six orders of magnitude too
-large---drive $LT/\rho$ to zero, so the subtraction removes nothing and the row ships the
-\emph{total} conductivity under a lattice label. The failure is silent, and its signature is an
-apparent lattice conductivity that \emph{rises} with temperature. \num{136} rows failed this gate,
-among them all \num{47} rows of \ce{TiCoSn}.
+with the Lorenz number $L$ from the single-parabolic-band parameterisation of Kim and
+Snyder~\cite{kim2015characteri}, $T$ the temperature and $\rho$ the electrical resistivity; every
+row records which route produced it. Because Eq.~\eqref{eq:wf} is a difference of two measured
+quantities, $\rho$ must lie in the range available to a dense intermetallic; a row outside it
+reports total conductivity under a lattice label and is removed. Four further rules decide what
+counts as a measurement: a value one paper quotes from another is not one; a sample digitised twice
+enters once; a data deposit that republishes curves is never counted as a laboratory; and a
+composition must be a Heusler. A separate gate collapses a preprint, a deposit and the article they
+duplicate onto the version of record, so that one calculation is never counted as two groups. The
+rules are given in full in the Extended Methods.
 
-Figure~\ref{fig:corpus} shows what the corpus contains and, equally, what the field contains. Of
-the \num{742} half Heuslers with a thermal-conductivity record of any kind, \num{289} carry a
-transport calculation and \num{52} have been measured. The measured set is itself unevenly
-evidenced: twenty-seven of the \num{52} rest on a single publication, while five have been measured
-by ten or more independent groups. We retain both and carry the distinction forward, so that
-agreement with a twenty-times-replicated curve is never presented as equivalent to agreement with a
-single digitised figure. Overall, Fig.~\ref{fig:corpus} fixes the two facts the rest of the paper
-works from: calculations outnumber measurements by \num{5.6} to one, and the measurements rest on
-very uneven evidence.
+Figure~\ref{fig:corpus} summarises the corpus. Of the \num{735} half Heuslers with any
+thermal-conductivity record, \num{284} have a full transport calculation and \num{50} have been
+measured, and the evidence behind the measured set is uneven: many compounds rest on a single
+publication, a few on ten or more.
 
-\begin{figure*}[tp]
+\begin{figure*}[tbp]
   \centering
   \includegraphics[width=\linewidth]{figures/fig01_corpus.pdf}
-  \caption{\textbf{First-principles calculations of half-Heusler lattice thermal conductivity
-  outnumber laboratory measurements by \num{5.6} to one.}
-  (a) Compounds surviving each stage of corpus construction, drawn to scale. Of \num{967} Heusler
-  compounds with a thermal-conductivity record, \num{742} are half Heuslers, \num{289} carry a
-  full Boltzmann-transport calculation and \num{52} have been measured.
-  (b) Independent publications behind each measured compound. Twenty-seven of \num{52} rest on a
-  single source, which sets the evidence tiering used in Section~\ref{sec:results}.}
+  \caption{\textbf{The half-Heusler $\kappa_L$ corpus.} (a)~The \num{735} half Heuslers with a
+  thermal-conductivity record (of \num{960} Heusler compounds) by evidence type: rows are method tiers
+  (measured; full DFT-BTE; ML-potential BTE; semi-empirical), columns the tier combinations
+  compounds carry; column heights give compound counts and left bars tier sizes. \num{284} compounds
+  carry a full calculation and \num{50} a measurement (\num{5.7}:1); \num{39} of the \num{50} also
+  carry a tier-1 calculation (not the same set as the \num{39} in-domain compounds of the blind
+  test). (b)~Independent publications per measured compound, a preprint and its article counted
+  once; hatched, no tier-1 calculation. \num{26} of the \num{50} rest on a single publication.}
   \label{fig:corpus}
 \end{figure*}
 
-\subsection{Method tiering and quality control}
+\subsection{The measured values and the choice of reference}
+\label{sec:measured}
+
+A transfer function is only as well defined as the experimental scale it maps onto. Every reference
+is a stoichiometric parent compound (each coefficient within \num{0.02} of an integer), so the
+doped and alloyed specimens that dominate the half-Heusler literature are excluded and the
+correction measures the offset between a calculation and a measurement of the same compound. That
+offset still has two sources, which we do not separate: error in the calculation itself (a
+three-phonon calculation omits higher-order scattering, and the exchange-correlation functional is
+approximate) and the specimen, whose point defects, grain boundaries and incomplete density are
+absent from the calculation of a perfect crystal.
+
+We never blend the curves of several laboratories, since a blend is a curve nobody measured. A fixed
+ladder, reading only the specimen and the temperature coverage of each measurement and never a
+calculation, chooses one reference laboratory per compound: the central laboratory when four or more
+report it, otherwise the densest specimen, otherwise the widest temperature range. A
+\emph{family-paper rung} makes one primary publication that measured two or more members of a family
+the reference for those members, so that a family constant describes one kind of specimen. A
+laboratory contradicting a consensus, a data deposit, a nanostructured specimen and a source with
+fewer than four temperatures rank last but are never deleted, and a curve-shape test rejects curves
+with a visibly mis-subtracted electronic term (full rules in the Extended Methods). Within the chosen
+publication, the value in each \SI{100}{\kelvin} temperature bin is the median of its rows. In the
+blind test, and for the compound held out in the family test, the reference is chosen without the
+family-paper rung, so that it never depends on which siblings have been measured. The sources record
+little about each specimen, and independent laboratories measuring the same compound disagree by a
+median factor of \num{1.33}; the correction is therefore not a microstructural model but the expected
+value over published practice, and every score depends on the choice of reference as well as on the
+method.
+
+\subsection{Method tiers and quality control}
 \label{sec:tiering}
-\label{sec:gates}
 
-Pooling a measurement with a calculation would destroy the quantity this paper sets out to measure,
-so every row carries a \emph{method tier} recording how its value was obtained. Tier~0 is a
-laboratory measurement: \num{52} half Heuslers, \num{3482} values, \num{164} publications,
-\SIrange{200}{1122}{\kelvin}. Tier~1 is a solution of the phonon Boltzmann transport equation from
-third-order force constants. Tier~2 is transport computed on a machine-learned interatomic
-potential rather than \emph{ab initio} forces, \num{419} compounds. Tier~3 is a semi-empirical
-Slack or Debye--Callaway estimate from elastic and thermodynamic quantities, \num{245} compounds.
+Every row carries a \emph{method tier}. Tier~0 is a laboratory measurement (\num{50} half Heuslers
+from \num{152} publications). Tier~1 is a full solution of the phonon Boltzmann transport equation
+from first-principles third-order force constants (\num{284} half Heuslers). Tier~2 is an
+approximate or reduced transport route, including a transport calculation whose force constants come
+from a machine-learned interatomic potential. Tier~3 is a semi-empirical or quasi-harmonic estimate:
+Slack~\cite{slack1979the}, Debye--Callaway~\cite{callaway1959model} or AGL. Only tier~1 enters the
+calibration and, for half Heuslers, the training of the regression model. The tier is assigned from
+the method string, never from a repository's label, and tier~1 requires a positive match for a
+transport solution with no disclaimer attached.
 
-For tier~1 the repository flag and the method string disagree. \num{505} half
-Heuslers carry a nominally first-principles label, but only \num{289} carry a method string that
-positively identifies a transport calculation; \num{214} (\SI{42}{\percent}) carry \emph{only} a
-semi-empirical estimate, and two more (\ce{LaSeCl} and \ce{NaSrP}) are labelled merely as an
-approximate transport calculation. We assign the tier from the method string and require a positive
-match, so that a label we cannot classify counts against us. Throughout this paper tier~1 therefore
-means the \num{289}, not the \num{505}.
-
-The two populations are not interchangeable, and the corpus lets us say by how much. For the
-\num{93} half Heuslers carrying both kinds of label at a matched temperature, the median
-disagreement is a factor of \num{1.38} and \SI{84}{\percent} agree within a factor of two---but the
-tail reaches \num{7.2}. The difficulty is dispersion rather than bias: a semi-empirical value is
-usually close and occasionally very wrong, and nothing in the value itself indicates which. A
-corpus that assigned tiers by repository would average the two and would calibrate a transfer
-function partly against values that are themselves fitted estimates.
-
-Five further conditions are enforced in code at the point the corpus is generated, so a rejected
-value cannot return when a script is re-run. A compound is admitted as a half Heusler only if a
-cubic $C1_b$ record (space group 216) exists in a source that is not a prototype-substitution
-database, since prototype decorations record that a structure was \emph{generated}, not that the
-phase forms. A compound also recorded in a non-cubic space group is flagged: \ce{MgAgSb} (space
-groups 129 and 216) and \ce{DySbPd} (186, 194 and 216) are both dimorphic, and a cubic calculation
-cannot be compared to a measurement of a distorted phase without saying so. Half and full Heuslers
-are separated by the measured site ratio, not by formula appearance, since a binary in space
-group 225 is fluorite, not a Heusler. Values below \SI{200}{\kelvin} are excluded, because the
-boundary-free conductivity returned by a transport calculation diverges as $T\to 0$ when Umklapp
-scattering freezes out, while the measurement becomes boundary-limited and therefore specific to
-the specimen's microstructure; below \SI{200}{\kelvin} the two are not the same quantity. And a
-tier-1 row must carry a transport-calculation method string, not a semi-empirical one.
-
-\subsection{The transfer function}
-\label{sec:transfer}
-
-A first-principles calculation describes a perfect, infinite crystal, while a laboratory specimen is
-a polycrystal with grain boundaries, point defects and finite density, each of which scatters
-phonons the calculation allows to propagate freely; for the XNiSn half Heuslers this has been
-analysed directly against measurement~\cite{schrade2017the}. The measured conductivity is
-accordingly lower, and lower by an amount that grows as the intrinsic phonon mean free path
-grows---that is, as temperature falls. We capture this with two parameters,
-%
-\begin{equation}
-  \kappa_L^{\,\mathrm{expt}}(T) \;=\; \kappa_L^{\,\mathrm{BTE}}(T)\;
-    \min\!\left[c\left(\frac{T}{300}\right)^{p},\,1\right],
-  \label{eq:transfer}
-\end{equation}
-%
-where $c$ sets the room-temperature reduction and $p$ its temperature dependence, and the cap at
-unity enforces the physical requirement that extrinsic scattering can only reduce conductivity.
-Fitted on the in-domain compounds, $c=\num{0.51}$ and $p=\num{0.80}$.
-
-The cap is not a formality, and anyone applying Eq.~\eqref{eq:transfer} should know where it binds.
-With these constants $c\,(T/300)^{p}$ reaches unity at $T \approx \SI{696}{\kelvin}$, so above about
-\SI{700}{\kelvin} the transfer function is the identity and no correction is applied at all. That
-regime is not a corner of the data: \num{138} of the \num{333} half-Heusler rows in the blind test
-lie above it, two in five. The reported accuracy therefore averages a corrected low-temperature
-regime with an uncorrected high-temperature one, and $p$ is in effect fitted on the sub-cap rows.
-Section~\ref{sec:limitations} returns to this, since the compounds where the calculation falls
-\emph{below} the measurement---which no downward correction can reach---concentrate in the same
-high-temperature regime. Both are fitted quantities
-rather than constants of nature: across leave-one-chemistry-out refits $c$ stays within
-\numrange{0.48}{0.51} while $p$ ranges over \numrange{0.80}{1.45}. The suppression at
-\SI{300}{\kelvin} is therefore well determined and its temperature dependence is not, and we report
-both ranges rather than only the flattering one.
-
-Equation~\eqref{eq:transfer} is not, however, a boundary-scattering model, and the reason is a
-bound rather than a preference. A Callaway grey-boundary
-treatment~\cite{callaway1959model} with a single boundary length gives a suppression
-$S = \Lambda_\mathrm{b}/(\Lambda+\Lambda_\mathrm{b})$ which, with $\Lambda \propto 1/T$, has
-logarithmic slope $1-S$ at \SI{300}{\kelvin}---so a boundary model reproducing $S(300)=c$ must have
-$p = 1-c$. Generalising to a spectral model, with a per-mode suppression $S_\omega$ and any
-distribution of mode conductivities, the slope is
-$1 - \langle S^2\rangle_\kappa/\langle S\rangle_\kappa \leq 1-\bar S$ by the Cauchy--Schwarz
-inequality. The constraint is therefore not a modelling convenience but a \emph{ceiling}: no
-single-boundary-length model, grey or spectral, can produce a slope above $1-c$. At $c=\num{0.51}$
-that ceiling is \num{0.49}, and our fitted $p=\num{0.80}$ exceeds it by a factor of \num{1.63}.
-Raising the ceiling would require intrinsic mean free paths steeper than
-$\Lambda \propto T^{-1.63}$, and the calculations we are correcting do not show that: their own
-logarithmic slopes have a median of $-1.00$.
-
-We therefore report the two-parameter form together with the conclusion that follows from it:
-\textbf{the correction is not boundary-limited transport}. Its magnitude is of the right order for
-grain-boundary scattering in these materials, but its temperature dependence is steeper than that
-mechanism alone allows, which implies at least one further temperature-dependent contribution.
-Equation~\eqref{eq:transfer} is an empirical transfer function, and we attach no mechanism to its
-parameters.
-
-\subsection{What is predicted, and how it is scored}
-\label{sec:definitions}
-
-The calculated quantity being calibrated is the phonon Boltzmann-transport conductivity,
-%
-\begin{equation}
-  \kappa_L^{\,\mathrm{BTE}} \;=\; \frac{1}{V}\sum_{\mathbf{q},s}
-    C_{\mathbf{q},s}\, v_{g}^{2}(\mathbf{q},s)\, \tau(\mathbf{q},s),
-  \label{eq:bte}
-\end{equation}
-%
-the sum over phonon wavevectors $\mathbf{q}$ and branches $s$ of the mode heat capacity, the squared
-group velocity and the lifetime. Equation~\eqref{eq:bte} is what every tier-1 source computes and
-what Eq.~\eqref{eq:transfer} maps onto experiment; it also fixes what a descriptor must capture to
-be useful, since only three quantities enter.
-
-Errors are reported \emph{per compound}, never per row. For compound $i$ with $n_i$ matched
-temperatures, and writing $\hat{\kappa}$ for the calibrated prediction and $\kappa$ for the
-reference,
-%
-\begin{equation}
-  e_i \;=\; \operatorname*{median}_{j=1\ldots n_i}
-    \frac{\bigl|\hat{\kappa}(T_{ij}) - \kappa(T_{ij})\bigr|}{\kappa(T_{ij})},
-  \qquad
-  r_i \;=\; \operatorname*{median}_{j} \frac{\hat{\kappa}(T_{ij})}{\kappa(T_{ij})},
-  \label{eq:err}
-\end{equation}
-%
-and the reported figures are $\operatorname{median}_i e_i$ and the fraction of compounds with
-$\tfrac{1}{2} \le r_i \le 2$. The distinction is load-bearing rather than pedantic: \ce{TiNiSn} and
-\ce{ZrNiSn} alone contribute \num{753} and \num{646} of the \num{2426} matched rows, so a per-row
-median would report those two compounds and call it a method. For the same reason the calibration
-is fitted to the quantity that is reported,
-%
-\begin{equation}
-  (c, p) \;=\; \operatorname*{arg\,min}_{c,\,p}\;
-    \operatorname*{median}_{i \in \mathcal{T}} e_i(c, p),
-  \label{eq:fit}
-\end{equation}
-%
-over the training compounds $\mathcal{T}$ of a fold. Fitting one objective and reporting another has
-cost this project a spurious \num{9} percentage points once already.
+Five quality-control conditions are applied when the corpus is generated: a cubic $C1_b$ record
+(space group 216) from a source that is not a prototype-substitution database; a polymorph flag for a
+compound also recorded in a non-cubic space group; separation of half from full Heuslers by the site
+ratio; a \SI{200}{\kelvin} temperature floor, below which a boundary-free calculation and a
+boundary-limited measurement are not the same quantity; and a transport-calculation method string
+for tier~1. They are stated with their reasons in the Extended Methods.
 
 \subsection{Domain of applicability}
 \label{sec:domain}
 
 A transfer function for \emph{lattice} thermal conductivity is meaningful only where lattice
-conduction is the dominant channel, so we state in advance where the method applies. First, the
-compound must have eighteen valence electrons. Half Heuslers are semiconducting at the closed-shell
-counts, of which $\mathrm{VEC}=18$ is the one relevant to transition-metal
-members~\cite{graf2011simple,anand2018a}; away from such a count the compound is metallic, a large
-electronic term must be removed from every measurement, and $\kappa_L$ no longer governs transport.
-Main-group members such as \ce{LiAlSi} are semiconducting at $\mathrm{VEC}=8$, and we restrict to
-18 because that is where the corpus has support, not because 8 is metallic. Electrons are counted
-as the group number for groups 1--12 and group$-10$ for the $p$ block; \ce{Yb} is divalent in many
-antimonides, which would move \ce{YbNiSb} out of the domain, and we flag it rather than rely on the
-count. Second, the structure must be cubic $C1_b$ and not polymorphic, since the calculation being
-calibrated is for the cubic phase. Third, no constituent may be an actinide or otherwise
-radioactive, for which the corpus contains no training example.
+conduction dominates. The domain is half Heuslers with 18 valence electrons, a cubic $C1_b$
+structure, and no other polymorph on record. Transition-metal half Heuslers are semiconducting at a
+valence-electron count (VEC) of 18~\cite{graf2011simple}; away from it a large electronic term must
+be removed from every measurement. VEC sums, over the three elements of the 1:1:1 formula, the group
+number for groups 1--12 and the group number minus 10 for groups 13--18, with lanthanides and
+actinides counted as group~3. We restrict to $\mathrm{VEC}=18$ because that is where the corpus has
+support. The structural conditions follow because the calculation being calibrated is for the cubic
+phase.
 
-Of the \num{51} half Heuslers with both a measurement and a calculation, \num{38} satisfy these
-conditions. These three screens are applied identically to the validation set and to every issued
-prediction, and none was chosen after inspecting the results. Section~\ref{sec:screening} adds two
-further conditions before a prediction is \emph{issued}---that the bonding family already contains
-validated members, and that the value falls inside the range that family has been measured in---and
-those two are properties of the prediction pipeline rather than of the domain. They are stated, and
-tested, where they are used.
+Two further screens apply to prediction candidates only. A candidate containing \ce{Ce}, \ce{Sm},
+\ce{Eu} or \ce{Yb}, whose valence is not fixed~\cite{lawrence1981valence}, is flagged rather than
+issued (the validation compound \ce{YbNiSb} is still scored), and a candidate containing a
+radioactive element is excluded, since the corpus holds no training example of one.
 
-Several sub-populations of these \num{38} recur in what follows, and because the accuracy figures
-quoted for them are not comparable across populations, Table~\ref{tab:populations} defines each
-once.
+All \num{50} measured half Heuslers are scored in the blind test; \num{44} have $\mathrm{VEC}=18$ and
+\num{39} also pass the structural conditions, forming the in-domain set. The domain is defined by the
+screens every candidate must pass, independently of the validation result, and the headline and its
+null comparison are reported with and without the screens (Section~\ref{sec:blind}). Other
+sub-populations are defined where they first appear and tabulated in the Extended Methods; figures
+over different populations are not directly comparable.
 
-\begin{table*}[tp]
-  \centering
-  \caption{The compound populations used in this paper. Every accuracy figure is quoted over one of
-  these, and figures over different rows are not directly comparable---a point that matters most
-  when the method is set against the family baseline, which is defined only on the \num{31}.}
-  \label{tab:populations}
-  % 0.56 of the line width, plus the count and name columns, exceeded the text block. 0.46 fits.
-  \begin{tabular}{clp{0.46\linewidth}}
-    \toprule
-    $n$ & name & definition \\
-    \midrule
-    \num{742} & half-Heusler corpus & any thermal-conductivity record of any kind \\
-    \num{289} & calculated & carries a full Boltzmann-transport calculation \\
-    \num{52}  & measured & has ever been measured in a laboratory \\
-    \midrule
-    \num{51}  & matched & has both a measurement and a calculated value \\
-    \num{38}  & \textbf{in-domain} & the \num{51} after the three domain screens; \textbf{the blind
-                test set, and the population behind every headline figure} \\
-    \num{13}  & excluded & the remainder of the \num{51}, scored separately in
-                Section~\ref{sec:failure} \\
-    \midrule
-    \num{34}  & published-matched & of the \num{38}, those also carrying a temperature-matched
-                \emph{published} transport value; the offset of Section~\ref{sec:offset} and the
-                deployed-route scores of Section~\ref{sec:deployed} \\
-    \num{31}  & family-covered & of the \num{38}, those whose $(\mathrm{Y},\mathrm{Z})$ family holds
-                at least two other measured members; the only population on which the family
-                baseline is defined \\
-    \num{28}  & curve-resolved & of the \num{38}, those with at least five measured temperatures
-                spanning \SI{300}{\kelvin} \\
-    \num{21}  & semi-empirically covered & of the \num{38}, those carrying a published Slack or
-                Debye--Callaway estimate \\
-    \bottomrule
-  \end{tabular}
-\end{table*}
-
-\subsection{Supplying a calculation where none exists}
+\subsection{Training data, descriptors and the machine-learning model}
+\label{sec:trainingdata}
 \label{sec:model}
 
-The transfer function needs a calculation to correct, and for a candidate compound there may not be
-one. We therefore train gradient-boosted decision trees
-(CatBoost~\cite{prokhorenkova2017catboost}) on \num{45} inputs: \num{42} descriptors of composition
-and the $C1_b$ geometry---elemental masses, radii, electronegativities and their contrasts across
-the three sites, volume per atom, density, and nearest-neighbour bond lengths with their
-spread---together with three encodings of temperature ($T$, $1000/T$ and $\log_{10}T$). This model
-is a fallback, not the deployed route: where a transport calculation already exists, calibrating it
-gives \SI{29.7}{\percent} median error against \SI{43.0}{\percent} for the model on the same task,
-and the model is not used.
+The model learns calculations, never measurements. Its label is the phonon Boltzmann-transport
+conductivity of a cubic crystal,
+%
+\begin{equation}
+  \kappa_L^{\mathrm{BTE}} \;=\; \frac{1}{3N_{\mathbf{q}}V}\sum_{\mathbf{q},s}
+    C_{\mathbf{q}s}\, v_{\mathbf{q}s}^{2}\, \tau_{\mathbf{q}s},
+  \label{eq:bte}
+\end{equation}
+%
+a sum over the $N_{\mathbf{q}}$ sampled wavevectors $\mathbf{q}$ and branches $s$ of the mode heat
+capacity $C_{\mathbf{q}s}$, squared group velocity $v_{\mathbf{q}s}^{2}$ and lifetime
+$\tau_{\mathbf{q}s}$, divided by the cell volume $V$. The training pool holds \num{681} labels on
+\num{463} compounds. Of these, \num{284} are half Heuslers (\num{230} with $\mathrm{VEC}=18$), each
+labelled by a full first-principles calculation; tier-2 and tier-3 half-Heusler values are excluded.
+Full Heuslers share the descriptors and enter the pool, those without a transport calculation
+through a semi-empirical estimate at reduced weight; held-out scoring always uses half Heuslers
+alone. Of the labels, \num{544} are at \SI{300}{\kelvin} and \num{119} at \SI{500}{\kelvin}, so the
+training data constrain the temperature dependence only weakly. The labels are strongly
+right-skewed, so the model is fitted on $\log_{10}\kappa_L^{\mathrm{BTE}}$; their distribution is
+shown in the Extended Methods.
 
-Two details of the descriptor set matter. Lattice parameters must be reduced to a single convention
-before use, because four of our structure sources publish the primitive face-centred edge and one
-the conventional cell, related by $a_\mathrm{conv} = \sqrt{2}\,a_\mathrm{prim}$; mixing them
-injects a \SI{41}{\percent} error into every length descriptor and \SI{183}{\percent} into
-volume-derived ones. The lattice parameter is therefore never emitted as a descriptor in either
-convention, and volume per atom carries the same physics while being convention-independent.
-Bond-length descriptors in turn require explicit atomic coordinates, and where a record lacked them
-we supply the ideal $C1_b$ positions instead of letting the features fall through as missing---six
-compounds were previously scored on \num{41} of \num{45} descriptors for want of this.
+We train gradient-boosted decision trees (CatBoost~\cite{prokhorenkova2017catboost}). Each prediction
+is the median over five random seeds. Some diagnostics are run at one seed, always seed~0, the
+\emph{reference seed}, and are labelled as such; headline figures are medians over the five seeds.
 
-The training pool is \num{4921} compound--temperature rows over \num{686} compounds spanning
-\SIrange{200}{1200}{\kelvin}. \num{4765} of those rows carry a full Boltzmann-transport
-calculation; a further \num{156} carry only a semi-empirical estimate and enter at a reduced sample
-weight of \num{0.3}, because they cover chemistries for which no transport calculation exists
-anywhere. Those rows retain tier~3, enter only as down-weighted training signal, are never used as
-a reference value and carry no reported statistic, so admitting them bends no tiering rule. The
-pool is likewise not restricted to half Heuslers, since the descriptors are structural and
-compositional rather than prototype-specific; held-out scoring is always on half Heuslers alone.
+\paragraph{Descriptors.} Each row is described by \num{45} descriptors of the composition, the cubic
+cell and the temperature, in six groups: (i)~site properties (mass, radius and electronegativity of
+X, Y and Z); (ii)~cross-site means, contrasts, spreads and ratios, including the X--Z
+electronegativity difference; (iii)~Klemens-type disorder, zero throughout this stoichiometric pool
+and kept only so the set is defined for substituted compositions; (iv)~cell geometry (volume per atom,
+density, atoms per conventional cell, full-Heusler and quaternary flags); (v)~bond lengths from the
+atomic coordinates, missing for \num{81} rows and handled natively by the model; and
+(vi)~temperature, as $T$, $1000/T$ and $\log_{10}T$. The lattice parameter itself is never a
+descriptor, because sources mix the primitive and conventional cells.
 
-Whether the choice of regressor matters is a question we tested. Four model
-families---gradient-boosted trees in two implementations, kernel ridge regression and a Gaussian
-process---were trained on identical rows and descriptors under the same grouped cross-validation,
-on the \num{4765}-row transport part of the pool alone. They do not agree on a winner: CatBoost has
-the best coefficient of determination on $\log_{10}\kappa_L$ (\num{0.889} against
-\numrange{0.760}{0.872}) while LightGBM has the lower median error (\SI{22.0}{\percent} against
-\SI{25.7}{\percent}). That disagreement concerns fit to \emph{calculated} labels, so we repeated
-the entire blind test with LightGBM in place of CatBoost, under the same folds, holdout, nested
-calibration and scoring. It gives \SI{37.1}{\percent} median error and \SI{78.9}{\percent} within a
-factor of two against \SI{31.0}{\percent} and \SI{86.8}{\percent} for CatBoost on the same \num{38}
-compounds; LightGBM is better on \num{17} of them, and a paired signed-rank test does not separate
-the two ($p = \num{0.45}$). The advantage LightGBM holds on calculated labels does not survive
-calibration to experiment, and the gap between the two is smaller than the spread the headline
-shows across model seeds. We retain CatBoost and record that the choice is not load-bearing.
-Figure~\ref{fig:model} shows both results: which regressor was chosen, and what the retained model
-rests on.
+\subsection{Model selection}
+\label{sec:modelselection}
 
-\begin{figure*}[tp]
+We compared four regressors on identical rows, descriptors and weights: CatBoost, LightGBM, a
+Gaussian process and kernel ridge regression, each scored out of fold on the full pool with
+five-fold cross-validation grouped by element system. CatBoost has the highest $R^2$ and the lowest
+RMSE and MAE (Table~\ref{tab:models}); LightGBM has the lowest median error per compound, by
+\num{0.1} percentage points (pp), too small to separate the two, and we retain CatBoost. Only kernel
+ridge falls clearly behind, so the results do not hinge on the choice. The comparison measures fit to
+calculated labels, on element-system folds rather than the X-site clusters of the validation, and
+over the whole pool, so its figures are not comparable with the half-Heusler accuracy of
+Section~\ref{sec:mlrepro}. Parity plots for all four are in Section~S7 of the Supplementary
+material.
+
+\begin{table}[tbp]
   \centering
-  \includegraphics[width=\linewidth]{figures/fig07_model.pdf}
-  \caption{\textbf{The regression model: which one, and what it uses.} (a)~Four regressors on
-  identical rows and descriptors under grouped cross-validation with whole chemistries held out.
-  The two metrics disagree---CatBoost leads on $R^2$, LightGBM on median error---so the blue bar
-  marks the model retained, not a winner. (b)~SHAP decomposition of the retained model: for every
-  row, how far each descriptor moved the predicted $\log_{10}\kappa_L$, coloured by that
-  descriptor's own value. The signs are those thermal transport requires---larger radii, longer
-  bonds, more atoms per cell and higher temperature all push $\kappa_L$ down---so the fit rests on
-  phonon physics rather than on an artefact of the corpus.}
-  \label{fig:model}
-\end{figure*}
+  \caption{Model selection: four regressors trained on identical rows (\num{681} rows, \num{463}
+  compounds) and scored out of fold on identical element-system folds. RMSE, MAE and $R^2$ are per
+  row on $\log_{10}\kappa_L$; the median error is per compound
+  (Section~\ref{sec:metrics}). The retained model is in bold.}
+  \label{tab:models}
+  \small
+  \begin{tabular}{lcccc}
+    \toprule
+    Regressor & RMSE & MAE & $R^2$ & median error \\
+    \midrule
+    \textbf{CatBoost}  & \textbf{\num{0.270}} & \textbf{\num{0.182}} & \textbf{\num{0.701}} & \SI{26.1}{\percent} \\
+    LightGBM           & \num{0.273} & \num{0.186} & \num{0.695} & \SI{26.0}{\percent} \\
+    Gaussian process   & \num{0.281} & \num{0.190} & \num{0.676} & \SI{26.4}{\percent} \\
+    Kernel ridge       & \num{0.343} & \num{0.236} & \num{0.516} & \SI{32.3}{\percent} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{The transfer function}
+\label{sec:transfer}
+
+A first-principles calculation describes a perfect, infinite crystal; a laboratory specimen is a
+polycrystal with grain boundaries, point defects and finite density, each of which scatters phonons
+the calculation lets propagate freely. For the \ce{XNiSn} half Heuslers this has been analysed directly
+against measurement~\cite{schrade2017the}. The measured conductivity is therefore lower, and the
+specimen contribution would be expected to grow as temperature falls and the intrinsic mean free
+path grows.
+
+\paragraph{The shared form.} We describe the offset empirically with two parameters:
+%
+\begin{equation}
+  \kappa_L^{\mathrm{exp}}(T) \;=\; \kappa_L^{\mathrm{BTE}}(T)\;
+    \min\!\left[c\left(\frac{T}{300}\right)^{p},\,1\right].
+  \label{eq:transfer}
+\end{equation}
+%
+Here $c$ sets the room-temperature reduction and $p$ its temperature dependence. The cap at one is a
+modelling choice for the shared form, which keeps a calibrated value from exceeding its calculation;
+it is not a physical requirement, since part of the offset is error in the calculation, which can
+have either sign. The constants are fitted on published tier-1 calculations, each paired with the
+reference measurement of the same compound, with no regression model involved. Such pairs exist for
+\num{34} in-domain compounds (\num{429} pairs). We fit per compound,
+%
+\begin{equation}
+  (c, p) \;=\; \operatorname*{arg\,min}_{c,\,p}\;
+    \operatorname*{median}_{i \in \mathcal{C}}\;
+    \operatorname*{median}_{j}
+    \left|\log_{10}\frac{\hat{\kappa}(T_{ij};c,p)}{\kappa(T_{ij})}\right|,
+  \label{eq:fit}
+\end{equation}
+%
+where $\mathcal{C}$ is the set of compounds with pairs that remain after the scored compound's
+\emph{held-out unit} is removed, $\hat{\kappa}$ is the corrected calculation and $\kappa$ the
+reference measurement at the matched temperatures $T_{ij}$. The held-out unit is the X-site
+chemistry cluster in the blind test, the bonding family in the unseen-family test, and the compound
+itself in the family comparison (Section~\ref{sec:nulls}), so no scored compound informs the
+constant applied to it. The error is taken in logarithm because it is multiplicative, and medians
+stop a single digitisation artefact from steering the fit. On all \num{34} compounds the fit gives
+the deployed $c=\num{0.42}$ and $p=\num{0.70}$; $c\,(T/300)^{p}$ then reaches one at
+\SI{1036}{\kelvin}.
+
+The magnitude is well determined and the exponent is not. Removing any one of the \num{16} chemistry
+clusters among the \num{34} compounds moves $c$ within \numrange{0.41}{0.56} and $p$ within
+\numrange{0.50}{0.80}; removing any one of the \num{12} bonding families moves $c$ within
+\numrange{0.40}{0.54} and $p$ within \numrange{0.60}{0.80}. Over \num{200} bootstrap resamples of the
+compounds, the 10th--90th percentile range is \numrange{0.35}{0.55} for $c$ but \numrange{0.45}{1.15}
+for $p$. We therefore do not claim to predict the temperature dependence of an individual compound.
+
+\paragraph{The family form.} Every bonding family with at least one member that has both a published
+calculation and a usable reference measurement carries its own constant:
+%
+\begin{equation}
+  \kappa_L^{\mathrm{exp}}(T) \;=\; \kappa_L^{\mathrm{BTE}}(T)\;
+    c_f\left(\frac{T}{300}\right)^{p}, \qquad p = \num{0.70}.
+  \label{eq:family}
+\end{equation}
+%
+Twelve families qualify. Only the magnitude is refitted, by Eq.~\eqref{eq:fit} restricted to
+$c_f<1$ on the family's measured members, because most families are measured over too narrow a
+range to identify their own exponent. A family with two or more measured members (nine families) is
+tested held out, each member predicted from the others with its own measurement withheld, and
+\emph{passes}, or is \emph{validated}, only if the median error over its folds is under
+\SI{25}{\percent}. A family with one member is \emph{anchored}: its figure is an in-sample fit,
+never a validation. The family form carries no cap and can exceed its calculation at high
+temperature, by up to \num{2.18} times, which is where the measurements of those families lie; every
+issued prediction carries a factor below one.
+
+A compound receives its family's constant wherever its family has a measured member, and the shared
+constant otherwise. The leave-one-chemistry-out blind test is the exception: it is scored with the
+shared constant, because a chemistry holdout leaves a compound's family-mates in training and would
+not test a family constant at all.
+
+\paragraph{Pairing a calculation with a measurement.} A calculation reported at several temperatures
+is interpolated in log--log space; one reported at a single temperature is carried as
+$\kappa_L^{\mathrm{BTE}} \propto 1/T$, the high-temperature limit of three-phonon Umklapp
+scattering, by no more than a factor of \num{2.5} in temperature and never below
+\SI{200}{\kelvin}. Independent calculations are combined by their median, and a temperature at which
+they disagree by more than a factor of two is \emph{contested} and not used, for measured compounds
+and candidates alike; this is why \ce{TiNiPb} is quoted at \SI{500}{\kelvin}. The full rules are in
+the Extended Methods.
+
+\paragraph{What the constants mean.} Empirical temperature dependences have been fitted to measured
+half-Heusler curves before~\cite{geng2014lattice,petersen2015critical}; here we fit instead the
+\emph{ratio} of measurement to calculation, and this work adds the corpus, the class-wide magnitude
+and the held-out validation, not the functional form. With $\kappa_L^{\mathrm{BTE}} \propto T^{-1}$,
+$p=\num{0.70}$ implies a corrected $\kappa_L \propto T^{-0.30}$. The correction is empirical, not a
+boundary-scattering term: a single-boundary-length model, grey or spectral~\cite{callaway1959model},
+caps the logarithmic slope of the suppression at $1-c$ (\num{0.58} at $c=\num{0.42}$), and the fitted
+$p$ exceeds that cap, although its bootstrap range straddles it (derivation in the Extended Methods).
+We attach no mechanism to the parameters.
+
+\subsection{Predictions from crystal structure alone}
+\label{sec:structureonly}
+
+For a compound nobody has calculated, the model supplies $\kappa_L^{\mathrm{BTE}}$ and the transfer
+function maps it onto the experimental scale. We searched DxMag~\cite{xiao2026accurate}, AFLOW, OQMD,
+JARVIS and the Materials Project for cubic $C1_b$ cells inside the domain, took the lattice parameter
+of the lowest-energy site ordering on record, and predicted a candidate only if its family, its X
+element and every element are represented among the training half Heuslers. A prediction is graded
+\emph{strong} when the model reproduces the family's own published calculations to within
+\SI{25}{\percent} held out and the five seeds agree within a factor of \num{1.3}, \emph{moderate}
+within \SI{50}{\percent} and \num{1.5}, and \emph{weak} otherwise. Literature status was checked in
+OpenAlex~\cite{priem2022openalex}, Crossref and arXiv with a positive control; a value reported only
+in a table or supplement is invisible to this search, which limits every novelty statement here. The
+two steps, structure to calculation and calculation to experiment, carry errors that we report side
+by side and never combine. The full procedure and two model-free cross-checks are in the Extended
+Methods.
 
 \subsection{Validation, null baselines and prediction intervals}
-\label{sec:validation}
 \label{sec:nulls}
 \label{sec:intervals}
 
-Every figure we report is obtained with the target compound's \emph{entire chemistry} withheld from
-training. Compounds are clustered by their most electropositive site and a whole cluster is removed
-at once. Compounds sharing the held-out compound's $(\mathrm{Y},\mathrm{Z})$ bonding family but
-built on a different X site do remain in training---\num{33} of the \num{38} in-domain compounds
-have at least one such relative---so the test measures accuracy for a new X-site substitution
-within a known bonding family. It is nonetheless a harder test than removing single compounds,
-under which near-duplicates of the target survive in training.
+The evaluation rules for the results reported here were fixed in writing before this evaluation was
+run: the definition of the shared constant and its held-out use, the single-reference rule, the
+construction of the intervals at the quoted temperature, and the list of figures to be reported
+whatever they showed. These documents are kept, time-stamped, in the code repository.
 
-Three precautions make that holdout mean what it says. Any threshold or model choice is made on one
-half of the chemistry clusters and evaluated on the other, since selecting on the same data one
-reports inflates the result by \SIrange{7.7}{10.3}{pp} depending on the protocol, which we measure
-rather than assume. Every reported figure is the median over five model seeds and is quoted with
-its across-seed range: the median error moves from \SI{31.0}{\percent} to \SI{40.0}{\percent}
-across seeds, so a single-seed figure reports the seed as much as the method, whereas the
-within-$2\times$ fraction (\SIrange{81.6}{86.8}{\percent}) and the rank correlation
-(\numrange{0.618}{0.675}) are stable, which is why we lean on them. And the two calibration
-parameters are themselves refitted with the scored compound's cluster removed; fitting them once on
-all \num{38} compounds and scoring the same \num{38} would report \SI{29.7}{\percent} rather than
-\SI{31.0}{\percent}.
+Every figure for the model route is obtained with the target compound's \emph{entire chemistry}
+withheld: compounds are clustered by their X element and a whole cluster is removed at once
+(\emph{leave-one-chemistry-out}), from the model and from the shared constant alike. Family-mates
+with a different X element remain in training, so the test measures accuracy for a new X-site
+substitution within a known family. There are \num{27} clusters among the \num{230} calculated
+$\mathrm{VEC}=18$ half Heuslers, \num{16} among the \num{34} compounds of the published route,
+\num{18} among the \num{39} in-domain compounds and \num{21} among all \num{50} measured ones. Every
+threshold or model choice is made on one half of the clusters and evaluated on the other, and every
+headline figure is the median over five model seeds, quoted with its range. Two \emph{null
+baselines} use no compound-specific information: a constant equal to the median measured
+conductivity of the training compounds, and a power law $A(T/300)^{q}$ fitted to them, both with the
+same chemistry held out and the same references; the paired comparison is also made with each
+cluster counted once. Family constants are tested leave-one-compound-out against the shared constant
+refitted without the same compound, and the shared constant on families never measured is tested
+leave-one-family-out on the \num{34} compounds of the published route.
 
-A method that predicts $\kappa_L$ must beat predictors that use no compound-specific information at
-all. We use two: a constant equal to the median measured conductivity of the training compounds,
-and a power law $A(T/300)^{q}$ fitted to them. Both are fitted with the same chemistry held out as
-the calibration, since a null given less information than the method is not a test of anything.
-
-Intervals are conformal, taken from the out-of-fold residual distribution in logarithmic space
-because the error is multiplicative. For a nominal level $\alpha$, over the $m$ held-out compounds
-of the declared domain,
+Prediction intervals are split conformal intervals~\cite{lei2018distributi}, built from out-of-fold
+residuals in logarithmic space. Each in-domain compound contributes one residual, under the
+calibration it would actually receive (its family constant fitted without it, or else the shared
+constant refitted without its cluster), in the temperature bin nearest the quoted temperature. For a
+nominal level $\alpha$ over $m$ held-out compounds,
 %
 \begin{equation}
-  \delta_\alpha \;=\; \Bigl\{\, \bigl|\log_{10} r_i \bigr| \,\Bigr\}_{(k)},
+  \delta_\alpha \;=\; \Bigl\{\, \bigl|\log_{10} \rho_i \bigr| \,\Bigr\}_{(k)},
   \qquad k = \bigl\lceil (m+1)\,\alpha \bigr\rceil,
   \label{eq:conformal}
 \end{equation}
 %
-the $k$-th order statistic of the absolute log-residuals, giving the multiplicative half-width
-$10^{\delta_\alpha}$. The $(m+1)$ and the ceiling are both required for finite-sample validity;
-the empirical $\alpha$-quantile under-covers at these sample sizes. Coverage is evaluated
-leave-one-chemistry-out---the band applied to a held-out cluster is built only from the residuals
-of the other clusters---and tracks nominal closely: \SI{50}{\percent} nominal gives
-\SI{50.0}{\percent}, \SI{80}{\percent} gives \SI{81.6}{\percent} and \SI{90}{\percent} gives
-\SI{92.1}{\percent}, with multiplicative half-widths \num{1.31}, \num{1.92} and \num{2.24}. A
-stated interval is therefore a measured frequency rather than an assumption, though on \num{38}
-compounds these frequencies carry a binomial uncertainty of roughly \SI{8}{pp} and should be read
-as consistent with nominal rather than as precise.
+where $\rho_i$ is the ratio of prediction to reference for compound $i$ in that bin and the band is a
+factor of $10^{\delta_\alpha}$ either way. Exchangeability of the residuals is assumed, not shown,
+and compounds sharing a cluster or a laboratory weaken it, so coverage is treated as a measured
+frequency, evaluated leave-one-chemistry-out for each seed; the median band over seeds is deployed.
+At \SI{300}{\kelvin} the bands are a factor of \num{1.62}, \num{2.56} and \num{2.85} at
+\SI{50}{\percent}, \SI{80}{\percent} and \SI{90}{\percent} nominal, covering \num{20}, \num{31} and
+\num{36} of the \num{39} in-domain compounds; at \SI{500}{\kelvin} they are \num{1.38}, \num{1.70}
+and \num{1.89}, covering \num{20}, \num{32} and \num{36} (binomial uncertainty roughly
+\SI{8}{pp}). Coverage is not validated for an anchored family or a family never measured.
+
+\subsection{Metrics}
+\label{sec:metrics}
+\label{sec:definitions}
+
+Model selection scores the fit to calculated labels \emph{per row}, on $y=\log_{10}\kappa_L$. Over
+$N$ rows with labels $y_k$, out-of-fold predictions $\hat{y}_k$ and label mean $\bar{y}$,
+%
+\begin{gather}
+  \mathrm{RMSE} = \sqrt{\frac{1}{N}\sum_{k=1}^{N}\bigl(\hat{y}_k-y_k\bigr)^2},
+  \qquad
+  \mathrm{MAE} = \frac{1}{N}\sum_{k=1}^{N}\bigl|\hat{y}_k-y_k\bigr|,
+  \label{eq:rmse}\\
+  R^2 = 1-\frac{\sum_k\bigl(\hat{y}_k-y_k\bigr)^2}{\sum_k\bigl(y_k-\bar{y}\bigr)^2};
+  \label{eq:r2}
+\end{gather}
+%
+an RMSE of \num{0.270} on the logarithm corresponds to a typical scatter by a factor of
+$10^{0.270}\approx\num{1.86}$. Every other figure, including every comparison with measurement, is
+reported \emph{per compound}. The error of a prediction $\hat{\kappa}$ at temperature $T$ against the
+reference $\kappa$ is
+%
+\begin{equation}
+  \mathrm{APE}(T) \;=\; \frac{\bigl|\hat{\kappa}(T) - \kappa(T)\bigr|}{\kappa(T)},
+  \label{eq:ape}
+\end{equation}
+%
+and for compound $i$ with matched temperatures $T_{ij}$,
+%
+\begin{equation}
+  e_i \;=\; \operatorname*{median}_{j=1\ldots n_i} \mathrm{APE}(T_{ij}),
+  \qquad
+  r_i \;=\; \operatorname*{median}_{j} \frac{\hat{\kappa}(T_{ij})}{\kappa(T_{ij})}.
+  \label{eq:err}
+\end{equation}
+%
+We report the \emph{median error}, $\operatorname{median}_i e_i$; the fractions \emph{within a
+factor of two} ($\tfrac{1}{2} \le r_i \le 2$), \emph{within \SI{30}{\percent}} ($e_i \le 0.30$) and
+\emph{within \SI{25}{\percent}} ($e_i < 0.25$, the bar a family must pass); and the \emph{bias},
+$\operatorname{median}_i r_i$. Aggregating per compound stops a compound measured at many
+temperatures from outweighing one measured at few, and the calibration is fitted per compound for
+the same reason. Differences between percentages are given in percentage points (pp).

@@ -31,6 +31,7 @@ with directly-reported kappa_L. Rows where no matching resistivity exists are ke
 `thermal_conductivity_total` and are NOT used as kappa_L labels.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import argparse
 import ast
@@ -322,6 +323,25 @@ def main(curves: str, out: str = OUT) -> int:
         return 0
     d = d.drop_duplicates(subset=["formula", "temperature_K", "kappa_L", "kappa_total",
                                   "source_doi"])
+
+    # ONE COPY PER SAMPLE (corpus_rules D1, FIXPASS 2026-10-05). Starrydata digitises some samples
+    # twice -- the authors' published kappa_L curve and the total-kappa curve -- and step 2 above
+    # then derived a second kappa_L for the SAME sample by Wiedemann-Franz (NbFeSb,
+    # 10.1016/j.actamat.2019.11.010, 422.88 K: published 12.19 / 3.17 beside derived 12.18 / 3.14).
+    # Where a sample has a published curve, the derived copy is dropped here, and written to a
+    # sidecar so corpus_rules can still identify such a row by sample in files built earlier.
+    import corpus_rules as CR
+    dup = CR.duplicate_sample_mask_harvest(d)
+    if dup.any():
+        d[dup].assign(reason="derived copy of a sample with a published kappa_L curve").to_csv(
+            CR.HARVEST_DUPES, index=False)
+        print(f"  dropped {int(dup.sum())} derived rows of {d[dup].groupby(['source_doi', 'sample_id']).ngroups}"
+              f" samples that carry a published kappa_L curve (written to {CR.HARVEST_DUPES})")
+        d = d[~dup]
+    # named non-Heuslers and the title-gated ZnNiSn -> ZrNiSn typo (corpus_rules D4)
+    d, _a = CR.fix_typos_and_non_heuslers(d)
+    if len(_a):
+        print(f"  D4: {_a.groupby(['formula', 'action']).size().to_dict()}")
 
     print(f"\n=== STARRYDATA HEUSLER HARVEST ===")
     print(f"  rows {len(d)}   compounds {d.formula.nunique()}")

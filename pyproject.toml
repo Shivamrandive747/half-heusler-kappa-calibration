@@ -15,7 +15,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "half-heusler-kappa-calibration"
 version = "1.0.0"
-description = "Calibrating first-principles lattice thermal conductivity to experiment for half-Heusler compounds"
+description = "Predicting the experimental lattice thermal conductivity of half-Heusler compounds by machine learning and transfer-function calibration"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

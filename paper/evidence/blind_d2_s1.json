@@ -1,22 +1,22 @@
 {
   "reference": "EXPERIMENT (tier 0)",
   "tier": 0,
-  "n_compounds": 69,
-  "n_flagged": 1,
+  "n_compounds": 68,
+  "n_flagged": 0,
   "by_class": {
     "half": {
-      "n": 51,
-      "median_ape": 54.25973930761791,
-      "within_30": 0.19607843137254902,
-      "within_2x": 0.6078431372549019,
-      "median_ratio": 1.4351546136515445
+      "n": 50,
+      "median_ape": 55.167014560579595,
+      "within_30": 0.34,
+      "within_2x": 0.66,
+      "median_ratio": 1.5104856079627116
     },
     "full": {
       "n": 18,
-      "median_ape": 132.56216884059847,
-      "within_30": 0.1111111111111111,
-      "within_2x": 0.3333333333333333,
-      "median_ratio": 2.325621688405985
+      "median_ape": 68.6183625122911,
+      "within_30": 0.16666666666666666,
+      "within_2x": 0.5,
+      "median_ratio": 1.360845454090611
     }
   }
 }

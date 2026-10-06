@@ -19,6 +19,7 @@ Non-Heusler comparison materials are left alone here -- `build_kappa_pool.py` al
 that is not a Heusler stoichiometry, so PbTe and Bi2Te3 fall out there.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import glob
 import re

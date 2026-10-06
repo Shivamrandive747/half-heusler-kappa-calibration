@@ -27,6 +27,7 @@ THREE RULES THAT KEEP THE NUMBER HONEST:
      condemned `VCoSn` even though its median reference is 6.55 W/m/K.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import argparse
 import glob
@@ -59,10 +60,35 @@ def red(f):
         return None
 
 
-def target_set() -> dict:
-    """Reduced formula -> class, for stoichiometric Heusler targets only."""
+FROZEN_TARGETS = "data/Target_Materials/SCORED_TARGETS_frozen.csv"
+
+
+def target_set(from_folder: bool = False) -> dict:
+    """Reduced formula -> class, for stoichiometric Heusler targets only.
+
+    WHERE THE LIST COMES FROM. By default, from FROZEN_TARGETS -- the measured targets, one column of
+    formulas, written by freeze_release_inputs.py -- whenever that file exists; the working copy and the
+    public release then score exactly the same population. Scanning the folder instead read every
+    worklist in data/Target_Materials, including ones that are not redistributed, and only the
+    compounds with a tier-0 measurement could ever be scored from it (68 on 2026-10-06; the frozen list
+    reproduced target_blind_test.csv byte for byte). Without the frozen file the folder scan is the
+    fallback, as before.
+
+    from_folder=True forces the folder scan. ONLY freeze_release_inputs.py passes it, to regenerate the
+    frozen list; nothing else may, or the list would feed itself. The scan skips the frozen file.
+
+    TO ADD A NEWLY MEASURED COMPOUND: put its tier-0 rows in the training set (and the formula in a
+    worklist here if it is not in one), then run `python freeze_release_inputs.py`, which rescans the
+    folder, intersects with the tier-0 compounds and rewrites FROZEN_TARGETS; rerun the chain after.
+    The frozen list holds measured targets only, so a --tier 1 run scores those against full BTE.
+    """
+    if not from_folder and Path(FROZEN_TARGETS).exists():
+        files = [FROZEN_TARGETS]
+    else:
+        files = [f for f in glob.glob("data/Target_Materials/*.xlsx") + glob.glob("data/Target_Materials/*.csv")
+                 if Path(f).name != Path(FROZEN_TARGETS).name]
     tg = set()
-    for f in glob.glob("data/Target_Materials/*.xlsx") + glob.glob("data/Target_Materials/*.csv"):
+    for f in files:
         if any(k in f for k in ("DOPED", "TIER3", "TRAINING_SET", "Validation", "HUNTING",
                                 "NOVEL", "RESULTS", "Target_Scope", "DOMAIN", "REVERIFIED",
                                 "blind")):
@@ -106,6 +132,66 @@ def y_family(f) -> str | None:
         return None
 
 
+def reference_conditions(tr: pd.DataFrame, targets: dict, tier: int = 0) -> pd.DataFrame:
+    """The reference each target is scored against: one value per (compound, 100 K bin).
+
+    TIER 0 -- ONE LABORATORY PER COMPOUND (PREREG amendment A, 2026-10-05). This used the median of
+    ALL tier-0 rows in each bin, pooling laboratories, so a laboratory contributing many rows -- or
+    one sample entered twice (published kappa_L and our Wiedemann-Franz copy) -- outvoted the rest:
+    NbFeSb's 500 K reference was 3.21 W/m/K against 7.82 for the median of per-source medians. Now
+    the reference is the ONE publication reference_choice.per_compound chooses, with the published
+    route's eligibility and demotion rules (family_calibration.measured_frame: deduplicated corpus,
+    200-1300 K, curve-shape gate; consensus-disqualified sources, data deposits and nanostructured
+    samples ranked last) and WITHOUT the family-paper rung (no family_of), so a scored compound's
+    reference can never depend on which of its siblings are measured. The ladder never reads a
+    calculation or a model value. Within that publication the bin value is the median of its rows;
+    a compound whose chosen reference has no row in a bin simply lacks that bin.
+
+    OTHER TIERS (scoring against full BTE) keep the per-bin median over rows: the ladder is a rule
+    for choosing among laboratories, not among calculations.
+
+    Columns: red, Tbin, k_ref, n_rows, formula, ref_doi, ref_reason.
+    """
+    cols = ["red", "Tbin", "k_ref", "n_rows", "formula", "ref_doi", "ref_reason"]
+    if tier == 0:
+        import family_calibration as FC
+        import reference_choice as RC
+        meas, dq = FC.measured_frame()
+        meas = meas[meas.red.isin(targets)]
+        # A CURVE REJECTED BY THE SHAPE GATE IS RANKED LAST, NOT DELETED: a compound whose every
+        # measured curve fails it (MgAgSb, VCoSn, ...) keeps its measurement as before, and the
+        # reason string says so. The scored population is unchanged by amendment A.
+        allm, _ = FC.measured_frame(gated=False)
+        allm = allm[allm.red.isin(targets)]
+        only_rej = sorted(set(allm.red) - set(meas.red))
+        meas = pd.concat([meas, allm[allm.red.isin(only_rej)]])
+        chosen = RC.per_compound(meas, set(meas.red), disqualified=dq, verbose=True)
+        for c in only_rej:
+            if c in chosen:
+                chosen[c] = (chosen[c][0], chosen[c][1] + "; every curve fails the curve-shape gate")
+        pick = pd.Series({c: v[0] for c, v in chosen.items()})
+        ref = meas[meas.source_doi.astype(str).values
+                   == meas.red.map(pick).astype(str).values].copy()
+        ref["kappa_L"], ref["temperature_K"] = ref.k, ref.TK
+        ref["ref_doi"] = ref.red.map(pick)
+        ref["ref_reason"] = ref.red.map({c: v[1] for c, v in chosen.items()})
+    else:
+        t = pd.to_numeric(tr.method_tier, errors="coerce")
+        ref = tr[(t == tier) & tr.red.isin(targets)].copy()
+        ref["kappa_L"] = pd.to_numeric(ref.kappa_L, errors="coerce")
+        ref["temperature_K"] = pd.to_numeric(ref.temperature_K, errors="coerce")
+        ref = ref[ref.kappa_L.notna() & (ref.kappa_L > 0) & ref.temperature_K.notna()]
+        ref["ref_doi"], ref["ref_reason"] = "", f"median over tier-{tier} rows"
+    if ref.empty:
+        return pd.DataFrame(columns=cols)
+    ref["Tbin"] = (ref.temperature_K / 100).round() * 100
+    return (ref.groupby(["red", "Tbin"])
+               .agg(k_ref=("kappa_L", "median"), n_rows=("kappa_L", "size"),
+                    formula=("formula", "first"), ref_doi=("ref_doi", "first"),
+                    ref_reason=("ref_reason", "first"))
+               .reset_index()[cols])
+
+
 def main(model: str = "catboost", tier: int = 0, seed: int = 0,
          out: str | None = None) -> int:
     # `seed` and `out` exist so the five model seeds behind the paper's seed-averaged headline can
@@ -120,15 +206,11 @@ def main(model: str = "catboost", tier: int = 0, seed: int = 0,
     print(f"model seed: {seed}")
 
     # ---- the reference values we will be scored against -------------------------
-    tr = pd.read_csv(TRAIN)
+    tr = pd.read_csv(TRAIN, low_memory=False)
     tr["red"] = tr.formula.map(red)
-    t = pd.to_numeric(tr.method_tier, errors="coerce")
-    ref = tr[(t == tier) & tr.red.isin(targets)].copy()
-    ref["kappa_L"] = pd.to_numeric(ref.kappa_L, errors="coerce")
-    ref["temperature_K"] = pd.to_numeric(ref.temperature_K, errors="coerce")
-    ref = ref[ref.kappa_L.notna() & (ref.kappa_L > 0) & ref.temperature_K.notna()]
     label = "EXPERIMENT (tier 0)" if tier == 0 else f"full-BTE (tier {tier})"
-    print(f"targets with {label} reference data: {ref.red.nunique()}")
+    per_cond = reference_conditions(tr, targets, tier)
+    print(f"targets with {label} reference data: {per_cond.red.nunique()}")
 
     # ---- the model: production settings, tier-1 labels --------------------------
     b = ds.build(tier_max=1, tier_min=1, group_by="element_system",
@@ -140,11 +222,6 @@ def main(model: str = "catboost", tier: int = 0, seed: int = 0,
     print(f"training pool: {len(y)} rows, {len(set(forms))} compounds, "
           f"{len(set(clus))} chemistry clusters")
 
-    # group the references to one value per compound and temperature bin
-    ref["Tbin"] = (ref.temperature_K / 100).round() * 100
-    per_cond = (ref.groupby(["red", "Tbin"])
-                .agg(k_ref=("kappa_L", "median"), n_rows=("kappa_L", "size"),
-                     formula=("formula", "first")).reset_index())
     print(f"reference conditions (compound x temperature bin): {len(per_cond)}")
 
     # ---- one model per chemistry cluster, holding the whole cluster out ---------
@@ -240,7 +317,8 @@ def main(model: str = "catboost", tier: int = 0, seed: int = 0,
                 rows.append(dict(compound=r, cluster=cl, T=float(cond.Tbin),
                                  k_ref=float(cond.k_ref), k_pred=round(pred, 4),
                                  n_ref_rows=int(cond.n_rows),
-                                 klass=targets.get(r), Yfam=y_family(cond.formula)))
+                                 klass=targets.get(r), Yfam=y_family(cond.formula),
+                                 ref_doi=cond.ref_doi, ref_reason=cond.ref_reason))
         if i % 10 == 0 or i == len(need):
             print(f"  [{i}/{len(need)}] {cl:<22} cumulative predictions: {len(rows)}", flush=True)
 

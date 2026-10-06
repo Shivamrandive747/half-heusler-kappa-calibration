@@ -20,6 +20,7 @@ set is attributed to something that does not exist, which is a data-quality prob
 about regardless of the bibliography.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import json
 import os
@@ -228,7 +229,71 @@ def esc(s: str) -> str:
     s = re.sub(r"@@SUB\\\{(.*?)\\\}@@", r"$_{\1}$", s)
     s = re.sub(r"@@SUP\\\{(.*?)\\\}@@", r"$^{\1}$", s)
     s = re.sub(r"@@MATH\\\{\\textbackslash\{\}(.*?)\\\}@@", r"$\\\1$", s)
-    return re.sub(r"\s+", " ", s).strip()
+    return latin_safe(re.sub(r"\s+", " ", s).strip())
+
+
+# Combining marks -> the LaTeX accent command that produces them.
+_ACCENTS = {0x0300: "`", 0x0301: "'", 0x0302: "^", 0x0303: "~", 0x0304: "=", 0x0306: "u",
+            0x0307: ".", 0x0308: '"', 0x030A: "r", 0x030B: "H", 0x030C: "v", 0x0327: "c",
+            0x0328: "k", 0x0323: "d", 0x0331: "b"}
+# Letters that decomposition cannot reach, because they are not base+mark.
+_LETTERS = {"ø": r"\o{}", "Ø": r"\O{}", "ß": r"\ss{}", "æ": r"\ae{}", "Æ": r"\AE{}",
+            "œ": r"\oe{}", "Œ": r"\OE{}", "ł": r"\l{}", "Ł": r"\L{}", "đ": r"\dj{}",
+            "Đ": r"\DJ{}", "ı": r"\i{}", "þ": r"\th{}", "Þ": r"\TH{}", "'": "'", "'": "'",
+            "“": "``", "”": "''", "–": "--", "—": "---", " ": " "}
+
+# Names Crossref carries ONLY in a non-Latin script, romanised so they can be typeset.
+#
+# This is not tidiness. BibTeX 0.99 is byte-oriented: it abbreviates a given name to its first
+# BYTE, which cuts a multi-byte character in half and writes invalid UTF-8 into the .bbl. pdflatex
+# then errors out -- and cannot typeset Hangul or CJK in any case without a separate package. The
+# original script is kept beside each entry so the attribution is not silently lost.
+NON_LATIN_NAMES = {
+    # Korean J. Mater. Res. 21, 542 (2011), doi:10.3740/mrsk.2011.21.10.542.
+    # Revised Romanization of Korean: 어 = Eo, 순철 = Suncheol.
+    "어, 순철": "Eo, Suncheol",
+    # J. Less-Common Met. 75, P25 (1980), doi:10.1016/0022-5088(80)90127-7: Crossref carries private-use U+E5FC
+    # where the printed title has an identity sign, "(RE = rare earth element)".
+    "RE  rareearthelement": "RE = rare earth element",
+}
+
+
+def latin_safe(s: str) -> str:
+    """Render a string in ASCII-safe LaTeX, so BibTeX cannot split a multi-byte character.
+
+    Accented Latin letters become LaTeX accent commands. Anything in a script with no Latin
+    equivalent is looked up in NON_LATIN_NAMES; an unknown one is left alone and reported by
+    `unrenderable()` rather than silently shipped into a .bbl that will not compile.
+    """
+    import unicodedata
+    if not s or s.isascii():
+        return s
+    # Match on composed form: the same Korean name reaches us as precomposed syllables from one
+    # source and as decomposed jamo from another, and only one of them equals the key as typed.
+    s = unicodedata.normalize("NFC", s)
+    for k, v in NON_LATIN_NAMES.items():
+        s = s.replace(unicodedata.normalize("NFC", k), v)
+    if s.isascii():
+        return s
+    out = []
+    for ch in unicodedata.normalize("NFD", s):
+        o = ord(ch)
+        if o < 128:
+            out.append(ch)
+        elif o in _ACCENTS and out:
+            base = out.pop()
+            cmd = _ACCENTS[o]
+            out.append(f"\\{cmd}{{{base}}}" if cmd.isalpha() else f"\\{cmd}{{{base}}}")
+        elif ch in _LETTERS:
+            out.append(_LETTERS[ch])
+        else:
+            out.append(ch)
+    return unicodedata.normalize("NFC", "".join(out))
+
+
+def unrenderable(text: str) -> list[str]:
+    """Characters pdflatex still cannot set. Empty is the gate passing."""
+    return sorted({c for c in text if not c.isascii()})
 
 
 def to_bibtex(m: dict, key: str) -> str:
@@ -298,6 +363,22 @@ def main() -> int:
         print(f"extra_dois.txt: {len(set(extra))} listed, {len(new_extra)} not already in the corpus")
     dois = sorted(set(dois) | set(extra))
 
+    # COLLAPSE A DEPOSIT ONTO ITS VERSION OF RECORD BEFORE RESOLVING.
+    #
+    # A work can reach the corpus under two ids -- an arXiv preprint and the journal article it
+    # became, or a Zenodo deposit and the paper it belongs to. Resolving both produces two
+    # bibliography entries for one paper, which is how carrete2014finding (Phys. Rev. X 4, 011019)
+    # acquired a twin, carrete2014findinga, from its Zenodo deposit 10.5281/zenodo.10562671. The
+    # same map that stops those two counting as independent sources elsewhere in the project is
+    # used here, so the bibliography cannot disagree with the source counting.
+    import source_identity as SI_
+    _canon = {k.lower(): v for k, v in SI_.DUPLICATE_SOURCES.items()}
+    _collapsed = {d: _canon[d.lower()] for d in dois if d.lower() in _canon}
+    if _collapsed:
+        for _dep, _vor in sorted(_collapsed.items()):
+            print(f"deposit collapsed onto its version of record: {_dep} -> {_vor}")
+        dois = sorted({_collapsed.get(d, d) for d in dois})
+
     print(f"distinct DOIs to resolve: {len(dois)}\n")
 
     cache = load_cache()
@@ -333,7 +414,20 @@ def main() -> int:
         "% in the project's data pipeline. No entry was written from memory. To add a reference,\n"
         "% add its DOI to the pipeline or to paper/extra_dois.txt and re-run this script.\n"
         f"%\n% entries: {len(entries)}   unresolved DOIs: {len(failed)}\n\n")
-    Path(OUT_BIB).write_text(header + "\n".join(entries), encoding="utf-8")
+    body = header + "\n".join(entries)
+    # A character pdflatex cannot set is a build failure waiting to happen, and BibTeX will have
+    # cut it in half first: it abbreviates a given name to its first BYTE, so a multi-byte glyph
+    # becomes invalid UTF-8 in the .bbl. Report it here, where the name is still intact, rather
+    # than leaving it to be discovered as "Invalid UTF-8 byte sequence" three tools downstream.
+    left = unrenderable(body)
+    if left:
+        print(f"  WARNING: {len(left)} character(s) pdflatex cannot typeset remain in the "
+              f"bibliography: {''.join(left)}")
+        for ln in body.splitlines():
+            if any(c in ln for c in left):
+                print(f"    {ln.strip()[:100]}")
+        print("  add a romanisation to NON_LATIN_NAMES in this file, with the source noted")
+    Path(OUT_BIB).write_text(body, encoding="utf-8")
 
     by_tier: dict = {}
     for d in resolved:

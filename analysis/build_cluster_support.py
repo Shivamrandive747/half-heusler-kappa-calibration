@@ -19,6 +19,7 @@ missed the `extra_csv` gap rows entirely and was wrong for 39 of 64 blind-test c
 must come from the pool the model ACTUALLY trains on, which is what `ds.build()` returns.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import sys
 import warnings

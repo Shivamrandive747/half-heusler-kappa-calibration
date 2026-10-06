@@ -14,6 +14,7 @@ Both nulls are fitted with the same chemistry held out as the calibration. A nul
 information than the method is not a test of the method, and a referee will say so.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import json
 import sys
@@ -74,14 +75,19 @@ def nested_calibrated(d):
     The effect is small -- two parameters over 38 compounds carry little freedom, and the honest
     median is 31.0% against the 29.7% obtained in sample -- but "small" is not "absent", and the
     fix costs nothing.
+
+    Since 2026-10-05 the held-out (c, p) is the shared constant fitted on published calculations
+    without the cluster (shared_constant.shared_cp_without_cluster;
+    PREREG_shared_constant_on_calculations rule 4), not a fit on the other clusters' predictions.
     """
+    import shared_constant as SCN
     out = []
     clus = d.compound.map(lambda c: cluster_of(c) or "?")
     for cl in sorted(set(clus)):
         te, tr = d[clus == cl], d[clus != cl]
         if not len(te) or len(tr) < 4:
             continue
-        c_i, p_i = E.fit_cp(tr)
+        c_i, p_i = SCN.shared_cp_without_cluster(cl)
         if not np.isfinite(c_i):
             continue
         out.append(te.assign(k_cal=te.k_pred.values * E.apply_cp(te["T"].values, c_i, p_i),
@@ -123,14 +129,18 @@ def main() -> int:
     d["fam"] = d.compound.map(yzfam)
 
     dom, out = d[d.in_domain].copy(), d[~d.in_domain].copy()
-    c, p = E.fit_cp(dom)                      # reported constants, fitted on the whole domain
+    import shared_constant as SCN
+    c, p = SCN.shared_cp()                    # reported constants: the deployed shared constant
     dom_nested = nested_calibrated(dom)       # scored with each chemistry held out of the fit
+    # every scored compound outside the domain also gets the constant fitted without its cluster
     for frame in (d, out):
-        frame["k_cal"] = frame.k_pred * E.apply_cp(frame["T"].values, c, p)
-    dom["k_cal"] = dom.k_pred * E.apply_cp(dom["T"].values, c, p)
+        frame["k_cal"] = frame.k_pred * SCN.factor_without_own_cluster(frame)
+    dom["k_cal"] = dom.k_pred * E.apply_cp(dom["T"].values, c, p)   # deployed, no holdout
 
     cs, ps = dom_nested._c.unique(), dom_nested._p.unique()
     R = {"_generated_by": "compute_results_indomain.py",
+         "seed": 0,
+         "seed_note": "single seed (target_blind_test.csv); the seed medians are in seed_averaged_indomain.json",
          "scope": "declared domain: VEC = 18, cubic C1b on record, not polymorphic",
          "calibration": {"form": "kappa_expt = kappa_BTE * min(c (T/300)^p, 1)",
                          "c": round(float(c), 3), "p": round(float(p), 3),
@@ -138,18 +148,20 @@ def main() -> int:
                                                      round(float(cs.max()), 3)],
                          "p_range_across_holdouts": [round(float(ps.min()), 3),
                                                      round(float(ps.max()), 3)],
-                         "note": ("the reported c and p are fitted on the whole domain and are "
-                                  "what a user would apply; every ACCURACY figure below is scored "
-                                  "with the compound's chemistry removed from the fit as well as "
-                                  "from the model")}}
+                         "note": ("the reported c and p are the deployed shared constant, fitted "
+                                  "on published calculations vs measurements (shared_constant.py) "
+                                  "and what a user would apply; every ACCURACY figure below is "
+                                  "scored with the compound's chemistry removed from that fit as "
+                                  "well as from the model")}}
 
     # headline accuracy uses the NESTED calibration, matching the standard the nulls are held to
     pc_cal = per_compound(dom_nested, "k_cal")
     pc_insample = per_compound(dom, "k_cal")
     pc_raw = per_compound(dom, "k_pred")
     R["in_sample_calibration"] = {**summarise(pc_insample),
-                                  "note": ("what fitting (c,p) on all 38 and scoring the same 38 "
-                                           "would give; reported for transparency, NOT the "
+                                  "note": ("the deployed shared constant (fitted on calculations "
+                                           "that include these compounds) applied with no "
+                                           "holdout; reported for transparency, NOT the "
                                            "headline")}
     R["in_domain"] = {"calibrated": summarise(pc_cal), "uncorrected": summarise(pc_raw),
                       "n_chemistry_clusters": int(dom.compound.map(
@@ -159,13 +171,20 @@ def main() -> int:
                           "compounds": sorted(out.compound.unique())}
 
     # is the domain split real, or would any 38/13 split look like this?
-    all_pc = per_compound(d, "k_cal")
-    ind = d.groupby("compound").in_domain.first()
-    u, pv = mannwhitneyu(all_pc.ape[ind], all_pc.ape[~ind], alternative="less")
+    #
+    # Both sides must be scored the same way. Previously this used `per_compound(d, "k_cal")`, where
+    # the in-domain rows carried the calibration fitted on the in-domain compounds themselves while
+    # the excluded rows did not -- an in-sample number (29.7%) set against an out-of-sample one
+    # (105.1%). The in-domain side now uses the nested calibration, so neither group saw the fit that
+    # scores it. The conclusion is unchanged and marginally stronger: 31.0% vs 105.1%, p = 6.7e-3.
+    u, pv = mannwhitneyu(pc_cal.ape, per_compound(out, "k_cal").ape, alternative="less")
     R["domain_split_test"] = {"test": "Mann-Whitney, in-domain error lower",
                               "p": float(f"{pv:.2e}"),
-                              "median_in": round(float(all_pc.ape[ind].median()), 1),
-                              "median_out": round(float(all_pc.ape[~ind].median()), 1)}
+                              "median_in": round(float(pc_cal.ape.median()), 1),
+                              "median_out": round(float(per_compound(out, "k_cal").ape.median()), 1),
+                              "note": ("both sides scored with the compound's chemistry held out of "
+                                       "the calibration fit; the in-domain figure is the nested "
+                                       "figure, not the in-sample one")}
 
     # nulls, same holdout as the calibration
     R["nulls"] = {}
@@ -197,13 +216,20 @@ def main() -> int:
     R["by_family"] = json.loads(ft.reset_index().to_json(orient="records"))
 
     # the interventions tested and rejected -- pulled from their own artefacts, not retyped
+    # The per-family line used to come from family_calibration_nested.json, which has no producer
+    # and carries the withdrawn global constant (0.50/0.95, n=51). It now quotes the LIVE family
+    # route, held out (compute_deployed_route.py -> deployed_route.json), against the global arm on
+    # the same compounds -- and it is no longer a "rejected" intervention: the family route is
+    # deployed. The key is kept for consumers and says so.
     try:
-        fc = json.load(open("data/exports/kappa_v2/family_calibration_nested.json"))
-        pf = fc.get("leave-one-CHEMISTRY-out", {})
-        per_family = (f"{pf.get('median_global')}% -> {pf.get('median_family')}% "
-                      f"(p={pf.get('wilcoxon_p'):.2f})" if pf else "see artefact")
+        dr = json.load(open("data/exports/kappa_v2/deployed_route.json"))
+        fa = dr.get("family_arm_compounds", {})
+        g_ = fa.get("global_on_same_compounds", {})
+        per_family = (f"DEPLOYED, not rejected: family arm held out {fa.get('median_ape')}% vs global "
+                      f"arm {g_.get('median_ape')}% on the same {fa.get('n')} compounds "
+                      f"(deployed_route.json)" if fa else "see deployed_route.json")
     except Exception:  # noqa: BLE001
-        per_family = "see artefact"
+        per_family = "see deployed_route.json"
     R["rejected_interventions"] = {
         "hurdle model": "-1.3 pp on experiment, p = 0.84",
         "magnitude calibration (beta term)": "chosen on the design half 47/60, lost out of sample",

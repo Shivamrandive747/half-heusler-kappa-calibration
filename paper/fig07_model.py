@@ -26,6 +26,7 @@ colourbar. That ramp is used nowhere else in the paper: the accent blue means "o
 inferno ramp in Figure 2 means temperature, so neither can be spent here.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import json
 import sys
@@ -33,7 +34,6 @@ import warnings
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "analysis"))  # release layout: analysis/ is a sibling of paper/
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 warnings.filterwarnings("ignore")
 import numpy as np
@@ -55,6 +55,8 @@ NICE = {
     "bond_std": "bond-length spread", "M_Y": "mass, Y site", "M_Z": "mass, Z site",
     "r_Y": "radius, Y site", "r_Z": "radius, Z site", "X_Y": "electronegativity, Y site",
     "X_Z": "electronegativity, Z site", "X_mean": "mean electronegativity",
+    # these two reached the panel as raw column names
+    "X_spread": "electronegativity spread", "dX_XZ": "electronegativity difference, X$-$Z",
 }
 LABEL = {"catboost": "CatBoost", "lightgbm": "LightGBM",
          "krr": "kernel ridge", "gpr": "Gaussian process"}
@@ -63,7 +65,7 @@ LABEL = {"catboost": "CatBoost", "lightgbm": "LightGBM",
 def main() -> int:
     import matplotlib.pyplot as plt
     from catboost import Pool
-    from pipeline import s19_kappa_dataset as ds
+    from pipeline import s19_kappa_dataset as ds  # noqa: F401  (production_build wraps ds.build)
     from pipeline.s20_kappa_train import make_model
 
     # the PRODUCTION descriptor set (45), which is what the blind test and Section 3 use.
@@ -73,15 +75,20 @@ def main() -> int:
     order = sorted(mc, key=lambda k: mc[k]["median_ape"])
     print("  model comparison (identical rows, identical descriptors, grouped CV):")
     for k in order:
-        print(f"    {LABEL[k]:<18} median APE {mc[k]['median_ape']:5.2f}%   "
+        print(f"    {LABEL[k]:<18} median APE per compound {mc[k]['median_ape']:5.2f}%   "
               f"R2(log) {mc[k]['r2_log']:.4f}   n={mc[k]['n']}")
     assert len({mc[k]["n"] for k in mc}) == 1, "models were not scored on the same rows"
+    # the panel labels its error axis "per compound": refuse a comparison file from before the
+    # production-build / per-compound change (FIXPASS 2026-10-05), whose median_ape was per row
+    assert all(str(mc[k].get("units", {}).get("median_ape", "")).startswith("compound") for k in mc), \
+        "model_comparison_production.json is stale (per-row median_ape): re-run compare_models_production.py"
 
     # ---- refit the winner on the whole tier-1 pool for the SHAP decomposition ---------------
-    # the SAME 17 descriptors and the SAME pool the comparison used -- an earlier version fitted
-    # SHAP on all 45 columns of a 4,921-row build while quoting a 17-feature comparison beside it,
-    # so the two panels described different models.
-    b = ds.build(tier_max=1, tier_min=1, verbose=False)
+    # the SAME pool, weights and descriptors the comparison used, which since 2026-10-05 (FIXPASS) is
+    # the PRODUCTION build (compare_models_production.production_build: tier-1 + gap rows, element-
+    # system grouping) -- so both panels describe the model the blind test and Section 3 actually fit.
+    from compare_models_production import production_build
+    b = production_build()
     X, y, w = b["X"], b["y"], b["weights"]
     print(f"  SHAP model: {len(y)} rows x {X.shape[1]} descriptors")
     mdl = make_model("catboost")
@@ -106,7 +113,7 @@ def main() -> int:
     # are shown and the selected model is marked as selected rather than as winner.
     ys = np.arange(len(order))[::-1]
     for axm, key, lab, fmt, better in (
-            (ax_err, "median_ape", "median absolute error (%)", "{:.1f}%", "lower"),
+            (ax_err, "median_ape", "median error per compound (%)", "{:.1f}%", "lower"),
             (ax_r2, "r2_log", "$R^2$ on $\\log_{10}\\kappa_L$", "{:.3f}", "higher")):
         vals = [mc[k][key] for k in order]
         cols = [F.OURS if k == "catboost" else "#C9CDD1" for k in order]
@@ -118,14 +125,19 @@ def main() -> int:
                      fontweight="bold" if k == "catboost" else "normal")
         axm.set_yticks(ys)
         axm.set_yticklabels([LABEL[k] for k in order], fontsize=6.8)
-        axm.set_xlim(min(vals) - span * 0.30, max(vals) + span * 0.75)
+        # A BAR ENCODES ITS LENGTH, so its axis starts at zero. Starting it at min-0.30*span made
+        # LightGBM's 22.0% bar look a third the length of kernel ridge's 33.6% when the ratio is
+        # 1.5, and made R^2 0.760 look a fifth of 0.889. That exaggeration argued AGAINST this
+        # paper's own finding, which is that the choice of regressor is not load-bearing; drawn
+        # honestly, the four bars are nearly the same length and the reader sees why we say so.
+        axm.set_xlim(0, max(vals) * 1.22)
         axm.set_xlabel(f"{lab}   ({better} is better)", fontsize=7)
         axm.tick_params(axis="y", length=0)
         axm.tick_params(axis="x", labelsize=6.3)
     ax_err.set_title("Four regressors, identical data", fontsize=8, loc="left", pad=12)
     ax_err.text(0.0, 1.055, "blue = used in this work", transform=ax_err.transAxes,
                 fontsize=6.4, va="bottom", ha="left", color=F.OURS)
-    F.panel_label(ax_err, "a", dx=-0.46, dy=1.34)
+    F.panel_label(ax_err, "a", loc="upper right")
 
     # ---- (b) what it learned -----------------------------------------------------------------
     rng = np.random.default_rng(0)
@@ -156,7 +168,7 @@ def main() -> int:
     cb.set_label("descriptor value", fontsize=7)
     cb.ax.tick_params(labelsize=6.5, width=0.5, length=2)
     cb.outline.set_linewidth(0.5)
-    F.panel_label(ax, "b", dx=-0.28)
+    F.panel_label(ax, "b", loc="lower right")
 
     print("  top descriptors by mean |SHAP|:")
     for j in top[:6]:

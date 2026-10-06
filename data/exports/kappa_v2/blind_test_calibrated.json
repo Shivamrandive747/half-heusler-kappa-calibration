@@ -1,0 +1,67 @@
+{
+  "calibration": {
+    "form": "kappa_bulk * min(c*(T/300)^p, 1)",
+    "published_c": 0.5399999999999999,
+    "published_p": 0.8000000000000003,
+    "objective": "per-compound median absolute log error",
+    "accuracy_holdout": "leave-one-CHEMISTRY-CLUSTER-out",
+    "fold_c_range": [
+      0.37,
+      0.5399999999999999
+    ],
+    "fold_p_range": [
+      0.8000000000000003,
+      1.25
+    ]
+  },
+  "n_compounds": 69,
+  "n_clusters": 29,
+  "by_population": {
+    "ALL compounds": {
+      "n": 69,
+      "median_ape": 38.810478081285865,
+      "n_within_30": 31,
+      "within_30": 0.4492753623188406,
+      "n_within_2x": 52,
+      "within_2x": 0.7536231884057971,
+      "bias": 1.1146041639653437
+    },
+    "half Heuslers": {
+      "n": 51,
+      "median_ape": 29.911021669771625,
+      "n_within_30": 26,
+      "within_30": 0.5098039215686274,
+      "n_within_2x": 39,
+      "within_2x": 0.7647058823529411,
+      "bias": 1.1146041639653437
+    },
+    "half Heuslers, support >= 3": {
+      "n": 46,
+      "median_ape": 29.07875414105459,
+      "n_within_30": 26,
+      "within_30": 0.5652173913043478,
+      "n_within_2x": 37,
+      "within_2x": 0.8043478260869565,
+      "bias": 1.028608415018291
+    },
+    "full Heuslers": {
+      "n": 18,
+      "median_ape": 58.92535813845501,
+      "n_within_30": 5,
+      "within_30": 0.2777777777777778,
+      "n_within_2x": 13,
+      "within_2x": 0.7222222222222222,
+      "bias": 1.1125548870338318
+    },
+    "uncorrected, ALL (baseline)": {
+      "n": 69,
+      "median_ape": 64.35148393761382,
+      "n_within_30": 13,
+      "within_30": 0.18840579710144928,
+      "n_within_2x": 36,
+      "within_2x": 0.5217391304347826,
+      "bias": 1.542849774891336
+    }
+  },
+  "note": "Accuracy uses per-fold calibrations. The published constants are for new compounds and must not be quoted as having produced these accuracy figures. The fully leakage-free headline (form and threshold also held out) is nested_validation.py."
+}

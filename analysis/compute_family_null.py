@@ -22,6 +22,7 @@ has any defensible advantage:
 Everything is leave-one-chemistry-out, in domain, per-compound median error.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import json
 import sys
@@ -35,11 +36,25 @@ from pymatgen.core import Composition
 from scipy.stats import spearmanr, wilcoxon
 
 import extend_blind_test as E
+import shared_constant as SCN
 from make_paper_predictions import structure_status, vec
 from run_loco_chemistry import cluster_of
 
 OUT = "data/exports/kappa_v2/family_null.json"
-ISSUED = {"ErSbPt", "HoSbPt", "TmSbPt", "GdNiSb", "TbNiSb"}
+PRED = "data/Target_Materials/PAPER_PREDICTIONS.csv"
+
+
+def issued_set() -> set:
+    """The compounds the paper issues, read from the file that decides them.
+
+    This was a hardcoded literal, {ErSbPt, HoSbPt, TmSbPt, GdNiSb, TbNiSb}, and it went stale: the
+    issued set is now {TmSbPt, HfCoBi, GdNiSb, TbNiSb}, so the coverage answer below was being
+    computed for two compounds the paper no longer issues and missing one it does. A set of
+    compound names typed into a script is the exact failure this project keeps rediscovering, so it
+    is read from PAPER_PREDICTIONS.csv instead.
+    """
+    p = pd.read_csv(PRED)
+    return set(p[p.status.astype(str).str.upper() == "ISSUED"].compound.astype(str))
 
 
 def yz(f):
@@ -61,7 +76,9 @@ def main() -> int:
         te, tr = d[d.chem == cl], d[d.chem != cl]
         if not len(te) or len(tr) < 4:
             continue
-        c, p = E.fit_cp(tr)
+        # shared constant on published calculations without this cluster (prereg rule 4); the
+        # family power-law null below is unchanged
+        c, p = SCN.shared_cp_without_cluster(cl)
         if np.isfinite(c):
             model.append(te.assign(k=te.k_pred.values * E.apply_cp(te["T"].values, c, p)))
         for f, g in te.groupby("fam"):
@@ -82,6 +99,8 @@ def main() -> int:
     common = M.index.intersection(F.index)
     _, pv = wilcoxon(M.a[common], F.a[common])
     R = {"_generated_by": "compute_family_null.py",
+         "seed": 0,
+         "seed_note": "model arm from target_blind_test.csv (seed 0); the family null is seed-free",
          "model": dict(n=int(len(M)), median_ape=round(float(M.a.median()), 1),
                        within_2x=round(float(M.r.between(.5, 2).mean() * 100), 1)),
          "family_null": dict(n=int(len(F)), median_ape=round(float(F.a.median()), 1),
@@ -94,7 +113,34 @@ def main() -> int:
 
     missed = sorted(set(M.index) - set(F.index))
     R["family_null_cannot_cover"] = missed
-    R["issued_covered_by_family_null"] = sorted(ISSUED & set(F.index))
+
+    # COVERAGE AT THE PREDICTIONS, which is the question a reader actually has.
+    #
+    # This used to read `ISSUED & set(F.index)`, intersecting the issued compounds with the
+    # VALIDATION set. An issued compound is unmeasured by definition, so it can never appear in the
+    # validation set and the intersection was empty every time -- a check that could not fail, and
+    # so reported nothing. The real question is whether the cheap baseline could have produced a
+    # number for each issued compound at all: that needs two measured compounds in its own bonding
+    # family, which is exactly the condition applied to the validation set above.
+    iss = issued_set()
+    meas_per_fam = d.groupby("fam").compound.nunique()
+    cov = {}
+    for cmpd in sorted(iss):
+        f = yz(cmpd)
+        n = int(meas_per_fam.get(f, 0))
+        cov[cmpd] = dict(family=f, measured_family_members=n, family_null_could_predict=n >= 2)
+    R["issued_family_null_coverage"] = cov
+    R["issued_covered_by_family_null"] = sorted(c for c, v in cov.items()
+                                                if v["family_null_could_predict"])
+    R["_issued_coverage_meaning"] = (
+        "For each compound the paper issues: how many MEASURED compounds its bonding family has, "
+        "and so whether the calculation-free family power law could have produced a number for it. "
+        "Where it could, the transfer function has to justify its extra machinery; where it could "
+        "not, it is the only route to a value.")
+    print(f"  issued coverage: " + ", ".join(
+        f"{c} ({v['family']}, {v['measured_family_members']} measured"
+        f"{' -- null covers' if v['family_null_could_predict'] else ' -- null CANNOT'})"
+        for c, v in cov.items()))
     print(f"  model      n={len(M)}  median {M.a.median():.1f}%")
     print(f"  family null n={len(F)}  median {F.a.median():.1f}%")
     print(f"  head to head on {len(common)}: model {M.a[common].median():.1f}% vs "

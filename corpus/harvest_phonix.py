@@ -35,6 +35,7 @@ ACCESS. The Hugging Face datasets-server `/filter` endpoint, no authentication r
 paginated at 100 rows; the whole Heusler slice is 1,428 rows, so ~15 requests.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import argparse
 import json

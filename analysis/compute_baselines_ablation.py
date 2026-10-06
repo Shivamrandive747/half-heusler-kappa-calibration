@@ -17,6 +17,7 @@ Both are computed under the paper's own protocol: leave-one-chemistry-out, in do
 median error, so they drop straight into Table 1.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import json
 import sys
@@ -30,6 +31,7 @@ from pymatgen.core import Composition
 from scipy.stats import wilcoxon
 
 import extend_blind_test as E
+import shared_constant as SCN
 from make_paper_predictions import structure_status, vec
 from run_loco_chemistry import cluster_of
 
@@ -58,18 +60,13 @@ def summarise(pc, label):
 
 
 def fit_c_only(tr):
-    """Single-constant transfer: kappa_expt = c * kappa_BTE, c minimising the same objective."""
-    cs = np.linspace(0.20, 1.00, 161)
-    codes = pd.Categorical(tr.compound).codes
-    masks = [codes == k for k in range(codes.max() + 1)]
-    kb, kr = tr.k_pred.values, tr.k_ref.values
-    best, bc = np.inf, np.nan
-    for c in cs:
-        e = np.abs(np.log10(np.minimum(c, 1.0) * kb) - np.log10(kr))
-        s = float(np.median([np.median(e[m]) for m in masks]))
-        if s < best:
-            best, bc = s, float(c)
-    return bc
+    """Single-constant transfer: kappa_expt = min(c, 1) * kappa_BTE.
+
+    ONE GRID WITH THE HEADLINE (FIXPASS S9). This had its own grid, 0.20-1.00 in 161 steps, while
+    the seed-averaged Table 1 ablation (compute_seed_averaged.fit_c_only) used extend_blind_test.CS;
+    the same "one-parameter" row could then come out differently in two tables. It now delegates."""
+    from compute_seed_averaged import fit_c_only as _f
+    return _f(tr)
 
 
 def main() -> int:
@@ -82,7 +79,11 @@ def main() -> int:
     print(f"in-domain compounds: {d.compound.nunique()}")
 
     R = {"_generated_by": "compute_baselines_ablation.py",
-         "protocol": "leave-one-chemistry-out, in domain, per-compound median error"}
+         "seed": 0,
+         "seed_note": "model predictions from target_blind_test.csv (seed 0); seed medians of the "
+                      "one-parameter row are in seed_averaged_indomain.json",
+         "protocol": "leave-one-chemistry-out, in domain, per-compound median error; both transfer "
+                    "arms fitted on published calculations without the held-out cluster"}
 
     # ---- the paper's method, and the one-parameter ablation, both nested ---------------------
     rows_two, rows_one = [], []
@@ -90,10 +91,13 @@ def main() -> int:
         te, tr = d[d.chem == cl], d[d.chem != cl]
         if not len(te) or len(tr) < 4:
             continue
-        c2, p2 = E.fit_cp(tr)
+        # both arms fitted on the published calculation pairs without this cluster, not on the
+        # other clusters' model predictions (PREREG_shared_constant_on_calculations rule 4); the
+        # one-parameter arm keeps this script's own c grid
+        c2, p2 = SCN.shared_cp_without_cluster(cl)
         if np.isfinite(c2):
             rows_two.append(te.assign(k=te.k_pred.values * E.apply_cp(te["T"].values, c2, p2)))
-        c1 = fit_c_only(tr)
+        c1 = SCN.shared_c_only_without_cluster(cl)   # default fitter: E.CS grid (headline's)
         rows_one.append(te.assign(k=te.k_pred.values * min(c1, 1.0)))
     two = per_compound(pd.concat(rows_two), "k")
     one = per_compound(pd.concat(rows_one), "k")

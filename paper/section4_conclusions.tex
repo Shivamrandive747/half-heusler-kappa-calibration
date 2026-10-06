@@ -1,45 +1,91 @@
 % =============================================================================================
-% SECTION 4 -- CONCLUSIONS.  Draft 2.
+% SECTION 4 -- CONCLUSIONS.
 %
-% Follows the blueprint's conclusion shape: restate the stakes, restate the bottleneck, name the
-% need, say what we did, say what validates it, say what it is for, and save the payoff line for
-% last. Their conclusion carries counts but NO error statistics -- the numbers live in the
-% abstract and the results table, and repeating them here reads as a summary rather than a close.
-% Ours keeps two (the offset and the within-2x rate) because they are the claim itself, and drops
-% the other four the previous draft restated.
+% Condensed 2026-10-05 (research-paper pass). Shape: the pair and what each step does; the
+% end-to-end result with its nulls and the unscreened figure; the family constants (passing the
+% 25% bar and beating the shared constant kept apart); what the method delivers; its limits; the
+% measurements that would most improve it.
 %
-% The last sentence is the one thing here that appears nowhere else in the paper.
+% Numbers from data/exports/kappa_v2/paper_numbers.json:
+%   1.69 / 10 of 12               offset.median_ratio_calc_over_meas, families_with_median_ratio_above_1
+%   21.9                          ml_generator_validation.median_ape (single seed)
+%   33.1 / 87.2 / 39              in_domain_table.seed_medians.calibrated, .n
+%   41.9                          in_domain_table.seed_medians.uncorrected_surrogate
+%   46.7 / 45.6                   in_domain_table.nulls
+%   0.048, sign test              cluster_level_significance.wilcoxon_p_max.power (0.0483); .sign_p_range
+%   33.1 / 86.8 / 38 / 0.005, 0.006   headline_without_YNiBi
+%   38.6 / 78.9 / 50              headline.unconditional, blind_test.compounds
+%   36.4 vs 48.7 / 48.2, p 0.035 / 0.033   nulls.predictors, nulls.paired_tests (reference seed)
+%   32.3 / 31                     deployed_route.held_out.global_on_same_compounds, .n
+%   101.4 -> 36.8                 vs_published_model.sdnnff_median_ape / .sdnnff_calibrated_median_ape
+%   5 of 9; shared better in 3    family_calibration.adopted.*.loo_family_ape vs .loo_global_ape
+%   21.7, 16 / 11 / 4, 0.44       deployed_route.held_out
+%   10 / 15 / 7 / 10 conditional  predictions.counts, predictions.issued_single_calculation_source,
+%                                 conditional.n
+%   1.39 / 5.46; 33.0             structure_only.main_text.*; shared_constant_unseen_family.median_ape
+%   0.35-0.55, 0.45-1.15          calibration.stability.bootstrap c / p (p10-p90)
+%   1.33                          source_disagreement.laboratories.median_factor
 % =============================================================================================
 
 \section{Conclusions}
 \label{sec:conclusions}
 
-Lattice thermal conductivity is the quantity that decides whether a half Heusler is worth
-synthesising, and it is also the quantity first-principles transport theory is most often asked to
-supply. Because converged calculations are expensive, the field has increasingly reproduced them
-with machine-learned surrogates trained on calculated labels---which are what exist in
-quantity. The result is a literature of models that predict a calculation accurately and a
-measurement only incidentally.
+Used as a pair, machine learning and transfer-function calibration predict the measured lattice
+thermal conductivity of half Heuslers from crystal structure. The machine-learned model reproduces
+published first-principles calculations to a median error of \SI{21.9}{\percent} (one seed) with each
+chemistry cluster held out, and what it has learned is consistent with phonon physics. The transfer
+function is needed because the calculations run high, by a median factor of \num{1.69} and in
+\num{10} of \num{12} bonding families, and it can be closed-form because that offset is regular.
 
-We have shown that the two scales differ by a knowable amount. Across half Heuslers for which both a
-published transport calculation and a laboratory measurement exist, the calculation exceeds the
-measurement by a median factor of \num{1.55}, one-sidedly and in every bonding family, and the
-offset is regular enough to be removed by a closed-form correction with two parameters. Fitting that
-correction required a corpus that does not average the two quantities together, so we built one:
-\num{52} measured half Heuslers drawn from \num{164} publications alongside \num{289} carrying
-transport calculations, every value tiered by the method that produced it.
+Holding each compound's chemistry cluster out of both steps, inside a domain of applicability fixed
+by the screens every candidate must pass, the median error is \SI{33.1}{\percent} and
+\SI{87.2}{\percent} of \num{39} compounds lie within a factor of two, against \SI{41.9}{\percent}
+uncorrected and \SI{46.7}{\percent} and \SI{45.6}{\percent} for constant and power-law null baselines.
+The improvement is significant per compound on every model seed; counting each cluster once, the
+Wilcoxon test gives $p < 0.05$ on every seed (largest \num{0.048}) but the cluster-level sign test is
+not significant on every seed, so the cluster-level evidence is marginal. Without \ce{YNiBi}, whose
+measured curve is flagged (Section~S3 of the Supplementary material), the figures are \SI{33.1}{\percent}
+and \SI{86.8}{\percent} of \num{38} ($p = \num{0.005}$ and \num{0.006}). Without the domain screens,
+over all \num{50} measured compounds, they are \SI{38.6}{\percent} and \SI{78.9}{\percent}, and at the
+reference seed the unscreened route still improves on both nulls (\SI{36.4}{\percent} against
+\SI{48.7}{\percent} and \SI{48.2}{\percent}; $p = \num{0.035}$ and \num{0.033}). The route performs
+comparably to calibrating a published calculation (\SI{32.3}{\percent} on the \num{31} compounds of
+the family test, a different set), and the correction carries over to an independent machine-learned
+force field, lowering its median error against measurement from \SI{101.4}{\percent} to
+\SI{36.8}{\percent}.
 
-Validated with each compound's entire chemistry withheld from the model and from the calibration
-alike, and inside a domain of applicability declared before the validation set was scored, the
-correction places \SI{86.8}{\percent} of held-out compounds within a factor of two of measurement
-and orders them reliably. Outside that domain it fails, by a factor we report rather than conceal.
-It is a screen and not a curve predictor: it says what a laboratory is likely to measure at a stated
-temperature, and its parameters should not be read as a measurement of microstructure. On that basis
-we issue five predictions and decline eleven candidates, naming the condition each fails.
+A magnitude refitted per bonding family is validated held out in five families, at
+\SIrange{7.4}{24.9}{\percent}; in two of them (\ce{Co}--\ce{Sb} and \ce{Ni}--\ce{Sb}) the shared
+constant does as well or better on the same compounds, and the family constant is applied there by
+the pre-specified rule. Four further families are calibrated on their own papers but do not transfer
+between members held out, because their members are different materials as made; they issue no
+prediction. The best figure, \ce{Sb}--\ce{Pt} at
+\SI{7.4}{\percent}, rests on one paper's three members at three temperatures each. Pooled, the family
+constant lowers the median error from \SI{32.3}{\percent} to \SI{21.7}{\percent}, but it is better for
+\num{16} compounds, worse for \num{11} and tied for \num{4} (sign test $p = \num{0.44}$), so it is not
+significantly better compound by compound.
 
-The five are falsifiable by a single synthesis each, and we would regard a failure among them as
-more informative than the successes. The wider result is that the barrier to predicting more of them
-is no longer computational. Fourteen further candidates already carry sound calculations and wait
-only on five laboratory measurements across four bonding families---the point at which a
-calibration of this kind stops being limited by what has been calculated and starts being limited
-by what has been measured.
+We issue \num{10} predictions with intervals, flag \num{15} candidates with the reason named for each,
+and report \num{10} estimates as conditional on a measurement in their family. From crystal structure
+alone we give $\kappa_L$ at \SI{300}{\kelvin} of \SI{1.39}{\watt\per\meter\per\kelvin} for
+\ce{TmPbAu} and \SI{5.46}{\watt\per\meter\per\kelvin} for \ce{HfTeOs}, compounds for which we find no
+published report; each carries, uncombined, the model's \SI{21.9}{\percent} and the shared constant's
+\SI{33.0}{\percent} on families never measured.
+
+The method estimates $\kappa_L$ at a stated temperature but does not predict its temperature
+dependence: over a bootstrap of compounds the magnitude stays between \num{0.35} and \num{0.55} while
+the exponent ranges from \num{0.45} to \num{1.15}. Scores depend on the single reference laboratory
+chosen per compound, in a field whose laboratories disagree by a median factor of \num{1.33}, and the
+compounds share clusters, families and laboratories. A family constant interpolates within its
+family, three families rest on a single measured compound, and the intervals are validated only on
+in-domain compounds. Seven of the ten issued predictions rest on a single calculation source at the
+quoted temperature. The method should not be used outside its domain.
+
+A single synthesis and measurement of the cubic phase can falsify any issued prediction. The
+measurements that would most improve the method are a first measurement in a family with no measured
+member, such as \ce{Pb}--\ce{Au} or \ce{Te}--\ce{Os}; a second, bulk member from another laboratory in
+each family that rests on one compound or one paper; wide-range measurements on dense specimens to
+constrain the exponent; and two sound \ce{Ni}--\ce{Bi} measurements, free of the bipolar contribution
+that rules out the existing \ce{YNiBi} curve, which would release nine of the ten conditional
+estimates. For this class the binding constraint is experimental: what the conditional estimates lack
+is a measured member of their family, not a calculation.

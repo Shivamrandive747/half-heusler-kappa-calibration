@@ -1,0 +1,597 @@
+{
+ "prereg": "paper/evidence/PREREG_neighbour_family.md",
+ "pairs": [
+  [
+   "Bi-Pd",
+   "Sb-Pd"
+  ],
+  [
+   "Co-Bi",
+   "Co-Sb"
+  ],
+  [
+   "Co-Sb",
+   "Co-Bi"
+  ],
+  [
+   "Co-Sb",
+   "Sb-Ir"
+  ],
+  [
+   "Ni-Pb",
+   "Ni-Sn"
+  ],
+  [
+   "Ni-Sb",
+   "Sb-Pd"
+  ],
+  [
+   "Ni-Sb",
+   "Sb-Pt"
+  ],
+  [
+   "Ni-Sn",
+   "Ni-Pb"
+  ],
+  [
+   "Ni-Sn",
+   "Sn-Pt"
+  ],
+  [
+   "Sb-Ir",
+   "Co-Sb"
+  ],
+  [
+   "Sb-Pd",
+   "Bi-Pd"
+  ],
+  [
+   "Sb-Pd",
+   "Ni-Sb"
+  ],
+  [
+   "Sb-Pd",
+   "Sb-Pt"
+  ],
+  [
+   "Sb-Pt",
+   "Ni-Sb"
+  ],
+  [
+   "Sb-Pt",
+   "Sb-Pd"
+  ],
+  [
+   "Sn-Pt",
+   "Ni-Sn"
+  ]
+ ],
+ "pooled_neighbour": 47.8,
+ "pooled_shared": 25.2,
+ "pooled_own_loo": 19.0,
+ "pair_wins": 3,
+ "n_pairs": 16,
+ "verdict": "KEEP shared constant",
+ "rows": [
+  {
+   "family": "Bi-Pd",
+   "donor": "Sb-Pd",
+   "donor_c": 0.25,
+   "own_c": 0.9,
+   "compound": "ErBiPd",
+   "ape_neighbour": 73.8,
+   "ape_shared": 46.6,
+   "ape_own_loo": 24.5
+  },
+  {
+   "family": "Bi-Pd",
+   "donor": "Sb-Pd",
+   "donor_c": 0.25,
+   "own_c": 0.9,
+   "compound": "GdBiPd",
+   "ape_neighbour": 58.7,
+   "ape_shared": 15.7,
+   "ape_own_loo": 46.3
+  },
+  {
+   "family": "Bi-Pd",
+   "donor": "Sb-Pd",
+   "donor_c": 0.25,
+   "own_c": 0.9,
+   "compound": "LaBiPd",
+   "ape_neighbour": 70.8,
+   "ape_shared": 40.5,
+   "ape_own_loo": 10.8
+  },
+  {
+   "family": "Co-Bi",
+   "donor": "Co-Sb",
+   "donor_c": 0.41,
+   "own_c": 0.58,
+   "compound": "ZrCoBi",
+   "ape_neighbour": 33.4,
+   "ape_shared": 17.2,
+   "ape_own_loo": null
+  },
+  {
+   "family": "Co-Sb",
+   "donor": "Co-Bi",
+   "donor_c": 0.58,
+   "own_c": 0.41,
+   "compound": "HfCoSb",
+   "ape_neighbour": 18.9,
+   "ape_shared": 5.5,
+   "ape_own_loo": 20.5
+  },
+  {
+   "family": "Co-Sb",
+   "donor": "Co-Bi",
+   "donor_c": 0.58,
+   "own_c": 0.41,
+   "compound": "TiCoSb",
+   "ape_neighbour": 25.6,
+   "ape_shared": 10.5,
+   "ape_own_loo": 18.8
+  },
+  {
+   "family": "Co-Sb",
+   "donor": "Co-Bi",
+   "donor_c": 0.58,
+   "own_c": 0.41,
+   "compound": "ZrCoSb",
+   "ape_neighbour": 34.4,
+   "ape_shared": 18.2,
+   "ape_own_loo": 19.0
+  },
+  {
+   "family": "Co-Sb",
+   "donor": "Sb-Ir",
+   "donor_c": 0.182,
+   "own_c": 0.41,
+   "compound": "HfCoSb",
+   "ape_neighbour": 62.9,
+   "ape_shared": 5.5,
+   "ape_own_loo": 20.5
+  },
+  {
+   "family": "Co-Sb",
+   "donor": "Sb-Ir",
+   "donor_c": 0.182,
+   "own_c": 0.41,
+   "compound": "TiCoSb",
+   "ape_neighbour": 61.4,
+   "ape_shared": 10.5,
+   "ape_own_loo": 18.8
+  },
+  {
+   "family": "Co-Sb",
+   "donor": "Sb-Ir",
+   "donor_c": 0.182,
+   "own_c": 0.41,
+   "compound": "ZrCoSb",
+   "ape_neighbour": 57.8,
+   "ape_shared": 18.2,
+   "ape_own_loo": 19.0
+  },
+  {
+   "family": "Ni-Pb",
+   "donor": "Ni-Sn",
+   "donor_c": 0.3,
+   "own_c": 0.41,
+   "compound": "ZrNiPb",
+   "ape_neighbour": 31.8,
+   "ape_shared": 11.6,
+   "ape_own_loo": null
+  },
+  {
+   "family": "Ni-Sb",
+   "donor": "Sb-Pd",
+   "donor_c": 0.25,
+   "own_c": 0.44,
+   "compound": "DyNiSb",
+   "ape_neighbour": 29.5,
+   "ape_shared": 43.0,
+   "ape_own_loo": 25.9
+  },
+  {
+   "family": "Ni-Sb",
+   "donor": "Sb-Pd",
+   "donor_c": 0.25,
+   "own_c": 0.44,
+   "compound": "ErNiSb",
+   "ape_neighbour": 36.8,
+   "ape_shared": 28.9,
+   "ape_own_loo": 15.7
+  },
+  {
+   "family": "Ni-Sb",
+   "donor": "Sb-Pd",
+   "donor_c": 0.25,
+   "own_c": 0.44,
+   "compound": "HoNiSb",
+   "ape_neighbour": 47.9,
+   "ape_shared": 6.3,
+   "ape_own_loo": 15.6
+  },
+  {
+   "family": "Ni-Sb",
+   "donor": "Sb-Pd",
+   "donor_c": 0.25,
+   "own_c": 0.44,
+   "compound": "LuNiSb",
+   "ape_neighbour": 42.2,
+   "ape_shared": 21.5,
+   "ape_own_loo": 4.8
+  },
+  {
+   "family": "Ni-Sb",
+   "donor": "Sb-Pd",
+   "donor_c": 0.25,
+   "own_c": 0.44,
+   "compound": "ScNiSb",
+   "ape_neighbour": 47.6,
+   "ape_shared": 18.1,
+   "ape_own_loo": 15.2
+  },
+  {
+   "family": "Ni-Sb",
+   "donor": "Sb-Pd",
+   "donor_c": 0.25,
+   "own_c": 0.44,
+   "compound": "TmNiSb",
+   "ape_neighbour": 34.1,
+   "ape_shared": 34.5,
+   "ape_own_loo": 19.0
+  },
+  {
+   "family": "Ni-Sb",
+   "donor": "Sb-Pd",
+   "donor_c": 0.25,
+   "own_c": 0.44,
+   "compound": "YNiSb",
+   "ape_neighbour": 44.9,
+   "ape_shared": 12.4,
+   "ape_own_loo": 15.2
+  },
+  {
+   "family": "Ni-Sb",
+   "donor": "Sb-Pt",
+   "donor_c": 0.58,
+   "own_c": 0.44,
+   "compound": "DyNiSb",
+   "ape_neighbour": 63.5,
+   "ape_shared": 43.0,
+   "ape_own_loo": 25.9
+  },
+  {
+   "family": "Ni-Sb",
+   "donor": "Sb-Pt",
+   "donor_c": 0.58,
+   "own_c": 0.44,
+   "compound": "ErNiSb",
+   "ape_neighbour": 46.6,
+   "ape_shared": 28.9,
+   "ape_own_loo": 15.7
+  },
+  {
+   "family": "Ni-Sb",
+   "donor": "Sb-Pt",
+   "donor_c": 0.58,
+   "own_c": 0.44,
+   "compound": "HoNiSb",
+   "ape_neighbour": 20.9,
+   "ape_shared": 6.3,
+   "ape_own_loo": 15.6
+  },
+  {
+   "family": "Ni-Sb",
+   "donor": "Sb-Pt",
+   "donor_c": 0.58,
+   "own_c": 0.44,
+   "compound": "LuNiSb",
+   "ape_neighbour": 34.2,
+   "ape_shared": 21.5,
+   "ape_own_loo": 4.8
+  },
+  {
+   "family": "Ni-Sb",
+   "donor": "Sb-Pt",
+   "donor_c": 0.58,
+   "own_c": 0.44,
+   "compound": "ScNiSb",
+   "ape_neighbour": 23.2,
+   "ape_shared": 18.1,
+   "ape_own_loo": 15.2
+  },
+  {
+   "family": "Ni-Sb",
+   "donor": "Sb-Pt",
+   "donor_c": 0.58,
+   "own_c": 0.44,
+   "compound": "TmNiSb",
+   "ape_neighbour": 53.0,
+   "ape_shared": 34.5,
+   "ape_own_loo": 19.0
+  },
+  {
+   "family": "Ni-Sb",
+   "donor": "Sb-Pt",
+   "donor_c": 0.58,
+   "own_c": 0.44,
+   "compound": "YNiSb",
+   "ape_neighbour": 27.8,
+   "ape_shared": 12.4,
+   "ape_own_loo": 15.2
+  },
+  {
+   "family": "Ni-Sn",
+   "donor": "Ni-Pb",
+   "donor_c": 0.41,
+   "own_c": 0.3,
+   "compound": "HfNiSn",
+   "ape_neighbour": 42.3,
+   "ape_shared": 77.0,
+   "ape_own_loo": 21.5
+  },
+  {
+   "family": "Ni-Sn",
+   "donor": "Ni-Pb",
+   "donor_c": 0.41,
+   "own_c": 0.3,
+   "compound": "TiNiSn",
+   "ape_neighbour": 22.2,
+   "ape_shared": 50.6,
+   "ape_own_loo": 20.7
+  },
+  {
+   "family": "Ni-Sn",
+   "donor": "Ni-Pb",
+   "donor_c": 0.41,
+   "own_c": 0.3,
+   "compound": "ZrNiSn",
+   "ape_neighbour": 22.8,
+   "ape_shared": 52.8,
+   "ape_own_loo": 19.1
+  },
+  {
+   "family": "Ni-Sn",
+   "donor": "Sn-Pt",
+   "donor_c": 0.76,
+   "own_c": 0.3,
+   "compound": "HfNiSn",
+   "ape_neighbour": 163.8,
+   "ape_shared": 77.0,
+   "ape_own_loo": 21.5
+  },
+  {
+   "family": "Ni-Sn",
+   "donor": "Sn-Pt",
+   "donor_c": 0.76,
+   "own_c": 0.3,
+   "compound": "TiNiSn",
+   "ape_neighbour": 124.5,
+   "ape_shared": 50.6,
+   "ape_own_loo": 20.7
+  },
+  {
+   "family": "Ni-Sn",
+   "donor": "Sn-Pt",
+   "donor_c": 0.76,
+   "own_c": 0.3,
+   "compound": "ZrNiSn",
+   "ape_neighbour": 127.7,
+   "ape_shared": 52.8,
+   "ape_own_loo": 19.1
+  },
+  {
+   "family": "Sb-Ir",
+   "donor": "Co-Sb",
+   "donor_c": 0.41,
+   "own_c": 0.182,
+   "compound": "ZrSbIr",
+   "ape_neighbour": 88.2,
+   "ape_shared": 133.5,
+   "ape_own_loo": null
+  },
+  {
+   "family": "Sb-Pd",
+   "donor": "Bi-Pd",
+   "donor_c": 0.9,
+   "own_c": 0.25,
+   "compound": "ErSbPd",
+   "ape_neighbour": 258.3,
+   "ape_shared": 103.0,
+   "ape_own_loo": 14.8
+  },
+  {
+   "family": "Sb-Pd",
+   "donor": "Bi-Pd",
+   "donor_c": 0.9,
+   "own_c": 0.25,
+   "compound": "HoSbPd",
+   "ape_neighbour": 264.7,
+   "ape_shared": 106.7,
+   "ape_own_loo": 19.1
+  },
+  {
+   "family": "Sb-Pd",
+   "donor": "Bi-Pd",
+   "donor_c": 0.9,
+   "own_c": 0.25,
+   "compound": "ScSbPd",
+   "ape_neighbour": 170.3,
+   "ape_shared": 53.2,
+   "ape_own_loo": 24.9
+  },
+  {
+   "family": "Sb-Pd",
+   "donor": "Ni-Sb",
+   "donor_c": 0.44,
+   "own_c": 0.25,
+   "compound": "ErSbPd",
+   "ape_neighbour": 75.2,
+   "ape_shared": 103.0,
+   "ape_own_loo": 14.8
+  },
+  {
+   "family": "Sb-Pd",
+   "donor": "Ni-Sb",
+   "donor_c": 0.44,
+   "own_c": 0.25,
+   "compound": "HoSbPd",
+   "ape_neighbour": 78.3,
+   "ape_shared": 106.7,
+   "ape_own_loo": 19.1
+  },
+  {
+   "family": "Sb-Pd",
+   "donor": "Ni-Sb",
+   "donor_c": 0.44,
+   "own_c": 0.25,
+   "compound": "ScSbPd",
+   "ape_neighbour": 32.2,
+   "ape_shared": 53.2,
+   "ape_own_loo": 24.9
+  },
+  {
+   "family": "Sb-Pd",
+   "donor": "Sb-Pt",
+   "donor_c": 0.58,
+   "own_c": 0.25,
+   "compound": "ErSbPd",
+   "ape_neighbour": 130.9,
+   "ape_shared": 103.0,
+   "ape_own_loo": 14.8
+  },
+  {
+   "family": "Sb-Pd",
+   "donor": "Sb-Pt",
+   "donor_c": 0.58,
+   "own_c": 0.25,
+   "compound": "HoSbPd",
+   "ape_neighbour": 135.0,
+   "ape_shared": 106.7,
+   "ape_own_loo": 19.1
+  },
+  {
+   "family": "Sb-Pd",
+   "donor": "Sb-Pt",
+   "donor_c": 0.58,
+   "own_c": 0.25,
+   "compound": "ScSbPd",
+   "ape_neighbour": 74.2,
+   "ape_shared": 53.2,
+   "ape_own_loo": 24.9
+  },
+  {
+   "family": "Sb-Pt",
+   "donor": "Ni-Sb",
+   "donor_c": 0.44,
+   "own_c": 0.58,
+   "compound": "DySbPt",
+   "ape_neighbour": 26.0,
+   "ape_shared": 14.2,
+   "ape_own_loo": 3.3
+  },
+  {
+   "family": "Sb-Pt",
+   "donor": "Ni-Sb",
+   "donor_c": 0.44,
+   "own_c": 0.58,
+   "compound": "LuSbPt",
+   "ape_neighbour": 25.1,
+   "ape_shared": 13.1,
+   "ape_own_loo": 1.2
+  },
+  {
+   "family": "Sb-Pt",
+   "donor": "Ni-Sb",
+   "donor_c": 0.44,
+   "own_c": 0.58,
+   "compound": "TbSbPt",
+   "ape_neighbour": 26.4,
+   "ape_shared": 14.6,
+   "ape_own_loo": 3.8
+  },
+  {
+   "family": "Sb-Pt",
+   "donor": "Ni-Sb",
+   "donor_c": 0.44,
+   "own_c": 0.58,
+   "compound": "YSbPt",
+   "ape_neighbour": 5.6,
+   "ape_shared": 9.4,
+   "ape_own_loo": 24.4
+  },
+  {
+   "family": "Sb-Pt",
+   "donor": "Sb-Pd",
+   "donor_c": 0.25,
+   "own_c": 0.58,
+   "compound": "DySbPt",
+   "ape_neighbour": 57.9,
+   "ape_shared": 14.2,
+   "ape_own_loo": 3.3
+  },
+  {
+   "family": "Sb-Pt",
+   "donor": "Sb-Pd",
+   "donor_c": 0.25,
+   "own_c": 0.58,
+   "compound": "LuSbPt",
+   "ape_neighbour": 57.4,
+   "ape_shared": 13.1,
+   "ape_own_loo": 1.2
+  },
+  {
+   "family": "Sb-Pt",
+   "donor": "Sb-Pd",
+   "donor_c": 0.25,
+   "own_c": 0.58,
+   "compound": "TbSbPt",
+   "ape_neighbour": 58.2,
+   "ape_shared": 14.6,
+   "ape_own_loo": 3.8
+  },
+  {
+   "family": "Sb-Pt",
+   "donor": "Sb-Pd",
+   "donor_c": 0.25,
+   "own_c": 0.58,
+   "compound": "YSbPt",
+   "ape_neighbour": 46.4,
+   "ape_shared": 9.4,
+   "ape_own_loo": 24.4
+  },
+  {
+   "family": "Sn-Pt",
+   "donor": "Ni-Sn",
+   "donor_c": 0.3,
+   "own_c": 0.76,
+   "compound": "HfSnPt",
+   "ape_neighbour": 47.4,
+   "ape_shared": 15.5,
+   "ape_own_loo": 23.8
+  },
+  {
+   "family": "Sn-Pt",
+   "donor": "Ni-Sn",
+   "donor_c": 0.3,
+   "own_c": 0.76,
+   "compound": "TiSnPt",
+   "ape_neighbour": 59.1,
+   "ape_shared": 38.4,
+   "ape_own_loo": 13.9
+  },
+  {
+   "family": "Sn-Pt",
+   "donor": "Ni-Sn",
+   "donor_c": 0.3,
+   "own_c": 0.76,
+   "compound": "ZrSnPt",
+   "ape_neighbour": 63.5,
+   "ape_shared": 37.9,
+   "ape_own_loo": 20.8
+  }
+ ]
+}

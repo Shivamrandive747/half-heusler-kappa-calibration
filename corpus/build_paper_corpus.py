@@ -27,6 +27,7 @@ signed-in Chrome via the existing `fetch_papers_chrome.py`.
 DOIs already mined are excluded, so a rerun does not re-queue work already done.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import argparse
 import os

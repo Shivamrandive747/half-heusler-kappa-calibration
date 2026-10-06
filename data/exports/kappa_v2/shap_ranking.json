@@ -1,0 +1,93 @@
+{
+  "_generated_by": "paper/fig11_shap.py",
+  "model": "CatBoost seed 0, production pool",
+  "target": "log10 kappa_BTE",
+  "n_rows": 681,
+  "n_descriptors": 45,
+  "top": [
+    {
+      "descriptor": "is_full_heusler",
+      "label": "full Heusler (flag)",
+      "mean_abs_shap": 0.079248,
+      "corr_value_shap": -0.99,
+      "n_missing": 0
+    },
+    {
+      "descriptor": "r_X",
+      "label": "radius, X site",
+      "mean_abs_shap": 0.057739,
+      "corr_value_shap": -0.71,
+      "n_missing": 0
+    },
+    {
+      "descriptor": "bond_min",
+      "label": "shortest bond",
+      "mean_abs_shap": 0.055119,
+      "corr_value_shap": -0.79,
+      "n_missing": 81
+    },
+    {
+      "descriptor": "bond_mean",
+      "label": "mean bond length",
+      "mean_abs_shap": 0.042185,
+      "corr_value_shap": -0.81,
+      "n_missing": 81
+    },
+    {
+      "descriptor": "r_sum",
+      "label": "sum of radii",
+      "mean_abs_shap": 0.039028,
+      "corr_value_shap": -0.93,
+      "n_missing": 0
+    },
+    {
+      "descriptor": "n_atoms_conv",
+      "label": "atoms per cell",
+      "mean_abs_shap": 0.033479,
+      "corr_value_shap": -0.98,
+      "n_missing": 0
+    },
+    {
+      "descriptor": "X_X",
+      "label": "electronegativity, X",
+      "mean_abs_shap": 0.024758,
+      "corr_value_shap": 0.43,
+      "n_missing": 0
+    },
+    {
+      "descriptor": "M_Y",
+      "label": "mass, Y site",
+      "mean_abs_shap": 0.024438,
+      "corr_value_shap": -0.82,
+      "n_missing": 0
+    },
+    {
+      "descriptor": "r_mean",
+      "label": "mean atomic radius",
+      "mean_abs_shap": 0.020139,
+      "corr_value_shap": -0.82,
+      "n_missing": 0
+    },
+    {
+      "descriptor": "r_Z",
+      "label": "radius, Z site",
+      "mean_abs_shap": 0.019149,
+      "corr_value_shap": -0.85,
+      "n_missing": 0
+    },
+    {
+      "descriptor": "volume_per_atom",
+      "label": "volume per atom",
+      "mean_abs_shap": 0.019139,
+      "corr_value_shap": -0.66,
+      "n_missing": 0
+    },
+    {
+      "descriptor": "inv_T",
+      "label": "1/T",
+      "mean_abs_shap": 0.018041,
+      "corr_value_shap": 0.9,
+      "n_missing": 0
+    }
+  ]
+}

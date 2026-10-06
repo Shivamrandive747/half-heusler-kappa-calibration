@@ -1,0 +1,167 @@
+{
+  "_generated_by": "test_family_form_nested.py",
+  "n_compounds": 31,
+  "pooled_median": {
+    "SHAPE": 27.0,
+    "SHAPE_NOCAP": 21.7,
+    "nested_choice": 21.7
+  },
+  "nocap_chosen_in": 31,
+  "per_compound": {
+    "DyNiSb": {
+      "SHAPE": 16.4,
+      "SHAPE_NOCAP": 16.4,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "DySbPt": {
+      "SHAPE": 6.5,
+      "SHAPE_NOCAP": 6.5,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "ErBiPd": {
+      "SHAPE": 36.4,
+      "SHAPE_NOCAP": 25.3,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "ErNiSb": {
+      "SHAPE": 18.4,
+      "SHAPE_NOCAP": 18.4,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "ErSbPd": {
+      "SHAPE": 108.2,
+      "SHAPE_NOCAP": 108.2,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "GdBiPd": {
+      "SHAPE": 22.6,
+      "SHAPE_NOCAP": 46.2,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "HfCoSb": {
+      "SHAPE": 24.9,
+      "SHAPE_NOCAP": 24.9,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "HfNiSn": {
+      "SHAPE": 63.8,
+      "SHAPE_NOCAP": 63.8,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "HfSnPt": {
+      "SHAPE": 8.2,
+      "SHAPE_NOCAP": 41.1,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "HoNiSb": {
+      "SHAPE": 10.5,
+      "SHAPE_NOCAP": 10.5,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "HoSbPd": {
+      "SHAPE": 61.5,
+      "SHAPE_NOCAP": 61.5,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "LaBiPd": {
+      "SHAPE": 27.0,
+      "SHAPE_NOCAP": 10.1,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "LuNiSb": {
+      "SHAPE": 8.0,
+      "SHAPE_NOCAP": 8.0,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "LuSbPt": {
+      "SHAPE": 3.9,
+      "SHAPE_NOCAP": 3.9,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "NbCoSn": {
+      "SHAPE": 40.9,
+      "SHAPE_NOCAP": 40.9,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "NbFeSb": {
+      "SHAPE": 17.3,
+      "SHAPE_NOCAP": 17.3,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "ScNiSb": {
+      "SHAPE": 18.0,
+      "SHAPE_NOCAP": 18.0,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "ScSbPd": {
+      "SHAPE": 27.2,
+      "SHAPE_NOCAP": 27.2,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "TaCoSn": {
+      "SHAPE": 59.6,
+      "SHAPE_NOCAP": 59.6,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "TaFeSb": {
+      "SHAPE": 30.4,
+      "SHAPE_NOCAP": 30.4,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "TbSbPt": {
+      "SHAPE": 10.1,
+      "SHAPE_NOCAP": 10.1,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "TiCoSb": {
+      "SHAPE": 46.9,
+      "SHAPE_NOCAP": 36.2,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "TiNiSn": {
+      "SHAPE": 27.9,
+      "SHAPE_NOCAP": 27.9,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "TiSnPt": {
+      "SHAPE": 36.1,
+      "SHAPE_NOCAP": 7.7,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "TmNiSb": {
+      "SHAPE": 18.8,
+      "SHAPE_NOCAP": 18.8,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "VFeSb": {
+      "SHAPE": 47.6,
+      "SHAPE_NOCAP": 11.4,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "YNiSb": {
+      "SHAPE": 5.6,
+      "SHAPE_NOCAP": 5.6,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "YSbPt": {
+      "SHAPE": 34.1,
+      "SHAPE_NOCAP": 34.1,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "ZrCoSb": {
+      "SHAPE": 13.5,
+      "SHAPE_NOCAP": 13.4,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "ZrNiSn": {
+      "SHAPE": 33.3,
+      "SHAPE_NOCAP": 33.3,
+      "chosen": "SHAPE_NOCAP"
+    },
+    "ZrSnPt": {
+      "SHAPE": 38.6,
+      "SHAPE_NOCAP": 21.7,
+      "chosen": "SHAPE_NOCAP"
+    }
+  }
+}

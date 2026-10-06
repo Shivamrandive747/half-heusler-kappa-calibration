@@ -1,20 +1,20 @@
 % =============================================================================================
-% Calibrating first-principles lattice thermal conductivity to experiment:
-% a curated half-Heusler dataset and a validated transfer function
+% Predicting the experimental lattice thermal conductivity of half-Heusler compounds
+% by machine learning and transfer-function calibration
 %
 % Target journal: Computational Materials Science (Elsevier), elsarticle class.
 %
 % TO COMPILE (Overleaf: upload this folder, set manuscript.tex as the main document):
 %     pdflatex manuscript  ->  bibtex manuscript  ->  pdflatex x2
 %
-% BEFORE SUBMITTING, run both gates from the repository root:
-%     python make_paper_numbers.py           regenerates every figure quoted in the text
+% BEFORE SUBMITTING, run the gates from the repository root:
+%     python audit_completion.py             every table cell and headline number against its artefact
+%     python check_tex_structure.py          placeholders, control characters, structure
 %     python verify_citations.py paper/manuscript.tex
-% The second fails on an undefined citation key, a DOI that no longer resolves, or a citation
-% with no recorded supporting sentence in claims_ledger.csv. All three are blocking.
+% The last fails on an undefined citation key, a DOI that no longer resolves, or a citation
+% with no recorded supporting sentence in claims_ledger.csv. All are blocking.
 %
-% Authors and affiliations are set. ORCIDs: Shivam Randive and Himanshu Pandey are recorded in
-% the frontmatter comment; Ojaswini Randive's is still awaited.
+% Authors, affiliations and all four ORCIDs are set; see the frontmatter comment below.
 % =============================================================================================
 
 % `authoryear` puts natbib in author-year mode, which contradicts \bibliographystyle{elsarticle-num}
@@ -31,6 +31,7 @@
 \usepackage[separate-uncertainty=true, detect-weight=true]{siunitx}
 \usepackage[version=4]{mhchem}
 \usepackage{microtype}
+\usepackage{enumitem}            % the numbered contributions list closing the Introduction
 \usepackage[hidelinks]{hyperref}
 
 % elsarticle's \corref and \cnotenum end up inside the string hyperref builds for the PDF's
@@ -39,26 +40,26 @@
 % puts a correct title and author list into the PDF's document properties, which is what indexers
 % and reference managers read.
 \hypersetup{
-  pdftitle  = {Calibrating first-principles lattice thermal conductivity to experiment:
-               a curated half-Heusler dataset and a validated transfer function},
+  pdftitle  = {Predicting the experimental lattice thermal conductivity of half-Heusler
+               compounds by machine learning and transfer-function calibration},
   pdfauthor = {Shivam Randive, Heet Lungaria, Ojaswini Randive, Himanshu Pandey},
   pdfsubject= {Lattice thermal conductivity of half-Heusler thermoelectrics},
-  pdfkeywords = {half-Heusler, lattice thermal conductivity, thermoelectric materials,
-                 Boltzmann transport, machine learning, materials data}}
+  pdfkeywords = {half-Heusler, lattice thermal conductivity, thermoelectric,
+                 Boltzmann transport equation, machine learning, transfer-function calibration,
+                 experimental validation}}
 
 % Half Heuslers are written as \ce{ZrNiSn}; keep chemistry upright inside bold table cells.
 \sisetup{group-separator = {,}, group-minimum-digits = 4}
 
 % =============================================================================================
-% WHAT MUST STILL BE FILLED IN BEFORE SUBMISSION (two items).
-% Both are rendered into the PDF, so each is defined here rather than left inline where it
-% can be missed. check_tex_structure.py fails the build while any of them still says TO BE ADDED.
+% WHAT MUST STILL BE FILLED IN BEFORE SUBMISSION.
+% Each is rendered into the PDF, so it is defined here rather than left inline where it can be
+% missed. check_tex_structure.py fails the build while any of them still says TO BE ADDED.
 % =============================================================================================
-% Authors are Shivam Randive (corresponding), Himanshu Pandey, Ojaswini Randive -- set in the
-% frontmatter below. Two things about that block still need confirming:
-%   1. The \ead is i22ph019@phy.svnit.ac.in, which is what this repository was worked from. It is
-%      attached to Shivam Randive as corresponding author. Confirm the address belongs to him.
-%   2. Ojaswini Randive's affiliation is unknown here and must not be guessed.
+% Authors and affiliations are complete: Shivam Randive, Heet Lungaria and Himanshu Pandey at
+% SVNIT Surat; Ojaswini Randive at NIT Raipur (confirmed 2026-09-18, with ORCID). The department
+% given for NIT Raipur is Metallurgical and Materials Engineering -- confirm it is hers.
+% The \ead is i22ph019@phy.svnit.ac.in, attached to Shivam Randive as corresponding author.
 \newcommand{\pandeyemail}{hp@phy.svnit.ac.in}
 % Heet Lungaria's CRediT roles, set to match Ojaswini Randive's on the first author's instruction:
 % both contributed to the figures. If the phonon-stability analysis is later added to the paper,
@@ -77,14 +78,17 @@
 % Draft. Confirm the Google credit programme's exact name before submission -- funders and credit
 % schemes usually specify the wording they want to be acknowledged by, and getting it wrong is
 % worse than omitting it. Add any departmental or institutional support Prof. Pandey advises.
+% Counts: provenance_sources.measurement_source_dois (189) and .calculation_source_dois (29) in
+% data/exports/kappa_v2/paper_numbers.json.
+% FUNDING STATEMENT: the journal's stock no-funding sentence, chosen by the authors (2026-10-05);
+% see the Funding section. The Google Cloud credits are acknowledged below as in-kind support.
 \newcommand{\acknowledgementtext}{%
-  Corpus construction used Google Cloud credits, which funded the large-language-model extraction
-  of measurements from primary publications described in Section~\ref{sec:dataset}. We thank the
-  maintainers of the databases this work rests on---Starrydata2, AFLOW, the Materials Project,
-  JARVIS, OQMD, the Crystallography Open Database and the OPTIMADE consortium---whose curation
-  made an experiment-anchored corpus of this kind possible, and the authors of the \num{198}
-  experimental and \num{22} computational studies whose measurements and calculations are analysed
-  here.}
+  Google Cloud credits funded the large-language-model extraction of measurements from primary
+  publications (Section~\ref{sec:dataset}). We thank the maintainers of the databases this work
+  rests on (Starrydata2, AFLOW, the Materials Project, JARVIS, OQMD, DxMag, the Crystallography Open
+  Database and the OPTIMADE consortium), whose curation made an experiment-anchored corpus of this
+  kind possible. We also thank the authors of the \num{189} experimental and \num{29} computational
+  studies whose measurements and calculations make up the corpus analysed here.}
 
 \journal{Computational Materials Science}
 
@@ -92,8 +96,8 @@
 
 \begin{frontmatter}
 
-\title{Calibrating first-principles lattice thermal conductivity to experiment:
-       a curated half-Heusler dataset and a validated transfer function}
+\title{Predicting the experimental lattice thermal conductivity of half-Heusler compounds
+       by machine learning and transfer-function calibration}
 
 % Author order follows the convention of the field: first author did the work, last author is the
 % senior/supervising author, middle authors contributed in between. The last position is the
@@ -140,19 +144,38 @@
 \section*{Data availability}
 \label{sec:data-availability}
 
-The curated corpus, its provenance fields, the prediction list with its refusals, and the code that
-generates every figure and number in this paper are available at \repourl. The Starrydata snapshot
-used is cited separately so that the corpus can be regenerated exactly.
+% Counts: provenance_sources.* (189 measurement / 188 in the reference list / 1 with no bib entry;
+% 29 calculation / 26 in the reference list) and corpus.source_dois_behind_measured (152),
+% corpus.half_measured_tier0 (50), in data/exports/kappa_v2/paper_numbers.json. The removed-row
+% records are the release_data/audit/ files copied by build_release_data.py (AUDIT_GLOBS).
+The following are archived at \repourl:
+\begin{itemize}[itemsep=1pt, topsep=3pt, leftmargin=1.5em]
+  \item the prediction lists: for every candidate, the calculated and calibrated values, the quoted
+        temperature, the prediction intervals, the status (issued, flagged or conditional on a
+        measurement) and the reason for that status;
+  \item the predictions from crystal structure alone, with the source of each structure;
+  \item the fitted transfer-function constants, the per-compound blind-test scores and the output
+        of every model seed;
+  \item a record of every row that a data-quality rule removed from the corpus or moved to a
+        different method tier, each with the rule responsible;
+  \item the code that rebuilds the corpus from its sources and generates every figure and number in
+        this paper.
+\end{itemize}
+Candidate structures were taken from public databases (DxMag, AFLOW, OQMD, JARVIS and the Materials
+Project). We do not redistribute bulk copies of those databases or of Starrydata. The Starrydata
+snapshot used is cited~\cite{mato2025starrydata}, so that the corpus can be regenerated exactly.
 
-The measurements analysed here are not ours. Across the whole corpus they were made in \num{198}
-publications---of which \num{164} lie behind the \num{52} measured half Heuslers the calibration is
-fitted to---and the transport calculations we calibrate come from a further \num{22}. Every one is
-cited in Section~S6 of the supplementary material, so the provenance claim of
-Section~\ref{sec:dataset} can be checked rather than taken on trust; they are listed there rather
-than here only because they would otherwise outnumber the works this paper discusses by four to
-one. Every measured row of the released corpus carries the digital object identifier of the work it
-came from; calculated rows drawn from public databases carry a source URL instead, since those
-repositories are not identified by DOI.
+The measurements analysed here are not ours. Across the whole corpus they come from \num{189}
+publications, \num{152} of which lie behind the \num{50} measured half Heuslers. The transport
+calculations come from \num{29} publications. The supplementary material cites every calculation
+source and every measurement source but one, so the provenance claim of
+Section~\ref{sec:dataset} can be checked rather than taken on trust. We list them there, not here,
+only because they would otherwise outnumber the works this paper discusses. The one uncited
+measurement source has a digital object identifier (DOI), \texttt{10.36410/jcpr.2020.21.3.319},
+that is registered with neither Crossref nor DataCite, so it cannot be resolved into a reference.
+Every measured row of the corpus carries the DOI of the work it came from; calculated rows drawn
+from public databases carry a source URL instead, because those repositories are not identified by
+DOI.
 
 % CRediT (Contributor Roles Taxonomy). Elsevier asks for this, and it is the modern answer to the
 % ambiguity of author order: it states who did what, so nobody has to infer contribution from
@@ -167,25 +190,32 @@ Data curation, Investigation, Validation, Writing -- original draft.
 \textbf{Himanshu Pandey:} Supervision, Resources, Project administration,
 Writing -- review \& editing.
 
+\section*{Funding}
+
+This research did not receive any specific grant from funding agencies in the public, commercial,
+or not-for-profit sectors.
+
 \section*{Declaration of competing interest}
 
 The authors declare that they have no known competing financial interests or personal relationships
 that could have appeared to influence the work reported in this paper.
 
 % Elsevier requires this as a NAMED statement placed after the competing-interest declaration and
-% before the reference list. Check the journal's current author guide for the exact wording it
-% asks for, as the policy is revised periodically. Two rules are stable: an AI tool is never an
-% author, and use of AI in the RESEARCH (as opposed to the writing) belongs in the Methods --
-% which is why the LLM-assisted extraction is described in Section~\ref{sec:dataset} and not here.
-\section*{Declaration of generative AI and AI-assisted technologies in the writing process}
+% before the reference list, under the heading below (policy revised October 2025). An AI tool is
+% never an author. Use of AI in the RESEARCH belongs in the Methods as well, which is why the
+% Gemini extraction is also described in Section~\ref{sec:dataset}. Extraction counts and dates are
+% those of the extraction database (data/heusler.sqlite, extractions table, status 'ok'); the Claude
+% model is the one used in the 2026-10 analysis and drafting sessions.
+\section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
 
-During the preparation of this work the authors used Anthropic Claude to draft and revise
-manuscript text, to write analysis and figure-generation code, and to audit the manuscript for
-internal numerical consistency. Large language models were also used to extract measurements from
-primary publications during corpus construction; because that use is part of the research rather
-than the writing, it is described in Section~\ref{sec:dataset} together with the safeguards applied
-to it. After using these tools the authors reviewed and edited the content as needed and take full
-responsibility for the content of the published article.
+Corpus values were extracted from primary publications with Google Gemini models:
+\texttt{gemini-2.5-flash} (483 extractions, 4--13 July 2026) and \texttt{gemini-2.5-pro}
+(695 extractions, 13 July -- 18 September 2026). Every extracted value had to pass the physical
+and provenance gates described in Section~\ref{sec:dataset}, and no value entered the corpus on a
+model's authority alone. Claude Opus 5.5 (Anthropic) was used to write and audit the analysis and
+plotting code, including the code that generates every figure, and to assist in drafting the
+manuscript text. The authors reviewed all code and text, edited
+them as needed, and take full responsibility for the content of the published article.
 
 \section*{Acknowledgements}
 

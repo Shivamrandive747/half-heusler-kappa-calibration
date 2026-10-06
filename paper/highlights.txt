@@ -1,0 +1,7 @@
+Highlights
+
+- Published calculations exceed measured half-Heusler κL by a median factor of 1.69
+- A two-constant transfer function maps calculated κL onto the experimental scale
+- Chemistry held out: 33.1% median error, 87.2% of 39 compounds within a factor of 2
+- The route beats the uncorrected model (41.9%) and two null baselines (46.7%, 45.6%)
+- 10 predictions issued with intervals; 15 candidates flagged with reasons named
