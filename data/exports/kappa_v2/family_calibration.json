@@ -1,0 +1,719 @@
+{
+  "_generated_by": "family_calibration.py",
+  "_generated_at": "2026-10-05T03:53:14+00:00",
+  "source": "published",
+  "rule": {
+    "min_members": 1,
+    "max_ratio_spread": 1.4,
+    "min_temps_for_p": 5,
+    "min_span_for_p": 300.0,
+    "t_match_K": 100.0
+  },
+  "protocol": "leave-one-COMPOUND-out within the family; the global arm is scored on the same held-out compounds so the two are paired, with the shared constant refitted without each held-out compound",
+  "global_definition": "shared (c, p) fitted on published calculations vs measurements (shared_constant.py; PREREG_shared_constant_on_calculations.md)",
+  "global": {
+    "c": 0.42,
+    "p": 0.7
+  },
+  "tiers": {
+    "A": "family c and p",
+    "B": "family c, global p",
+    "C": "global c and p"
+  },
+  "calc_disagree_max": 2.0,
+  "calc_disagree": {
+    "TiNiSn": {
+      "temperatures": {
+        "300": 2.39
+      },
+      "scored": true,
+      "family": "Ni-Sn"
+    },
+    "TiSnPt": {
+      "temperatures": {
+        "300": 2.44
+      },
+      "scored": true,
+      "family": "Sn-Pt"
+    },
+    "TmNiSb": {
+      "temperatures": {
+        "300": 18.35
+      },
+      "scored": true,
+      "family": "Ni-Sb"
+    }
+  },
+  "calculation_picks": [
+    {
+      "compound": "TmNiSb",
+      "T": 300,
+      "kept_source": "10.1038/s41598-021-92030-4",
+      "kept_value": 9.85,
+      "alternatives": {
+        "10.1038/s41524-026-02033-w": 0.54
+      },
+      "target": 10.26,
+      "basis": "median calculation of its family-mates"
+    }
+  ],
+  "physical_domain_gate": "off",
+  "families": {
+    "Bi-Pd": {
+      "n_members": 3,
+      "members": [
+        "ErBiPd",
+        "GdBiPd",
+        "LaBiPd"
+      ],
+      "ratio_spread": 1.75,
+      "n_temps": 17,
+      "t_lo": 320,
+      "t_hi": 750,
+      "t_span": 430,
+      "form": "SHAPE_NOCAP",
+      "c": 0.95,
+      "p": 0.7,
+      "adopted": true,
+      "validation": "leave-one-out (n=3)",
+      "candidates": {
+        "GLOBAL": 52.7,
+        "CONSTANT": 25.6,
+        "SHAPE": 27.0,
+        "SHAPE_NOCAP": 25.3
+      },
+      "loo_optimistic": 25.3,
+      "loo_nested": null,
+      "loo_global_ape": 52.7,
+      "beats_global": true,
+      "best_available": "SHAPE_NOCAP",
+      "best_available_ape": 25.3,
+      "params": [
+        0.95,
+        0.7
+      ],
+      "valid_t_lo": 320,
+      "valid_t_hi": 750,
+      "loo_family_ape": 25.3,
+      "members_own": {
+        "ErBiPd": {
+          "own_c": 0.99,
+          "own_ape": 7.3,
+          "n_rows": 7,
+          "reference": "10.1063/1.2196109"
+        },
+        "GdBiPd": {
+          "own_c": 0.7,
+          "own_ape": 9.6,
+          "n_rows": 9,
+          "reference": "10.2320/matertrans.e-mra2007807"
+        },
+        "LaBiPd": {
+          "own_c": 0.92,
+          "own_ape": 2.2,
+          "n_rows": 9,
+          "reference": "10.2320/matertrans.e-mra2007807"
+        }
+      },
+      "c_members_min": 0.7,
+      "c_members_max": 0.99,
+      "c_members_spread": 1.41
+    },
+    "Co-Bi": {
+      "n_members": 1,
+      "members": [
+        "ZrCoBi"
+      ],
+      "ratio_spread": Infinity,
+      "n_temps": 34,
+      "t_lo": 300,
+      "t_hi": 800,
+      "t_span": 500,
+      "form": "SHAPE_NOCAP",
+      "c": 0.54,
+      "p": 0.7,
+      "adopted": true,
+      "params": [
+        0.54,
+        0.7
+      ],
+      "validation": "in-sample (single member)",
+      "loo_family_ape": null,
+      "insample_ape": 6.3,
+      "valid_t_lo": 300,
+      "valid_t_hi": 800,
+      "weakness": "one member: the constant is this compound's own; nothing is held out"
+    },
+    "Co-Sb": {
+      "n_members": 3,
+      "members": [
+        "HfCoSb",
+        "TiCoSb",
+        "ZrCoSb"
+      ],
+      "ratio_spread": 2.14,
+      "n_temps": 34,
+      "t_lo": 200,
+      "t_hi": 990,
+      "t_span": 790,
+      "form": "SHAPE_NOCAP",
+      "c": 0.42,
+      "p": 0.7,
+      "adopted": true,
+      "validation": "leave-one-out (n=3)",
+      "candidates": {
+        "GLOBAL": 23.0,
+        "CONSTANT": 37.4,
+        "SHAPE": 24.9,
+        "SHAPE_NOCAP": 24.9,
+        "MATTHIESSEN": 31.0
+      },
+      "loo_optimistic": 24.9,
+      "loo_nested": null,
+      "loo_global_ape": 23.0,
+      "beats_global": false,
+      "best_available": "GLOBAL",
+      "best_available_ape": 23.0,
+      "params": [
+        0.42,
+        0.7
+      ],
+      "valid_t_lo": 200,
+      "valid_t_hi": 990,
+      "loo_family_ape": 24.9,
+      "members_own": {
+        "HfCoSb": {
+          "own_c": 0.495,
+          "own_ape": 8.2,
+          "n_rows": 14,
+          "reference": "10.2320/matertrans.47.1445"
+        },
+        "TiCoSb": {
+          "own_c": 0.37,
+          "own_ape": 3.4,
+          "n_rows": 18,
+          "reference": "10.1007/s11664-011-1517-0"
+        },
+        "ZrCoSb": {
+          "own_c": 0.42,
+          "own_ape": 11.2,
+          "n_rows": 14,
+          "reference": "10.1143/jjap.46.l673"
+        }
+      },
+      "c_members_min": 0.37,
+      "c_members_max": 0.495,
+      "c_members_spread": 1.34
+    },
+    "Co-Sn": {
+      "n_members": 2,
+      "members": [
+        "NbCoSn",
+        "TaCoSn"
+      ],
+      "ratio_spread": 1.63,
+      "n_temps": 15,
+      "t_lo": 300,
+      "t_hi": 970,
+      "t_span": 670,
+      "form": "SHAPE_NOCAP",
+      "c": 0.286,
+      "p": 0.7,
+      "adopted": true,
+      "validation": "leave-one-out (n=2)",
+      "weakness": "two members: each held-out fit rests on ONE compound, so the quoted error is the median of two numbers from a single pair",
+      "candidates": {
+        "GLOBAL": 66.0,
+        "CONSTANT": 59.1,
+        "SHAPE": 50.3,
+        "SHAPE_NOCAP": 50.3,
+        "MATTHIESSEN": 45.7
+      },
+      "loo_optimistic": 50.3,
+      "loo_nested": null,
+      "loo_global_ape": 66.0,
+      "beats_global": true,
+      "best_available": "MATTHIESSEN",
+      "best_available_ape": 45.7,
+      "params": [
+        0.2857,
+        0.7
+      ],
+      "valid_t_lo": 300,
+      "valid_t_hi": 970,
+      "loo_family_ape": 50.3,
+      "members_own": {
+        "NbCoSn": {
+          "own_c": 0.37,
+          "own_ape": 4.9,
+          "n_rows": 15,
+          "reference": "10.3390/ma18133189"
+        },
+        "TaCoSn": {
+          "own_c": 0.21,
+          "own_ape": 3.5,
+          "n_rows": 8,
+          "reference": "10.1021/acsami.9b13603"
+        }
+      },
+      "c_members_min": 0.21,
+      "c_members_max": 0.37,
+      "c_members_spread": 1.76
+    },
+    "Fe-Sb": {
+      "n_members": 3,
+      "members": [
+        "NbFeSb",
+        "TaFeSb",
+        "VFeSb"
+      ],
+      "ratio_spread": 1.64,
+      "n_temps": 40,
+      "t_lo": 200,
+      "t_hi": 1070,
+      "t_span": 870,
+      "form": "SHAPE_NOCAP",
+      "c": 0.36,
+      "p": 0.7,
+      "adopted": true,
+      "validation": "leave-one-out (n=3)",
+      "candidates": {
+        "GLOBAL": 28.7,
+        "CONSTANT": 30.5,
+        "SHAPE": 30.4,
+        "SHAPE_NOCAP": 17.3,
+        "MATTHIESSEN": 29.1
+      },
+      "loo_optimistic": 17.3,
+      "loo_nested": null,
+      "loo_global_ape": 28.7,
+      "beats_global": true,
+      "best_available": "SHAPE_NOCAP",
+      "best_available_ape": 17.3,
+      "params": [
+        0.36,
+        0.7
+      ],
+      "valid_t_lo": 200,
+      "valid_t_hi": 1070,
+      "loo_family_ape": 17.3,
+      "members_own": {
+        "NbFeSb": {
+          "own_c": 0.36,
+          "own_ape": 13.9,
+          "n_rows": 17,
+          "reference": "10.1039/c7tc01570d"
+        },
+        "TaFeSb": {
+          "own_c": 0.57,
+          "own_ape": 14.2,
+          "n_rows": 20,
+          "reference": "10.1016/j.intermet.2019.04.011"
+        },
+        "VFeSb": {
+          "own_c": 0.37,
+          "own_ape": 3.4,
+          "n_rows": 8,
+          "reference": "10.1007/s11664-016-4804-y"
+        }
+      },
+      "c_members_min": 0.36,
+      "c_members_max": 0.57,
+      "c_members_spread": 1.58
+    },
+    "Ni-Pb": {
+      "n_members": 1,
+      "members": [
+        "ZrNiPb"
+      ],
+      "ratio_spread": Infinity,
+      "n_temps": 7,
+      "t_lo": 300,
+      "t_hi": 870,
+      "t_span": 570,
+      "form": "SHAPE_NOCAP",
+      "c": 0.51,
+      "p": 0.7,
+      "adopted": true,
+      "params": [
+        0.51,
+        0.7
+      ],
+      "validation": "in-sample (single member)",
+      "loo_family_ape": null,
+      "insample_ape": 5.6,
+      "valid_t_lo": 300,
+      "valid_t_hi": 870,
+      "weakness": "one member: the constant is this compound's own; nothing is held out"
+    },
+    "Ni-Sb": {
+      "n_members": 7,
+      "members": [
+        "DyNiSb",
+        "ErNiSb",
+        "HoNiSb",
+        "LuNiSb",
+        "ScNiSb",
+        "TmNiSb",
+        "YNiSb"
+      ],
+      "ratio_spread": 1.67,
+      "n_temps": 56,
+      "t_lo": 200,
+      "t_hi": 950,
+      "t_span": 750,
+      "form": "SHAPE_NOCAP",
+      "c": 0.47,
+      "p": 0.7,
+      "adopted": true,
+      "validation": "leave-one-out (n=7)",
+      "candidates": {
+        "GLOBAL": 10.1,
+        "CONSTANT": 26.1,
+        "SHAPE": 16.4,
+        "SHAPE_NOCAP": 16.4,
+        "CURVE": 18.4,
+        "MATTHIESSEN": 12.4
+      },
+      "loo_optimistic": 16.4,
+      "loo_nested": null,
+      "loo_global_ape": 10.1,
+      "beats_global": false,
+      "best_available": "GLOBAL",
+      "best_available_ape": 10.1,
+      "params": [
+        0.47,
+        0.7
+      ],
+      "valid_t_lo": 200,
+      "valid_t_hi": 950,
+      "loo_family_ape": 16.4,
+      "members_own": {
+        "DyNiSb": {
+          "own_c": 0.37,
+          "own_ape": 3.1,
+          "n_rows": 25,
+          "reference": "10.1103/physrevapplied.14.054046"
+        },
+        "ErNiSb": {
+          "own_c": 0.4,
+          "own_ape": 5.7,
+          "n_rows": 19,
+          "reference": "10.1103/physrevapplied.14.054046"
+        },
+        "HoNiSb": {
+          "own_c": 0.48,
+          "own_ape": 5.6,
+          "n_rows": 7,
+          "reference": "10.1557/proc-545-421"
+        },
+        "LuNiSb": {
+          "own_c": 0.44,
+          "own_ape": 4.1,
+          "n_rows": 18,
+          "reference": "10.1103/physrevapplied.14.054046"
+        },
+        "ScNiSb": {
+          "own_c": 0.47,
+          "own_ape": 9.4,
+          "n_rows": 29,
+          "reference": "10.3390/ma12101723"
+        },
+        "TmNiSb": {
+          "own_c": 0.39,
+          "own_ape": 4.5,
+          "n_rows": 23,
+          "reference": "10.1103/physrevapplied.14.054046"
+        },
+        "YNiSb": {
+          "own_c": 0.44,
+          "own_ape": 3.3,
+          "n_rows": 6,
+          "reference": "10.1557/proc-545-421"
+        }
+      },
+      "c_members_min": 0.37,
+      "c_members_max": 0.48,
+      "c_members_spread": 1.3
+    },
+    "Ni-Sn": {
+      "n_members": 3,
+      "members": [
+        "HfNiSn",
+        "TiNiSn",
+        "ZrNiSn"
+      ],
+      "ratio_spread": 1.61,
+      "n_temps": 25,
+      "t_lo": 300,
+      "t_hi": 960,
+      "t_span": 660,
+      "form": "SHAPE_NOCAP",
+      "c": 0.32,
+      "p": 0.7,
+      "adopted": true,
+      "validation": "leave-one-out (n=3)",
+      "candidates": {
+        "GLOBAL": 48.3,
+        "CONSTANT": 38.5,
+        "SHAPE": 33.3,
+        "SHAPE_NOCAP": 33.3,
+        "MATTHIESSEN": 42.5
+      },
+      "loo_optimistic": 33.3,
+      "loo_nested": null,
+      "loo_global_ape": 48.3,
+      "beats_global": true,
+      "best_available": "SHAPE",
+      "best_available_ape": 33.3,
+      "params": [
+        0.32,
+        0.7
+      ],
+      "valid_t_lo": 300,
+      "valid_t_hi": 960,
+      "loo_family_ape": 33.3,
+      "members_own": {
+        "HfNiSn": {
+          "own_c": 0.2,
+          "own_ape": 3.0,
+          "n_rows": 9,
+          "reference": "10.1016/j.actamat.2015.11.022"
+        },
+        "TiNiSn": {
+          "own_c": 0.32,
+          "own_ape": 25.9,
+          "n_rows": 15,
+          "reference": "10.1016/j.stam.2004.02.006"
+        },
+        "ZrNiSn": {
+          "own_c": 0.35,
+          "own_ape": 2.4,
+          "n_rows": 7,
+          "reference": "10.1038/s41598-017-14013-8"
+        }
+      },
+      "c_members_min": 0.2,
+      "c_members_max": 0.35,
+      "c_members_spread": 1.75
+    },
+    "Sb-Ir": {
+      "n_members": 1,
+      "members": [
+        "ZrSbIr"
+      ],
+      "ratio_spread": Infinity,
+      "n_temps": 4,
+      "t_lo": 300,
+      "t_hi": 950,
+      "t_span": 650,
+      "form": "SHAPE_NOCAP",
+      "c": 0.198,
+      "p": 0.7,
+      "adopted": true,
+      "params": [
+        0.1977,
+        0.7
+      ],
+      "validation": "in-sample (single member)",
+      "loo_family_ape": null,
+      "insample_ape": 36.6,
+      "valid_t_lo": 300,
+      "valid_t_hi": 950,
+      "weakness": "one member: the constant is this compound's own; nothing is held out"
+    },
+    "Sb-Pd": {
+      "n_members": 3,
+      "members": [
+        "ErSbPd",
+        "HoSbPd",
+        "ScSbPd"
+      ],
+      "ratio_spread": 1.26,
+      "n_temps": 17,
+      "t_lo": 200,
+      "t_hi": 360,
+      "t_span": 160,
+      "form": "SHAPE_NOCAP",
+      "c": 0.24,
+      "p": 0.7,
+      "adopted": true,
+      "validation": "leave-one-out (n=3)",
+      "candidates": {
+        "GLOBAL": 42.4,
+        "CONSTANT": 61.3,
+        "SHAPE": 61.5,
+        "SHAPE_NOCAP": 61.5,
+        "MATTHIESSEN": 57.2
+      },
+      "loo_optimistic": 61.5,
+      "loo_nested": null,
+      "loo_global_ape": 42.4,
+      "beats_global": false,
+      "best_available": "GLOBAL",
+      "best_available_ape": 42.4,
+      "params": [
+        0.24,
+        0.7
+      ],
+      "valid_t_lo": 200,
+      "valid_t_hi": 360,
+      "loo_family_ape": 61.5,
+      "members_own": {
+        "ErSbPd": {
+          "own_c": 0.24,
+          "own_ape": 4.9,
+          "n_rows": 11,
+          "reference": "10.1088/1361-6463/aac567"
+        },
+        "HoSbPd": {
+          "own_c": 0.24,
+          "own_ape": 1.3,
+          "n_rows": 11,
+          "reference": "10.1088/1361-6463/aac567"
+        },
+        "ScSbPd": {
+          "own_c": 0.33,
+          "own_ape": 2.8,
+          "n_rows": 17,
+          "reference": "10.1088/0953-8984/15/4/304"
+        }
+      },
+      "c_members_min": 0.24,
+      "c_members_max": 0.33,
+      "c_members_spread": 1.38
+    },
+    "Sb-Pt": {
+      "n_members": 4,
+      "members": [
+        "DySbPt",
+        "LuSbPt",
+        "TbSbPt",
+        "YSbPt"
+      ],
+      "ratio_spread": 1.34,
+      "n_temps": 16,
+      "t_lo": 210,
+      "t_hi": 680,
+      "t_span": 470,
+      "form": "SHAPE_NOCAP",
+      "c": 0.61,
+      "p": 0.7,
+      "adopted": true,
+      "validation": "leave-one-out (n=4)",
+      "outliers": {
+        "YSbPt": 7.4
+      },
+      "candidates": {
+        "GLOBAL": 30.4,
+        "CONSTANT": 22.7,
+        "SHAPE": 7.4,
+        "SHAPE_NOCAP": 7.4,
+        "CURVE": 4.2,
+        "MATTHIESSEN": 19.5
+      },
+      "loo_optimistic": 7.4,
+      "loo_nested": null,
+      "loo_global_ape": 30.4,
+      "beats_global": true,
+      "best_available": "CURVE",
+      "best_available_ape": 4.2,
+      "params": [
+        0.61,
+        0.7
+      ],
+      "valid_t_lo": 210,
+      "valid_t_hi": 680,
+      "loo_family_ape": 7.4,
+      "members_own": {
+        "DySbPt": {
+          "own_c": null,
+          "own_ape": null,
+          "n_rows": 3,
+          "reference": "10.1002/adma.73841"
+        },
+        "LuSbPt": {
+          "own_c": null,
+          "own_ape": null,
+          "n_rows": 3,
+          "reference": "10.1002/adma.73841"
+        },
+        "TbSbPt": {
+          "own_c": null,
+          "own_ape": null,
+          "n_rows": 3,
+          "reference": "10.1002/adma.73841"
+        },
+        "YSbPt": {
+          "own_c": 0.45,
+          "own_ape": 2.4,
+          "n_rows": 14,
+          "reference": "10.1063/1.3663569"
+        }
+      },
+      "c_members_min": 0.45,
+      "c_members_max": 0.45,
+      "c_members_spread": 1.0
+    },
+    "Sn-Pt": {
+      "n_members": 3,
+      "members": [
+        "HfSnPt",
+        "TiSnPt",
+        "ZrSnPt"
+      ],
+      "ratio_spread": 1.57,
+      "n_temps": 16,
+      "t_lo": 300,
+      "t_hi": 1080,
+      "t_span": 780,
+      "form": "SHAPE_NOCAP",
+      "c": 0.89,
+      "p": 0.7,
+      "adopted": true,
+      "validation": "leave-one-out (n=3)",
+      "candidates": {
+        "GLOBAL": 50.4,
+        "CONSTANT": 36.7,
+        "SHAPE": 36.1,
+        "SHAPE_NOCAP": 21.7
+      },
+      "loo_optimistic": 21.7,
+      "loo_nested": null,
+      "loo_global_ape": 50.4,
+      "beats_global": true,
+      "best_available": "SHAPE_NOCAP",
+      "best_available_ape": 21.7,
+      "params": [
+        0.89,
+        0.7
+      ],
+      "valid_t_lo": 300,
+      "valid_t_hi": 1080,
+      "loo_family_ape": 21.7,
+      "members_own": {
+        "HfSnPt": {
+          "own_c": 0.55,
+          "own_ape": 13.1,
+          "n_rows": 9,
+          "reference": "10.1109/ict.2006.331294"
+        },
+        "TiSnPt": {
+          "own_c": 0.795,
+          "own_ape": 8.6,
+          "n_rows": 8,
+          "reference": "10.1109/ict.2006.331294"
+        },
+        "ZrSnPt": {
+          "own_c": 0.94,
+          "own_ape": 14.1,
+          "n_rows": 8,
+          "reference": "10.1109/ict.2006.331294"
+        }
+      },
+      "c_members_min": 0.55,
+      "c_members_max": 0.94,
+      "c_members_spread": 1.71
+    }
+  }
+}

@@ -20,6 +20,7 @@ ALSO FIXED HERE: four compounds report a minimum kappa of exactly 0.0 W/m/K -- `
 of each temperature curve is kept, so no compound is lost over a single bad point.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import argparse
 import sqlite3

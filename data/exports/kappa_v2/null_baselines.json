@@ -1,57 +1,71 @@
 {
-  "n_compounds": 51,
-  "n_clusters": 23,
-  "protocol": "leave-one-chemistry-cluster-out; the null's parameters and the model's calibration are both fitted on the training clusters only",
+  "n_compounds": 50,
+  "n_clusters": 21,
+  "population": "every half Heusler in the blind test (NOT the in-domain headline set)",
+  "seed": 0,
+  "seed_note": "the model row and paired tests are seed 0 (target_blind_test.csv); the nulls do not depend on the seed; model_seed_median below is the median over every seed file found",
+  "protocol": "leave-one-chemistry-cluster-out; the null's parameters are fitted on the training clusters only, the shared calibration on published calculations without the held-out cluster",
   "predictors": {
     "model + calibration": {
-      "median_ape": 33.7,
-      "within_2x_pct": 74.5,
-      "within_30_pct": 43.1
+      "median_ape": 36.41,
+      "within_2x_pct": 76.0,
+      "within_30_pct": 36.0
     },
     "null: constant kappa": {
-      "median_ape": 42.36,
-      "within_2x_pct": 66.7,
-      "within_30_pct": 31.4
+      "median_ape": 48.67,
+      "within_2x_pct": 68.0,
+      "within_30_pct": 32.0
     },
     "null: A*(T/300)^q": {
-      "median_ape": 42.06,
-      "within_2x_pct": 60.8,
-      "within_30_pct": 27.5
+      "median_ape": 48.17,
+      "within_2x_pct": 66.0,
+      "within_30_pct": 28.0
     }
   },
   "paired_tests": {
+    "test": "paired Wilcoxon on per-compound APE, as compute_seed_averaged (the headline) tests it",
     "vs_power_law_null": {
-      "wilcoxon_p": 0.2981,
-      "model_better_pct": 58.8
+      "wilcoxon_p": 0.0329,
+      "model_better_pct": 70.0
     },
     "vs_constant_null": {
-      "wilcoxon_p": 0.7217,
-      "model_better_pct": 58.8
+      "wilcoxon_p": 0.0354,
+      "model_better_pct": 68.0
+    }
+  },
+  "model_seed_median": {
+    "median_ape": 37.36,
+    "per_seed": {
+      "0": 36.41,
+      "1": 38.86,
+      "2": 33.6,
+      "3": 37.91,
+      "4": 37.36
     }
   },
   "rank_signal": {
-    "spearman": 0.379,
-    "p": 0.00616,
-    "n": 51,
+    "spearman": 0.34,
+    "p": 0.0158,
+    "n": 50,
     "note": "does the model rank compounds better than chance?"
   },
   "temperature_slope": {
-    "n_assessable": 41,
-    "n_physical": 37,
-    "measured_slope_sd": 0.784,
-    "predicted_slope_sd": 0.228,
+    "n_assessable": 36,
+    "n_physical": 33,
+    "measured_slope_sd": 0.799,
+    "predicted_slope_sd": 0.227,
     "measured_range": [
       -4.78,
       -0.02
     ],
     "predicted_range": [
-      -0.76,
-      0.43
+      -0.27,
+      0.64
     ],
-    "spearman": -0.261,
-    "spearman_p": 0.1187,
-    "pearson": -0.231,
-    "pearson_p": 0.169,
+    "spearman": 0.22,
+    "spearman_p": 0.2195,
+    "pearson": 0.108,
+    "pearson_p": 0.5506,
     "conclusion": "the model does NOT predict temperature dependence: all variation comes from the single fitted global exponent, not from the compound"
   }
 }

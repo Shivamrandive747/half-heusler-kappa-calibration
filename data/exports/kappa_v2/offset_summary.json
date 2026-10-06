@@ -1,0 +1,37 @@
+{
+  "_generated_by": "paper/fig02_offset.py",
+  "pairing": "published-route pairs (shared_constant.pairs): single reference laboratory per compound, median calculation carried to the measured temperature; statistics per compound (median over compounds of each compound's median ratio)",
+  "n_compounds": 34,
+  "n_points": 189,
+  "n_pair_rows": 429,
+  "n_families": 12,
+  "median_ratio_calc_over_meas": 1.69,
+  "median_ratio_calibrated": 0.99,
+  "within_2x_uncorrected_pct": 68.0,
+  "within_2x_calibrated_pct": 88.0,
+  "compounds_with_ratio_above_1": 29,
+  "compounds_with_ratio_below_1": [
+    "ErBiPd",
+    "HfSnPt",
+    "LaBiPd",
+    "TiSnPt",
+    "ZrSnPt"
+  ],
+  "families_with_median_ratio_above_1": 10,
+  "families_with_median_ratio_below_1": [
+    "Bi-Pd",
+    "Sn-Pt"
+  ],
+  "per_point_secondary": {
+    "unit": "compound x 100 K bin",
+    "median_ratio_calc_over_meas": 1.41,
+    "median_ratio_calibrated": 0.9,
+    "within_2x_uncorrected_pct": 72.0,
+    "within_2x_calibrated_pct": 85.0
+  },
+  "points_above_cap": 3,
+  "cap_K": 1036,
+  "c": 0.42,
+  "p": 0.7,
+  "calibrated_protocol": "shared constant fitted on published calculations; each compound's calibrated points use the constant refitted without its chemistry cluster; c, p are the deployed values"
+}

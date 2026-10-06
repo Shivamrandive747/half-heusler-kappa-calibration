@@ -18,6 +18,7 @@ Both thresholds are run because they answer different questions:
     threshold 0     -- unconditional, every half Heusler scored, no compound dropped
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import sys
 import warnings

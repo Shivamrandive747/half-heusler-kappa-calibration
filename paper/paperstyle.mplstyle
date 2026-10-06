@@ -36,18 +36,27 @@ mathtext.fontset:      dejavusans
 axes.linewidth:        0.6
 axes.edgecolor:        222222
 axes.labelcolor:       111111
-axes.titlelocation:    left
+axes.titlelocation:    center
 axes.titlepad:         4.0
 axes.labelpad:         2.5
+# Bold axis labels, following the reference this paper's figures are styled after
+# (Paliwal and Alam, Phys. Rev. Materials 9, 2025). A bold label separates the quantity being
+# plotted from the tick numerals beside it without adding a rule or a colour.
+axes.labelweight:      bold
+axes.titleweight:      bold
 # Closed frame: the convention in physics and materials journals. An open two-spine axis
 # reads as a dashboard; a box with inward ticks reads as a figure in a paper.
 axes.spines.top:       True
 axes.spines.right:     True
 axes.axisbelow:        True
-axes.grid:             False
-grid.color:            DDDDDD
+# A light grid, as in the reference. On a logarithmic conductivity axis a reader has to place a
+# point between decade ticks by eye; the grid does that work and is faint enough not to compete
+# with the data.
+axes.grid:             True
+grid.color:            D9D9D9
 grid.linewidth:        0.4
-grid.alpha:            0.8
+grid.alpha:            0.9
+grid.linestyle:        -
 
 # Okabe-Ito: the standard colourblind-safe qualitative palette. Do not reorder -- adjacent pairs
 # were chosen to stay separable under deuteranopia and protanopia.
@@ -79,7 +88,14 @@ scatter.edgecolors:    white
 errorbar.capsize:      1.5
 
 # ---- legend -------------------------------------------------------------------------------
-legend.frameon:        False
+# Framed legend, as in the reference: a box keys the series without the reader tracking a floating
+# label across the panel.
+legend.frameon:        True
+legend.framealpha:     0.92
+legend.edgecolor:      BBBBBB
+legend.facecolor:      white
+legend.fancybox:       False
+legend.borderpad:      0.35
 legend.handlelength:   1.4
 legend.handletextpad:  0.5
 legend.columnspacing:  1.0

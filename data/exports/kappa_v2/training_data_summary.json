@@ -1,0 +1,21 @@
+{
+  "_generated_by": "paper/fig12_dataset.py",
+  "n_labels": 681,
+  "n_compounds": 463,
+  "n_half_heusler": 284,
+  "n_half_heusler_vec18": 230,
+  "T_min": 300.0,
+  "T_max": 1200.0,
+  "labels_by_T": {
+    "300": 544,
+    "500": 119,
+    "600": 1,
+    "700": 4,
+    "800": 3,
+    "900": 6,
+    "1200": 4
+  },
+  "kappa_min": 0.21,
+  "kappa_max": 213.5,
+  "kappa_median": 7.57
+}

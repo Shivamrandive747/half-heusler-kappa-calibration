@@ -1,0 +1,234 @@
+{
+  "comparator": {
+    "name": "Elemental-SDNNFF",
+    "doi": "10.1038/s41524-023-00974-0",
+    "what": "neural-network force field, lattice kappa via ShengBTE",
+    "note": "published predictions; EXCLUDED from our training labels"
+  },
+  "protocol": {
+    "reference_temperature_K": 300.0,
+    "temperature_window_K": 50.0,
+    "our_arm": "leave-one-chemistry-out, shared calibration refitted per fold on published calculations without the held-out cluster",
+    "their_arm": "no holdout -- these compounds may be in its training set, which favours the published model"
+  },
+  "n_in_domain": 39,
+  "n_scored_ours": 36,
+  "n_common": 21,
+  "compounds": [
+    "HfCoSb",
+    "HfSnPt",
+    "NbCoSn",
+    "NbFeSb",
+    "ScSbPd",
+    "TaCoSn",
+    "TaFeSb",
+    "TiCoSb",
+    "TiNiSn",
+    "VCoSn",
+    "VFeSb",
+    "YNiBi",
+    "YNiSb",
+    "YSbPd",
+    "YSbPt",
+    "ZrCoBi",
+    "ZrCoSb",
+    "ZrNiPb",
+    "ZrNiSn",
+    "ZrSbIr",
+    "ZrSnPt"
+  ],
+  "ours_median_ape": 44.7,
+  "sdnnff_median_ape": 101.4,
+  "sdnnff_calibrated_median_ape": 36.8,
+  "ours_within_2x_pct": 71.4,
+  "sdnnff_within_2x_pct": 42.9,
+  "sdnnff_calibrated_within_2x_pct": 76.2,
+  "ours_closer_pct": 76.2,
+  "wilcoxon_p_ours_vs_sdnnff": 0.0055,
+  "wilcoxon_p_sdnnff_raw_vs_calibrated": 0.0033,
+  "median_ratio_sdnnff_to_measured": 2.01,
+  "seed": 0,
+  "seed_note": "our arm is the seed-0 blind-test file (target_blind_test.csv); the SDNNFF and published-BTE columns do not depend on the model seed",
+  "positive_control": {
+    "n": 21,
+    "n_with_published_bte": 18,
+    "published_bte_definition": "family_calibration.published_calc_at at each measured row inside the 300 K window, median per compound",
+    "sdnnff_vs_published_bte_calculation": {
+      "n": 18,
+      "median_ape": 18.8,
+      "median_ratio": 0.99
+    },
+    "sdnnff_vs_measurement": {
+      "n": 21,
+      "median_ape": 101.4,
+      "median_ratio": 2.01
+    },
+    "sdnnff_vs_measurement_same_compounds_as_bte": {
+      "n": 18,
+      "median_ape": 106.4,
+      "median_ratio": 2.06
+    },
+    "published_bte_calculation_vs_measurement": {
+      "n": 18,
+      "median_ape": 99.5,
+      "median_ratio": 1.99
+    },
+    "sdnnff_vs_our_ml_surrogate": {
+      "n": 21,
+      "median_ape": 48.8,
+      "median_ratio": 1.35
+    },
+    "_meaning": "the surrogate should land NEAR the published calculation it reproduces and FAR from measurement, by roughly the offset this paper measures. If it were far from both, the comparison would be reading the wrong quantity. sdnnff_vs_our_ml_surrogate is the comparison this block used to report under the label 'published calculation'; it compares two surrogates."
+  },
+  "window_sensitivity": {
+    "plus_minus_25K": {
+      "n": 21,
+      "sdnnff_median_ape": 101.4,
+      "median_ratio": 2.01
+    },
+    "plus_minus_50K": {
+      "n": 21,
+      "sdnnff_median_ape": 101.4,
+      "median_ratio": 2.01
+    },
+    "plus_minus_75K": {
+      "n": 21,
+      "sdnnff_median_ape": 101.4,
+      "median_ratio": 2.01
+    },
+    "plus_minus_100K": {
+      "n": 23,
+      "sdnnff_median_ape": 101.4,
+      "median_ratio": 2.01
+    }
+  },
+  "per_compound": {
+    "HfCoSb": {
+      "measured": 14.21,
+      "ours": 44.7,
+      "sdnnff": 70.0,
+      "sdnnff_calibrated": 25.2
+    },
+    "HfSnPt": {
+      "measured": 14.94,
+      "ours": 76.0,
+      "sdnnff": 0.1,
+      "sdnnff_calibrated": 56.0
+    },
+    "NbCoSn": {
+      "measured": 8.24,
+      "ours": 16.4,
+      "sdnnff": 160.0,
+      "sdnnff_calibrated": 40.4
+    },
+    "NbFeSb": {
+      "measured": 17.04,
+      "ours": 52.6,
+      "sdnnff": 65.6,
+      "sdnnff_calibrated": 10.6
+    },
+    "ScSbPd": {
+      "measured": 3.6,
+      "ours": 17.9,
+      "sdnnff": 133.3,
+      "sdnnff_calibrated": 12.0
+    },
+    "TaCoSn": {
+      "measured": 5.72,
+      "ours": 15.6,
+      "sdnnff": 237.7,
+      "sdnnff_calibrated": 38.5
+    },
+    "TaFeSb": {
+      "measured": 14.03,
+      "ours": 45.2,
+      "sdnnff": 101.4,
+      "sdnnff_calibrated": 17.4
+    },
+    "TiCoSb": {
+      "measured": 8.64,
+      "ours": 11.5,
+      "sdnnff": 148.4,
+      "sdnnff_calibrated": 31.7
+    },
+    "TiNiSn": {
+      "measured": 5.31,
+      "ours": 36.7,
+      "sdnnff": 138.4,
+      "sdnnff_calibrated": 26.4
+    },
+    "VCoSn": {
+      "measured": 12.8,
+      "ours": 48.7,
+      "sdnnff": 21.6,
+      "sdnnff_calibrated": 36.8
+    },
+    "VFeSb": {
+      "measured": 8.18,
+      "ours": 1.5,
+      "sdnnff": 247.4,
+      "sdnnff_calibrated": 80.6
+    },
+    "YNiBi": {
+      "measured": 3.17,
+      "ours": 35.1,
+      "sdnnff": 23.8,
+      "sdnnff_calibrated": 30.7
+    },
+    "YNiSb": {
+      "measured": 4.92,
+      "ours": 0.5,
+      "sdnnff": 37.6,
+      "sdnnff_calibrated": 65.1
+    },
+    "YSbPd": {
+      "measured": 2.26,
+      "ours": 54.2,
+      "sdnnff": 226.8,
+      "sdnnff_calibrated": 83.0
+    },
+    "YSbPt": {
+      "measured": 1.92,
+      "ours": 53.5,
+      "sdnnff": 186.0,
+      "sdnnff_calibrated": 60.2
+    },
+    "ZrCoBi": {
+      "measured": 14.62,
+      "ours": 60.5,
+      "sdnnff": 69.0,
+      "sdnnff_calibrated": 87.0
+    },
+    "ZrCoSb": {
+      "measured": 16.28,
+      "ours": 61.7,
+      "sdnnff": 62.3,
+      "sdnnff_calibrated": 31.8
+    },
+    "ZrNiPb": {
+      "measured": 7.59,
+      "ours": 37.9,
+      "sdnnff": 22.9,
+      "sdnnff_calibrated": 67.6
+    },
+    "ZrNiSn": {
+      "measured": 6.68,
+      "ours": 13.4,
+      "sdnnff": 111.3,
+      "sdnnff_calibrated": 11.2
+    },
+    "ZrSbIr": {
+      "measured": 9.2,
+      "ours": 73.3,
+      "sdnnff": 113.1,
+      "sdnnff_calibrated": 10.5
+    },
+    "ZrSnPt": {
+      "measured": 20.0,
+      "ours": 78.2,
+      "sdnnff": 18.4,
+      "sdnnff_calibrated": 65.7
+    }
+  },
+  "_meaning": "median absolute percentage error against measurement, per compound, at 300 K. sdnnff_calibrated applies OUR transfer function to THEIR prediction, which tests whether the correction transfers to an independent calculation source."
+}

@@ -39,6 +39,7 @@ three species, and not remotely a Heusler. Stoichiometry is checked as well: 1:1
 half-Heusler C1b, 2:1:1 at Fm-3m (225) is full-Heusler L2_1, and 2:1:1 at F-43m is inverse XA.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import argparse
 import json

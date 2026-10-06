@@ -14,7 +14,10 @@ machine learning earns its place. So we build predictors containing NO informati
 compound is being predicted, and fit them exactly as the real calibration is fitted -- on the other
 chemistry clusters, never on the compound being scored:
 
-    NULL 1  a single constant kappa: the geometric mean of every training-side measurement.
+    NULL 1  a single constant kappa: the median of every training-side measurement (since
+            2026-10-05 the SAME null as the headline's, compute_seed_averaged.null; it was a
+            geometric mean here, with a Wilcoxon on log10 APE -- a different test under the
+            same name; FIXPASS S9).
     NULL 2  A*(T/300)^q, two free parameters, so it can follow the average temperature trend but
             still knows nothing about the compound.
 
@@ -28,6 +31,7 @@ slope is positive are excluded: lattice conductivity cannot rise with temperatur
 broken references, not model failures.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import json
 import sys
@@ -40,6 +44,7 @@ import pandas as pd
 from scipy.stats import pearsonr, spearmanr, wilcoxon
 
 import extend_blind_test as E
+import shared_constant as SCN
 
 BLIND = "data/exports/kappa_v2/target_blind_test.csv"
 OUT = "data/exports/kappa_v2/null_baselines.json"
@@ -57,8 +62,12 @@ def main() -> int:
     for cl in clusters:
         tr, te = H[H.cluster != cl], H[H.cluster == cl]
         assert cl not in set(tr.cluster), "cluster leaked into its own fit"
-        c, p = E.fit_cp(tr)                                    # the model's own calibration
-        k_const = float(np.exp(np.log(tr.k_ref).mean()))       # NULL 1
+        # the shared constant, fitted on published calculations without this cluster (prereg
+        # PREREG_shared_constant_on_calculations rule 4); the nulls below are unchanged
+        c, p = SCN.shared_cp_without_cluster(cl)
+        # NULL 1 -- one definition with the headline (compute_seed_averaged.null): the arithmetic
+        # median of the training clusters' reference rows
+        k_const = float(np.median(tr.k_ref))
         q, lA = np.polyfit(np.log(tr["T"].values / 300.0), np.log(tr.k_ref.values), 1)
         A = float(np.exp(lA))                                  # NULL 2
         for cp_, g in te.groupby("compound"):
@@ -74,8 +83,14 @@ def main() -> int:
     R = pd.DataFrame(rows)
 
     res = {"n_compounds": int(len(R)), "n_clusters": len(clusters),
-           "protocol": ("leave-one-chemistry-cluster-out; the null's parameters and the model's "
-                        "calibration are both fitted on the training clusters only"),
+           "population": "every half Heusler in the blind test (NOT the in-domain headline set)",
+           "seed": 0,
+           "seed_note": ("the model row and paired tests are seed 0 (target_blind_test.csv); "
+                         "the nulls do not depend on the seed; model_seed_median below is the "
+                         "median over every seed file found"),
+           "protocol": ("leave-one-chemistry-cluster-out; the null's parameters are fitted on the "
+                        "training clusters only, the shared calibration on published calculations "
+                        "without the held-out cluster"),
            "predictors": {}}
     print(f"\n  {'predictor':<28}{'median APE':>12}{'within 2x':>11}{'within 30%':>12}")
     for nm, col, rc in (("model + calibration", "model", "model_ratio"),
@@ -87,14 +102,34 @@ def main() -> int:
                                      within_2x_pct=round(w2, 1), within_30_pct=round(w30, 1))
         print(f"  {nm:<28}{R[col].median():>11.1f}%{w2:>10.1f}%{w30:>11.1f}%")
 
-    res["paired_tests"] = {}
+    res["paired_tests"] = {"test": ("paired Wilcoxon on per-compound APE, as "
+                                    "compute_seed_averaged (the headline) tests it")}
     for nm, col in (("vs_power_law_null", "power"), ("vs_constant_null", "const")):
-        _, pv = wilcoxon(np.log10(R.model + 1e-9), np.log10(R[col] + 1e-9))
+        _, pv = wilcoxon(R.model, R[col])
         res["paired_tests"][nm] = dict(
             wilcoxon_p=round(float(pv), 4),
             model_better_pct=round(float((R.model < R[col]).mean() * 100), 1))
         print(f"  paired Wilcoxon {nm:<20} p = {pv:.4f}   "
               f"model better on {(R.model < R[col]).mean()*100:.0f}%")
+
+    # THE MODEL ROW ACROSS SEEDS (cheap: the same scoring on each seed's file)
+    seeds = {0: BLIND}
+    import glob
+    for f in sorted(glob.glob("paper/evidence/blind_d2_s*.csv")):
+        seeds.setdefault(int(f[:-4].split("_s")[-1]), f)
+    per_seed = {}
+    for s_, f in sorted(seeds.items()):
+        Hs = pd.read_csv(f)
+        Hs = Hs[Hs.klass == "half"].dropna(subset=["T", "k_ref", "k_pred"])
+        ap = []
+        for cl in sorted(Hs.cluster.unique()):
+            c_, p_ = SCN.shared_cp_without_cluster(cl)
+            for cp_, g in Hs[Hs.cluster == cl].groupby("compound"):
+                kk = g.k_pred.values * E.apply_cp(g["T"].values, c_, p_)
+                ap.append(float(np.median(np.abs(kk - g.k_ref.values) / g.k_ref.values * 100)))
+        per_seed[str(s_)] = round(float(np.median(ap)), 2)
+    res["model_seed_median"] = dict(median_ape=round(float(np.median(list(per_seed.values()))), 2),
+                                    per_seed=per_seed)
 
     mp = H.groupby("compound").k_pred.median()
     mr = H.groupby("compound").k_ref.median()
@@ -105,7 +140,9 @@ def main() -> int:
     print(f"\n  Spearman(kappa_pred, kappa_ref) = {rs:+.3f}   p = {ps:.2e}   n = {len(mp)}")
 
     # ---- temperature slopes -----------------------------------------------------
-    cph = E.fit_cp(H)
+    # the deployed shared constant (previously an in-sample fit on these predictions); one exponent
+    # for every compound, so it shifts every predicted slope equally
+    cph = SCN.shared_cp()
     sl = []
     for cp_, g in H.groupby("compound"):
         Tv = g["T"].values

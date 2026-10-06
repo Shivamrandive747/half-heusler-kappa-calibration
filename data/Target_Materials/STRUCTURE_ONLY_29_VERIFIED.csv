@@ -1,0 +1,25 @@
+compound,family,category,source,a_conv_A,kappa_theory_300,seed_spread_300,kappa_exp_300,family_members_heldout_err_pct,literature,kappa_theory_refit
+HfTeOs,Te-Os,1 PREDICT-STRONG,database structure,6.33,12.99,1.23,5.46,0.5,NO PAPER FOUND,12.99
+TmPbAu,Pb-Au,1 PREDICT-STRONG,database structure,6.782,3.31,1.107,1.39,8.6,NO PAPER FOUND,3.31
+DyTeRh,Te-Rh,3 VEC18-WEAK,database structure,6.521,5.21,1.434,2.19,110.4,NO PAPER FOUND,5.21
+ErTeRh,Te-Rh,3 VEC18-WEAK,database structure,6.486,6.19,1.337,2.6,110.4,NO PAPER FOUND,6.19
+TmTeRh,Te-Rh,3 VEC18-WEAK,database structure,6.473,5.73,1.486,2.41,110.4,NO PAPER FOUND,5.73
+GdTeRh,Te-Rh,3 VEC18-WEAK,database structure,6.557,5.14,1.184,2.16,110.4,NO PAPER FOUND,5.14
+HoTeRh,Te-Rh,3 VEC18-WEAK,database structure,6.504,5.72,1.237,2.4,110.4,NO PAPER FOUND,5.72
+MgTePd,Te-Pd,3 VEC18-WEAK,database structure,6.467,6.63,1.569,2.79,258.5,not checked,6.63
+DyCoSe,Co-Se,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.087,8.1,1.156,3.4,42.8,"NAMED, no kappa",8.1
+ErCoSe,Co-Se,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.041,8.76,1.257,3.68,42.8,NO PAPER FOUND,8.76
+GdCoSe,Co-Se,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.134,8.16,1.314,3.43,42.8,NO PAPER FOUND,8.16
+HoCoSe,Co-Se,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.064,7.7,1.394,3.23,42.8,NO PAPER FOUND,7.7
+LuCoSe,Co-Se,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),5.971,8.65,1.411,3.63,42.8,NO PAPER FOUND,8.65
+TbCoSe,Co-Se,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.111,8.57,1.283,3.6,42.8,NO PAPER FOUND,8.57
+TmCoSe,Co-Se,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.017,8.53,1.185,3.58,42.8,NO PAPER FOUND,8.53
+DyCoTe,Co-Te,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.333,4.89,1.242,2.05,87.2,NO PAPER FOUND,4.89
+ErCoTe,Co-Te,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.286,7.28,1.204,3.06,87.2,NO PAPER FOUND,7.28
+GdCoTe,Co-Te,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.381,5.3,1.272,2.23,87.2,NO PAPER FOUND,5.3
+HoCoTe,Co-Te,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.309,6.64,1.245,2.79,87.2,NO PAPER FOUND,6.64
+LuCoTe,Co-Te,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.214,7.69,1.554,3.23,87.2,NO PAPER FOUND,7.69
+TbCoTe,Co-Te,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.357,6.45,1.334,2.71,87.2,NO PAPER FOUND,6.45
+TmCoTe,Co-Te,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.262,5.95,1.267,2.5,87.2,NO PAPER FOUND,5.95
+LuTeRh,Te-Rh,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.41,7.6,1.543,3.19,110.4,NO PAPER FOUND,7.6
+TbTeRh,Te-Rh,3 VEC18-WEAK (gap),series gap (lattice from rare-earth contraction),6.552,6.34,1.286,2.66,110.4,NO PAPER FOUND,6.34

@@ -1,47 +1,60 @@
 % =============================================================================================
-% ABSTRACT + KEYWORDS.  Draft 2 -- reordered after review.
+% ABSTRACT + KEYWORDS.
 %
-% Draft 1 opened with a deficiency in other people's models and reached our own contribution in
-% sentence three; the number that matters landed in sentence five of six. It also quoted our
-% 86.8% within-2x without the null's 78.9%, which on 38 compounds is a three-compound gap -- the
-% body states this plainly and the abstract did not, so the abstract was the least honest part of
-% the paper.
+% Every number here is quoted from data/exports/kappa_v2/paper_numbers.json; none is typed by hand.
+%   1.69, 34, 10 of 12           offset.median_ratio_calc_over_meas / n_compounds /
+%                                families_with_median_ratio_above_1 of n_families
+%   21.9                         ml_generator_validation.median_ape (single seed)
+%   33.1, 87.2, 39, five seeds   in_domain_table.seed_medians.calibrated (median over seeds), .n
+%   41.9                         in_domain_table.seed_medians.uncorrected_surrogate.median_ape.median
+%   46.7, 45.6                   in_domain_table.nulls.constant / .power .median_ape
+%   0.004                        in_domain_table.paired_p_seed_median (both nulls; paired Wilcoxon)
+%   18, 0.048                    cluster_level_significance n_clusters, wilcoxon_p_max (power,
+%                                0.0483, so "p < 0.05 on every seed, largest 0.048")
+%   38.6, 78.9, 50               headline.unconditional; blind_test.compounds
+%   32.3, 31                     deployed_route.held_out.global_on_same_compounds.median_ape, .n
+%   21.7                         deployed_route.held_out.median_ape
+%   5 families, 7.4-24.9         family_calibration.n_validated_under_25; min/max of
+%                                adopted.*.loo_family_ape over families under 25
+%   10 issued, 15 flagged        predictions.counts (ISSUED, FLAGGED)
 %
-% Draft 2 leads with the resource, then the measured offset, then the correction, and quotes the
-% null beside our own figure. The rank correlation -- the statistically robust result -- is now
-% stated rather than buried.
-%
-% Draft 3 (2026-09-04): the closing sentence named only the issued five and the eleven declined,
-% so a reader of the abstract alone could not tell the ten conditional estimates existed -- and
-% the roadmap they carry ("two measurements in Ni-Bi release nine predictions") is one of the
-% paper's distinctive contributions. Now all three tiers are named.
-%
-% 222 words. No number here that is not also in the body and in paper_numbers.json.
+% Length: <= 250 words of rendered text (Computational Materials Science). Started from
+% Alternative A of paper/review/clarity_front_back_supp.md; 249 words counted with wc -w on the
+% rendered text (each formula token counted as typeset).
+% Shape: the gap (models reproduce calculations), the offset that makes a correction necessary,
+% the two steps, the end-to-end headline with its scope and the nulls, the comparison with
+% calibrating a published calculation, the family constants, predictions. The two separately
+% validated errors of a structure-only value are stated side by side in the body and never merged.
+% audit_completion.py checks that 33.1 and 87.2 appear here as \SI{..}{\percent}.
 % =============================================================================================
 
 \begin{abstract}
-Lattice thermal conductivity governs thermoelectric performance, yet for half-Heusler compounds it
-has been measured for only about fifty materials while being calculated for hundreds. We assemble
-what is, to our knowledge, a near-exhaustive corpus of the measured values: \num{52} half Heuslers
-drawn from \num{164} publications, alongside \num{289} with full Boltzmann-transport calculations,
-in which every value carries an explicit provenance and method tier so that measurements and
-calculations are never pooled. The corpus shows that the two disagree systematically: published
-calculations exceed measured $\kappa_L$ by a median factor of \num{1.55}. Models trained and
-validated on calculated labels, which is standard in this field, therefore predict a quantity that
-differs from the experiment they are meant to guide. We fit a two-parameter transfer function
-mapping calculation onto measurement, and evaluate it with each compound's entire chemistry
-withheld from both the model and the calibration. Within a domain fixed in advance---semiconducting,
-cubic, non-polymorphic and non-radioactive---it achieves \SI{33.7}{\percent} median error, the
-median over five model
-seeds, against \SI{50.5}{\percent} for the same model output uncorrected and \SI{94.6}{\percent} for
-published semi-empirical estimates, and ranks compounds with Spearman $\rho=\num{0.65}$. It places
-\SI{86.8}{\percent} of compounds within a factor of two, against \SI{81.6}{\percent} for the better
-of two compound-blind baselines.
-We issue five predictions, decline eleven with the criterion each fails, and report ten further
-estimates as conditional, naming the measurement that would qualify each.
+Predicting the measured lattice thermal conductivity ($\kappa_L$) of half-Heusler thermoelectrics
+is hard: first-principles Boltzmann-transport-equation (BTE) calculations, and machine-learned
+models trained on them, reproduce calculations, not measurements.
+Published calculations exceed measured half-Heusler $\kappa_L$ by a median factor of \num{1.69}
+(\num{34} compounds; \num{10} of \num{12} bonding families). A machine-learned model predicts the BTE value from crystal structure (median error
+\SI{21.9}{\percent} against published calculations, single seed). A closed-form transfer function,
+$\kappa_L^{\mathrm{exp}} = \kappa_L^{\mathrm{BTE}}\min[c\,(T/300)^p, 1]$, fitted on published
+calculations against one reference laboratory per compound, maps it onto the experimental scale.
+Holding each compound's chemistry cluster out of both steps, inside a predefined domain (18
+valence electrons, cubic $C1_b$, no known polymorph), the median error is \SI{33.1}{\percent} and \SI{87.2}{\percent} of
+\num{39} compounds lie within a factor of two (five-seed median), against \SI{41.9}{\percent}
+uncorrected and \SI{46.7}{\percent} and \SI{45.6}{\percent} for constant and power-law baselines
+(paired Wilcoxon $p = \num{0.004}$; counting each of \num{18} clusters once, $p < 0.05$ on every
+seed, largest \num{0.048}). Unscreened, all \num{50} measured compounds give \SI{38.6}{\percent} and
+\SI{78.9}{\percent}. Calibrating published calculations gives a comparable \SI{32.3}{\percent} on a
+different set of \num{31} held-out compounds. Per-family constants lower this to
+\SI{21.7}{\percent} (not significant compound by compound), and are validated held out, at
+\SIrange{7.4}{24.9}{\percent}, in \num{5} bonding families. We issue \num{10} predictions with
+intervals, flag \num{15} with reasons, and predict \ce{TmPbAu} and \ce{HfTeOs}, for which we find no
+published report, from structure alone.
 \end{abstract}
 
+% Keywords: 1-7 allowed (live Guide for Authors); 7 used. Specific terms, no plurals, no "and"/"of".
+% Keep pdfkeywords in manuscript.tex identical.
 \begin{keyword}
-half-Heusler \sep lattice thermal conductivity \sep thermoelectric materials \sep
-Boltzmann transport \sep experimental validation \sep materials data
+half-Heusler \sep lattice thermal conductivity \sep thermoelectric \sep
+Boltzmann transport equation \sep machine learning \sep transfer-function calibration \sep
+experimental validation
 \end{keyword}

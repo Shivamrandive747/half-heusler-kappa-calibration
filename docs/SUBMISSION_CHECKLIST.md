@@ -4,7 +4,7 @@ Six stages, in this order. Stages 1 and 2 are people-and-accounts work; 3 to 6 a
 
 | # | stage | who | how long |
 |---|---|---|---|
-| 1 | ORCID for all three authors | each author | 10 min each |
+| 1 | ORCID for all four authors | each author | 10 min each |
 | 2 | Fill the last two placeholders | Shivam | 2 min |
 | 3 | GitHub repository | Shivam | 15 min |
 | 4 | Zenodo release → **DOI** | Shivam | 10 min |
@@ -26,7 +26,7 @@ It matters more than usual for this paper for two specific reasons:
 - **Both of you will move.** A student email stops working after graduation, and every automated
   index that tracked you by that address loses you. ORCID follows you instead.
 
-**How, for each of the three of you:**
+**How, for each of the four of you:**
 
 1. Go to **orcid.org** → *Sign in / Register*.
 2. Register with your **institutional email** (`@svnit.ac.in`, `@nitrr.ac.in`) — it is the strongest
@@ -150,7 +150,7 @@ Nothing is archived yet. Zenodo is now watching for a release.
 4. Wait a minute, then reload the Zenodo GitHub page. The repository now shows a DOI badge like
    `10.5281/zenodo.1234567`.
 5. Open the Zenodo record and **Edit** it, because two things need adding by hand:
-   - **ORCIDs** for all three authors. If you do not have one, get it at orcid.org — it takes two
+   - **ORCIDs** for all four authors. If you do not have one, get it at orcid.org — it takes two
      minutes and permanently distinguishes you from every other S. Randive who ever publishes.
    - Confirm the licence reads **CC BY 4.0** and the authors match the manuscript.
    Then **Publish** the edit.
@@ -213,7 +213,7 @@ There is no LaTeX installed on this machine, so the PDF has to be built on Overl
 
 - No literal `TO BE ADDED` text anywhere. (`check_tex_structure.py` guards this, but look anyway.)
 - No `[?]` in place of a citation number and no `??` in place of a figure or section number.
-- All 8 figures appear and are legible at print size.
+- All 6 main-text figures, and the supplementary figures, appear and are legible at print size.
 - Chemical formulae render as subscripts: `ZrNiSn`, not `\ce{ZrNiSn}`.
 - The author list, affiliations and both corresponding-author asterisks are right.
 - Tables 1, 2 and 3 have not overflowed the page margin.
@@ -224,7 +224,7 @@ Computational Materials Science submits through Elsevier Editorial Manager. Have
 
 - the manuscript PDF and the source files (Elsevier wants the `.tex`, `.bib` and figures)
 - the supplementary PDF, uploaded as *Supplementary Material*
-- all three ORCIDs
+- all four ORCIDs
 - a **cover letter** — one page: what the paper does, why it suits this journal, and a statement
   that the work is original and not under consideration elsewhere
 - **suggested reviewers** if asked. Pick authors of papers you cite who work on half-Heusler

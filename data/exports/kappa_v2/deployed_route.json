@@ -1,0 +1,107 @@
+{
+  "n": 34,
+  "c_global": 0.42,
+  "p_global": 0.7,
+  "adopted": [
+    "Bi-Pd",
+    "Co-Bi",
+    "Co-Sb",
+    "Co-Sn",
+    "Fe-Sb",
+    "Ni-Pb",
+    "Ni-Sb",
+    "Ni-Sn",
+    "Sb-Ir",
+    "Sb-Pd",
+    "Sb-Pt",
+    "Sn-Pt"
+  ],
+  "uncorrected": {
+    "median_ape": 64.1,
+    "within2x_pct": 70.6
+  },
+  "global": {
+    "median_ape": 31.9,
+    "within2x_pct": 85.3
+  },
+  "deployed": {
+    "median_ape": 20.3,
+    "within2x_pct": 94.1
+  },
+  "family_arm_compounds": {
+    "n": 31,
+    "median_ape": 21.7,
+    "within2x_pct": 93.5,
+    "global_on_same_compounds": {
+      "median_ape": 32.3,
+      "within2x_pct": 83.9
+    },
+    "n_family_better": 16,
+    "compounds": [
+      "DyNiSb",
+      "DySbPt",
+      "ErBiPd",
+      "ErNiSb",
+      "ErSbPd",
+      "GdBiPd",
+      "HfCoSb",
+      "HfNiSn",
+      "HfSnPt",
+      "HoNiSb",
+      "HoSbPd",
+      "LaBiPd",
+      "LuNiSb",
+      "LuSbPt",
+      "NbCoSn",
+      "NbFeSb",
+      "ScNiSb",
+      "ScSbPd",
+      "TaCoSn",
+      "TaFeSb",
+      "TbSbPt",
+      "TiCoSb",
+      "TiNiSn",
+      "TiSnPt",
+      "TmNiSb",
+      "VFeSb",
+      "YNiSb",
+      "YSbPt",
+      "ZrCoSb",
+      "ZrNiSn",
+      "ZrSnPt"
+    ]
+  },
+  "family_insample_arm_compounds": {
+    "n": 3,
+    "median_ape": 6.3,
+    "within2x_pct": 100.0,
+    "global_on_same_compounds": {
+      "median_ape": 25.5,
+      "within2x_pct": 100.0
+    },
+    "n_family_better": 3,
+    "compounds": [
+      "ZrCoBi",
+      "ZrNiPb",
+      "ZrSbIr"
+    ]
+  },
+  "anchored_on_own_paper": {
+    "n": 31,
+    "median_ape": 5.6,
+    "under_10_pct": 24,
+    "under_25_pct": 29,
+    "note": "in-sample: each compound fitted on its own reference; not a validation figure"
+  },
+  "held_out_reference_rule": "each held-out compound scored on the reference the ladder picks WITHOUT the family-paper rung, family-mates on references re-chosen without it (PREREG amendment A)",
+  "references_moved_in_fold": {
+    "HoSbPd": {
+      "deployed": "10.1088/1361-6463/aac567",
+      "held_out": "10.1063/1.123596"
+    },
+    "HfSnPt": {
+      "deployed": "10.1109/ict.2006.331294",
+      "held_out": "10.1063/1.2364721"
+    }
+  }
+}

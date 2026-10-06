@@ -1,63 +1,65 @@
 {
   "_generated_by": "compute_results_indomain.py",
+  "seed": 0,
+  "seed_note": "single seed (target_blind_test.csv); the seed medians are in seed_averaged_indomain.json",
   "scope": "declared domain: VEC = 18, cubic C1b on record, not polymorphic",
   "calibration": {
     "form": "kappa_expt = kappa_BTE * min(c (T/300)^p, 1)",
-    "c": 0.51,
-    "p": 0.8,
+    "c": 0.42,
+    "p": 0.7,
     "c_range_across_holdouts": [
-      0.48,
-      0.51
+      0.41,
+      0.56
     ],
     "p_range_across_holdouts": [
-      0.8,
-      1.45
+      0.5,
+      0.8
     ],
-    "note": "the reported c and p are fitted on the whole domain and are what a user would apply; every ACCURACY figure below is scored with the compound's chemistry removed from the fit as well as from the model"
+    "note": "the reported c and p are the deployed shared constant, fitted on published calculations vs measurements (shared_constant.py) and what a user would apply; every ACCURACY figure below is scored with the compound's chemistry removed from that fit as well as from the model"
   },
   "in_sample_calibration": {
-    "n": 38,
-    "median_ape": 29.7,
-    "within_2x_pct": 86.8,
-    "within_30_pct": 52.6,
-    "bias": 0.998,
-    "note": "what fitting (c,p) on all 38 and scoring the same 38 would give; reported for transparency, NOT the headline"
+    "n": 39,
+    "median_ape": 29.9,
+    "within_2x_pct": 87.2,
+    "within_30_pct": 51.3,
+    "bias": 0.811,
+    "note": "the deployed shared constant (fitted on calculations that include these compounds) applied with no holdout; reported for transparency, NOT the headline"
   },
   "in_domain": {
     "calibrated": {
-      "n": 38,
-      "median_ape": 31.0,
-      "within_2x_pct": 86.8,
-      "within_30_pct": 47.4,
-      "bias": 0.998
+      "n": 39,
+      "median_ape": 31.7,
+      "within_2x_pct": 87.2,
+      "within_30_pct": 46.2,
+      "bias": 0.886
     },
     "uncorrected": {
-      "n": 38,
-      "median_ape": 49.0,
-      "within_2x_pct": 65.8,
-      "within_30_pct": 23.7,
-      "bias": 1.357
+      "n": 39,
+      "median_ape": 40.6,
+      "within_2x_pct": 79.5,
+      "within_30_pct": 35.9,
+      "bias": 1.304
     },
     "n_chemistry_clusters": 18
   },
   "out_of_domain": {
     "calibrated": {
-      "n": 13,
-      "median_ape": 105.1,
-      "within_2x_pct": 38.5,
-      "within_30_pct": 30.8,
-      "bias": 2.051
+      "n": 11,
+      "median_ape": 86.4,
+      "within_2x_pct": 36.4,
+      "within_30_pct": 0.0,
+      "bias": 1.744
     },
     "uncorrected": {
-      "n": 13,
-      "median_ape": 134.8,
-      "within_2x_pct": 38.5,
-      "within_30_pct": 15.4,
-      "bias": 2.348
+      "n": 11,
+      "median_ape": 153.7,
+      "within_2x_pct": 27.3,
+      "within_30_pct": 18.2,
+      "bias": 2.537
     },
     "compounds": [
+      "AlNiSb",
       "BaAgSb",
-      "CuAgTe",
       "LaSbPd",
       "LiAlGe",
       "LiAlSi",
@@ -66,106 +68,105 @@
       "MgNiSb",
       "NbCoSb",
       "VCoSb",
-      "VFeSb",
-      "VNiSn",
-      "ZnNiSn"
+      "VNiSn"
     ]
   },
   "domain_split_test": {
     "test": "Mann-Whitney, in-domain error lower",
-    "p": 0.00752,
-    "median_in": 29.7,
-    "median_out": 105.1
+    "p": 5.06e-05,
+    "median_in": 31.7,
+    "median_out": 86.4,
+    "note": "both sides scored with the compound's chemistry held out of the calibration fit; the in-domain figure is the nested figure, not the in-sample one"
   },
   "nulls": {
     "constant": {
-      "n": 38,
-      "median_ape": 44.0,
-      "within_2x_pct": 78.9,
-      "within_30_pct": 26.3,
-      "bias": 1.197,
-      "wilcoxon_p_vs_model": 0.0414,
-      "model_better_pct": 71.1
+      "n": 39,
+      "median_ape": 46.7,
+      "within_2x_pct": 84.6,
+      "within_30_pct": 25.6,
+      "bias": 1.268,
+      "wilcoxon_p_vs_model": 0.0035,
+      "model_better_pct": 71.8
     },
     "power": {
-      "n": 38,
-      "median_ape": 44.9,
-      "within_2x_pct": 81.6,
-      "within_30_pct": 26.3,
-      "bias": 1.172,
-      "wilcoxon_p_vs_model": 0.0385,
-      "model_better_pct": 71.1
+      "n": 39,
+      "median_ape": 45.6,
+      "within_2x_pct": 84.6,
+      "within_30_pct": 23.1,
+      "bias": 1.266,
+      "wilcoxon_p_vs_model": 0.0032,
+      "model_better_pct": 71.8
     }
   },
   "rank_signal": {
-    "spearman": 0.675,
-    "p": 3.43e-06,
-    "n": 38,
+    "spearman": 0.656,
+    "p": 5.74e-06,
+    "n": 39,
     "note": "predicted vs measured per-compound median, chemistry held out"
   },
   "by_family": [
     {
-      "fam": "Co-Sb",
-      "n": 3,
-      "median_ape": 21.3,
+      "fam": "Ni-Sb",
+      "n": 8,
+      "median_ape": 13.7,
       "within_2x": 100.0,
       "bias": 0.9
     },
     {
-      "fam": "Sb-Pt",
-      "n": 4,
-      "median_ape": 23.2,
+      "fam": "Fe-Sb",
+      "n": 3,
+      "median_ape": 17.4,
       "within_2x": 100.0,
       "bias": 0.8
     },
     {
-      "fam": "Ni-Sb",
-      "n": 8,
-      "median_ape": 29.2,
-      "within_2x": 87.5,
-      "bias": 1.2
-    },
-    {
-      "fam": "Sb-Pd",
-      "n": 4,
-      "median_ape": 29.6,
-      "within_2x": 75.0,
-      "bias": 1.2
-    },
-    {
-      "fam": "Sn-Pt",
+      "fam": "Co-Sb",
       "n": 3,
-      "median_ape": 38.5,
-      "within_2x": 66.7,
-      "bias": 0.6
-    },
-    {
-      "fam": "Ni-Sn",
-      "n": 3,
-      "median_ape": 38.9,
+      "median_ape": 21.1,
       "within_2x": 100.0,
-      "bias": 1.4
-    },
-    {
-      "fam": "Fe-Sb",
-      "n": 2,
-      "median_ape": 39.8,
-      "within_2x": 100.0,
-      "bias": 1.1
+      "bias": 0.8
     },
     {
       "fam": "Bi-Pd",
       "n": 3,
-      "median_ape": 60.0,
-      "within_2x": 33.3,
-      "bias": 0.4
+      "median_ape": 35.7,
+      "within_2x": 66.7,
+      "bias": 0.6
+    },
+    {
+      "fam": "Sn-Pt",
+      "n": 3,
+      "median_ape": 40.3,
+      "within_2x": 66.7,
+      "bias": 0.6
+    },
+    {
+      "fam": "Sb-Pd",
+      "n": 4,
+      "median_ape": 42.8,
+      "within_2x": 75.0,
+      "bias": 1.1
+    },
+    {
+      "fam": "Sb-Pt",
+      "n": 4,
+      "median_ape": 43.0,
+      "within_2x": 50.0,
+      "bias": 0.7
+    },
+    {
+      "fam": "Ni-Sn",
+      "n": 3,
+      "median_ape": 55.4,
+      "within_2x": 100.0,
+      "bias": 1.6
     },
     {
       "fam": "Co-Sn",
       "n": 3,
-      "median_ape": 80.8,
+      "median_ape": 59.4,
       "within_2x": 100.0,
-      "bias": 1.7
+      "bias": 1.2
     }
   ],
   "rejected_interventions": {
@@ -173,6 +174,6 @@
     "magnitude calibration (beta term)": "chosen on the design half 47/60, lost out of sample",
     "tier-0 experimental data added to training": "+5.5 pp, p = 0.10; transition-metal subset worse",
     "doped-compound data added": "no gain, p >= 0.10",
-    "per-(Y,Z)-family calibration": "33.70260591284679% -> 35.27974467856331% (p=0.09)"
+    "per-(Y,Z)-family calibration": "DEPLOYED, not rejected: family arm held out 21.7% vs global arm 32.3% on the same 31 compounds (deployed_route.json)"
   }
 }

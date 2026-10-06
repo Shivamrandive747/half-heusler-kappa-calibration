@@ -1,0 +1,11 @@
+{
+  "n_compounds": 161,
+  "n_matched_bins": 180,
+  "median_factor": 1.25,
+  "within_2x_pct": 90.1,
+  "max_factor": 11.4,
+  "max_compound": "HoSbPd",
+  "semi_higher_pct": 47.2,
+  "definition": "half Heuslers; per (compound, 100 K bin) median of tier-3 semi-empirical over median of tier-1 full BTE (not NOT_BTE); per-compound median over matched bins; factor = max(ratio, 1/ratio); deduplicated corpus, current tiers",
+  "_generated_by": "compute_semiempirical_vs_bte.py"
+}

@@ -1,0 +1,28 @@
+{
+  "n_compounds": 34,
+  "n_points": 95,
+  "c": 0.51,
+  "p": 0.8,
+  "_generated_by": "compute_surrogate_vs_published.py",
+  "published_raw": {
+    "median_ape": 71.6,
+    "bias": 1.72,
+    "within2x_pct": 67.6
+  },
+  "surrogate_raw": {
+    "median_ape": 66.1,
+    "bias": 1.66,
+    "within2x_pct": 73.5
+  },
+  "published_cal": {
+    "median_ape": 23.6,
+    "bias": 1.02,
+    "within2x_pct": 88.2
+  },
+  "surrogate_cal": {
+    "median_ape": 27.7,
+    "bias": 0.91,
+    "within2x_pct": 85.3
+  },
+  "surrogate_vs_published_median_pct": 21.1
+}

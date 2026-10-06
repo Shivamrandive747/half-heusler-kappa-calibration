@@ -1,0 +1,368 @@
+{
+  "generated": "2026-10-05T04:29:07+00:00",
+  "global": {
+    "c": 0.42,
+    "p": 0.7
+  },
+  "adopted_form": "SHAPE_NOCAP",
+  "min_members": 1,
+  "families": {
+    "Ni-Sb": {
+      "n_members": 7,
+      "members": [
+        "DyNiSb",
+        "ErNiSb",
+        "HoNiSb",
+        "LuNiSb",
+        "ScNiSb",
+        "TmNiSb",
+        "YNiSb"
+      ],
+      "loo_ape": 16.4,
+      "c": 0.47,
+      "sub": {
+        "4f": {
+          "n_members": 5,
+          "members": [
+            "DyNiSb",
+            "ErNiSb",
+            "HoNiSb",
+            "LuNiSb",
+            "TmNiSb"
+          ],
+          "loo_ape": 15.7,
+          "c": 0.39,
+          "testable": true
+        },
+        "d": {
+          "n_members": 2,
+          "members": [
+            "ScNiSb",
+            "YNiSb"
+          ],
+          "loo_ape": 10.5,
+          "c": 0.46,
+          "testable": true
+        }
+      },
+      "pair_protocol": {
+        "values": {
+          "DyNiSb->ErNiSb": 12.7,
+          "DyNiSb->HoNiSb": 21.1,
+          "DyNiSb->LuNiSb": 19.0,
+          "DyNiSb->ScNiSb": 27.7,
+          "DyNiSb->TmNiSb": 6.8,
+          "DyNiSb->YNiSb": 16.8,
+          "ErNiSb->DyNiSb": 11.1,
+          "ErNiSb->HoNiSb": 14.8,
+          "ErNiSb->LuNiSb": 12.4,
+          "ErNiSb->ScNiSb": 21.9,
+          "ErNiSb->TmNiSb": 6.3,
+          "ErNiSb->YNiSb": 10.1,
+          "HoNiSb->DyNiSb": 23.4,
+          "HoNiSb->ErNiSb": 19.6,
+          "HoNiSb->LuNiSb": 10.5,
+          "HoNiSb->ScNiSb": 11.0,
+          "HoNiSb->TmNiSb": 20.9,
+          "HoNiSb->YNiSb": 7.9,
+          "LuNiSb->DyNiSb": 17.1,
+          "LuNiSb->ErNiSb": 12.5,
+          "LuNiSb->HoNiSb": 6.2,
+          "LuNiSb->ScNiSb": 14.1,
+          "LuNiSb->TmNiSb": 15.3,
+          "LuNiSb->YNiSb": 3.3,
+          "ScNiSb->DyNiSb": 24.7,
+          "ScNiSb->ErNiSb": 18.4,
+          "ScNiSb->HoNiSb": 7.6,
+          "ScNiSb->LuNiSb": 8.2,
+          "ScNiSb->TmNiSb": 18.8,
+          "ScNiSb->YNiSb": 7.0,
+          "TmNiSb->DyNiSb": 5.7,
+          "TmNiSb->ErNiSb": 8.0,
+          "TmNiSb->HoNiSb": 16.9,
+          "TmNiSb->LuNiSb": 14.6,
+          "TmNiSb->ScNiSb": 23.8,
+          "TmNiSb->YNiSb": 12.3,
+          "YNiSb->DyNiSb": 15.6,
+          "YNiSb->ErNiSb": 12.5,
+          "YNiSb->HoNiSb": 6.2,
+          "YNiSb->LuNiSb": 4.1,
+          "YNiSb->ScNiSb": 14.1,
+          "YNiSb->TmNiSb": 15.3
+        },
+        "median": 13.4,
+        "min": 3.3,
+        "max": 27.7,
+        "range_factor": 8.5
+      }
+    },
+    "Sb-Pt": {
+      "n_members": 4,
+      "members": [
+        "DySbPt",
+        "LuSbPt",
+        "TbSbPt",
+        "YSbPt"
+      ],
+      "loo_ape": 7.4,
+      "c": 0.61,
+      "sub": {
+        "4f": {
+          "n_members": 3,
+          "members": [
+            "DySbPt",
+            "LuSbPt",
+            "TbSbPt"
+          ],
+          "loo_ape": 6.5,
+          "c": 0.61,
+          "testable": true
+        },
+        "d": {
+          "n_members": 1,
+          "members": [
+            "YSbPt"
+          ],
+          "loo_ape": null,
+          "c": 0.45,
+          "testable": true
+        }
+      },
+      "pair_protocol": {
+        "values": {
+          "DySbPt->LuSbPt": 4.7,
+          "DySbPt->TbSbPt": 10.1,
+          "DySbPt->YSbPt": 34.1,
+          "LuSbPt->DySbPt": 4.9,
+          "LuSbPt->TbSbPt": 8.3,
+          "LuSbPt->YSbPt": 31.9,
+          "TbSbPt->DySbPt": 6.5,
+          "TbSbPt->LuSbPt": 3.9,
+          "TbSbPt->YSbPt": 29.7,
+          "YSbPt->DySbPt": 31.4,
+          "YSbPt->LuSbPt": 29.5,
+          "YSbPt->TbSbPt": 31.4
+        },
+        "median": 19.8,
+        "min": 3.9,
+        "max": 34.1,
+        "range_factor": 8.8
+      }
+    },
+    "Sb-Pd": {
+      "n_members": 3,
+      "members": [
+        "ErSbPd",
+        "HoSbPd",
+        "ScSbPd"
+      ],
+      "loo_ape": 61.5,
+      "c": 0.24,
+      "sub": {
+        "4f": {
+          "n_members": 2,
+          "members": [
+            "ErSbPd",
+            "HoSbPd"
+          ],
+          "loo_ape": 141.1,
+          "c": 0.24,
+          "testable": true
+        },
+        "d": {
+          "n_members": 1,
+          "members": [
+            "ScSbPd"
+          ],
+          "loo_ape": null,
+          "c": 0.33,
+          "testable": true
+        }
+      },
+      "pair_protocol": {
+        "values": {
+          "ErSbPd->HoSbPd": 4.3,
+          "ErSbPd->ScSbPd": 24.1,
+          "HoSbPd->ErSbPd": 6.1,
+          "HoSbPd->ScSbPd": 27.2,
+          "ScSbPd->ErSbPd": 35.0,
+          "ScSbPd->HoSbPd": 37.6
+        },
+        "median": 25.6,
+        "min": 4.3,
+        "max": 37.6,
+        "range_factor": 8.8
+      }
+    }
+  },
+  "issued_prediction_impact": {
+    "per_compound": {
+      "ErSbPt": {
+        "family": "Sb-Pt",
+        "c_used": 0.61,
+        "c_split": 0.61,
+        "kappa_now": 4.38,
+        "kappa_if_split": 4.38,
+        "rel_change_pct": 0.0,
+        "inside_50pct_interval": true
+      },
+      "GdSbPt": {
+        "family": "Sb-Pt",
+        "c_used": 0.61,
+        "c_split": 0.61,
+        "kappa_now": 2.04,
+        "kappa_if_split": 2.04,
+        "rel_change_pct": 0.0,
+        "inside_50pct_interval": true
+      },
+      "HoSbPt": {
+        "family": "Sb-Pt",
+        "c_used": 0.61,
+        "c_split": 0.61,
+        "kappa_now": 4.27,
+        "kappa_if_split": 4.27,
+        "rel_change_pct": 0.0,
+        "inside_50pct_interval": true
+      },
+      "TmSbPt": {
+        "family": "Sb-Pt",
+        "c_used": 0.61,
+        "c_split": 0.61,
+        "kappa_now": 3.57,
+        "kappa_if_split": 3.57,
+        "rel_change_pct": 0.0,
+        "inside_50pct_interval": true
+      },
+      "GdNiSb": {
+        "family": "Ni-Sb",
+        "c_used": 0.47,
+        "c_split": 0.39,
+        "kappa_now": 3.94,
+        "kappa_if_split": 3.27,
+        "rel_change_pct": 17.02,
+        "inside_50pct_interval": true
+      },
+      "TbNiSb": {
+        "family": "Ni-Sb",
+        "c_used": 0.47,
+        "c_split": 0.39,
+        "kappa_now": 4.51,
+        "kappa_if_split": 3.74,
+        "rel_change_pct": 17.02,
+        "inside_50pct_interval": true
+      }
+    },
+    "worst_relative_change_pct": 17.02,
+    "worst_relative_change_pct_1dp": 17.0,
+    "all_inside_50pct_interval": true
+  },
+  "paired_test": {
+    "protocol": "per compound, held out: predicted from the whole family vs from its own 4f class; members whose class holds no other member are unpredictable under the split",
+    "per_compound": {
+      "DyNiSb": {
+        "family": "Ni-Sb",
+        "cls": "4f",
+        "whole": 16.4,
+        "split": 16.4
+      },
+      "ErNiSb": {
+        "family": "Ni-Sb",
+        "cls": "4f",
+        "whole": 18.4,
+        "split": 9.9
+      },
+      "HoNiSb": {
+        "family": "Ni-Sb",
+        "cls": "4f",
+        "whole": 10.5,
+        "split": 18.0
+      },
+      "LuNiSb": {
+        "family": "Ni-Sb",
+        "cls": "4f",
+        "whole": 8.0,
+        "split": 15.7
+      },
+      "TmNiSb": {
+        "family": "Ni-Sb",
+        "cls": "4f",
+        "whole": 18.8,
+        "split": 14.0
+      },
+      "ScNiSb": {
+        "family": "Ni-Sb",
+        "cls": "d",
+        "whole": 18.0,
+        "split": 14.1
+      },
+      "YNiSb": {
+        "family": "Ni-Sb",
+        "cls": "d",
+        "whole": 5.6,
+        "split": 7.0
+      },
+      "DySbPt": {
+        "family": "Sb-Pt",
+        "cls": "4f",
+        "whole": 6.5,
+        "split": 6.5
+      },
+      "LuSbPt": {
+        "family": "Sb-Pt",
+        "cls": "4f",
+        "whole": 3.9,
+        "split": 3.1
+      },
+      "TbSbPt": {
+        "family": "Sb-Pt",
+        "cls": "4f",
+        "whole": 10.1,
+        "split": 8.3
+      },
+      "ErSbPd": {
+        "family": "Sb-Pd",
+        "cls": "4f",
+        "whole": 15.7,
+        "split": 6.1
+      },
+      "HoSbPd": {
+        "family": "Sb-Pd",
+        "cls": "4f",
+        "whole": 22.6,
+        "split": 4.3
+      }
+    },
+    "unpredictable_under_split": {
+      "YSbPt": {
+        "family": "Sb-Pt",
+        "cls": "d",
+        "whole": 34.1,
+        "why": "no other member in its 4f class"
+      },
+      "ScSbPd": {
+        "family": "Sb-Pd",
+        "cls": "d",
+        "whole": 27.2,
+        "why": "no other member in its 4f class"
+      }
+    },
+    "n_paired": 12,
+    "median_whole": 13.1,
+    "median_split": 9.1,
+    "n_split_better": 7,
+    "n_split_worse": 3,
+    "split_wins": false
+  },
+  "conclusion": {
+    "constant_moves_by_at_most": 0.16,
+    "constant_moves_by_at_most_incl_unscoreable": 0.16,
+    "issued_predictions_worst_relative_change_pct": 17.02,
+    "split_lowers_paired_median": true,
+    "split_leaves_members_unpredictable": [
+      "ScSbPd",
+      "YSbPt"
+    ],
+    "split_adopted": false,
+    "verdict": "4f occupancy is NOT adopted as a sub-family rule: across 12 paired compounds the split gives a median held-out error of 9.1% against 13.1% for the whole family (better in 7, worse in 3), and leaves 2 member(s) unpredictable (ScSbPd, YSbPt). The deployed constant would move by up to 0.16 and an issued value by up to 17.0%."
+  }
+}

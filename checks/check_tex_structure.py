@@ -1,6 +1,7 @@
 """Structural sanity checks on the manuscript sources. No LaTeX available locally, so this is
 the only pre-compile check we get: brace balance, math-mode balance, and label/ref pairing.
 """
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 import io
 import re
 from pathlib import Path
@@ -104,3 +105,8 @@ if not found:
     print("  clean")
 
 print(f"\n{'ALL STRUCTURAL CHECKS PASSED' if ok else 'PROBLEMS FOUND'}")
+
+# manuscript.tex:55 tells the reader this script fails the build. It did not -- it printed its
+# findings and exited 0, so a lost backslash or a blocklisted literal could survive a run that
+# looked clean in CI. Exit non-zero so the claim is true.
+raise SystemExit(0 if ok else 1)

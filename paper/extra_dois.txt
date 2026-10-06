@@ -50,3 +50,75 @@
 10.1103/PhysRevB.96.161201
 10.1002/anie.201511737
 10.1515/htmp-2020-0079
+10.1002/(SICI)1521-3749(199801)624:1<51::AID-ZAAC51>3.0.CO;2-Q
+
+# --- borrowed methods used without attribution, resolved 2026-09-17 ---
+# The Slack model. Tier 3 of the corpus is "a semi-empirical Slack or Debye-Callaway estimate"
+# (section2_methods.tex:150) and the published Slack/Debye-Callaway values are the 94.6 % baseline
+# (section3_results.tex:120,190). Abstract read through the Elsevier article API; the chapter
+# "presents the absolute value of the thermal conductivity, K, as determined by phonon-phonon
+# scattering, the temperature dependence of K, the volume dependence of K". See claims_ledger.csv.
+10.1016/S0081-1947(08)60359-8
+# Split/inductive conformal prediction, used for the 50/90 % intervals (section2_methods.tex:468,
+# eq:conformal at :475). Abstract read through OpenAlex: "full conformal inference and split
+# conformal inference", "guaranteeing finite-sample marginal coverage". See claims_ledger.csv.
+10.1080/01621459.2017.1307116
+#
+# NOT ADDED -- LightGBM (Ke et al., NeurIPS 30, 2017). Searched Crossref, DataCite, OpenAlex, arXiv
+# and HAL on 2026-09-17: the paper exists (HAL hal-03953007, abstract read) but carries NO DOI at
+# any registry, so it cannot enter this DOI-resolved pipeline. Do not invent one.
+
+# Prior art identified in the 2026-09-18 originality review.
+# The field's benchmark statement that calculated kappa_L does not generally agree with
+# measurement, from the developers of the transport codes -- the canonical version of this
+# paper's premise, and the paper that must be cited when stating it.
+10.1063/5.0289819
+# The community position this work corrects: first-principles predictions described as
+# agreeing with experiment.
+10.1063/1.5064602
+# Two half-Heusler precedents for an empirically fitted temperature dependence, so no reader
+# can say the functional form arrived from nowhere.
+10.1063/1.4879248
+10.1063/1.4906225
+# The fidelity ladder (empirical -> first-principles -> experiment) built as ONE pooled target,
+# which is the practice this paper's tiering refuses.
+10.1016/j.mtphys.2022.100868
+# GdNiSb is reported in two crystal modifications, HT AlB2-type and LT MgAgAs-type.
+10.12693/aphyspola.92.343
+10.1107/S0021889809016690
+10.48550/arXiv.1705.07874
+10.1088/0034-4885/44/1/001
+
+# NOT ADDED, and deliberately so -- LightGBM.
+# The supplement names LightGBM beside CatBoost, which IS cited (10.48550/arXiv.1706.09516), and a
+# citation audit flagged the asymmetry. LightGBM's reference is the NeurIPS 2017 proceedings paper
+# by Ke et al. It carries NO DOI at Crossref and none at DataCite -- checked 2026-09-19, both
+# registries, by title and by author. Every entry in references.bib is resolved from a DOI, so
+# there is no way to add it without typing one, and a typed DOI is the one thing this project never
+# does. It is therefore named in prose as a software package and left uncited. Do not "fix" this by
+# supplying a DOI from memory.
+
+# Elemental-SDNNFF: the published ML model scored against measurement in Section 3.
+10.1038/s41524-023-00974-0
+
+# 2026-10-04, structure-only predictions (Section 3) -- each resolved live via OpenAlex/DataCite, abstract or title read.
+# TbAuPb single crystals: the RAuPb plumbides crystallise in the cubic MgAgAs (half-Heusler) type (Pb-Au family, TmPbAu).
+10.1103/hjtb-zs5w
+# Marazza 1980: RESbPd compounds form in both CaIn2 (hexagonal) and MgAgAs (cubic) types (LuSbPd structure). Title only, no abstract indexed.
+10.1016/0022-5088(80)90127-7
+# Satyam 2023: LuPdSb calculated from first principles (electronic, phonon, zT); prior work on LuSbPd.
+10.1002/jcc.27216
+# OpenAlex, the literature index used for the novelty search (DataCite record: Priem, Piwowar, Orr 2022).
+10.48550/arXiv.2205.01833
+# DxMag Heusler database (Xiao and Tadano), source of cubic cells and hull distances.
+10.1038/s41524-026-02013-0
+
+# 2026-10-04: arXiv-only sources whose half-Heusler calculations are in the training corpus but
+# were never cited (the provenance count read only "10." ids). Data sources: \nocite, ledger-exempt.
+# ZrNiPb, HfPtPb, TiNiSn, NaSrSb/NaBaSb, KMgSb. arxiv:1912.03883 is NOT here: it is the preprint
+# of 10.1088/1361-648x/ab9d49 and is collapsed into it by source_identity.
+10.48550/arXiv.1603.08203
+10.48550/arXiv.1705.04015
+10.48550/arXiv.2110.09827
+10.48550/arXiv.2306.07751
+10.48550/arXiv.2608.14302

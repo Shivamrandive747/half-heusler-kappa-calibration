@@ -31,6 +31,7 @@ PROVENANCE: every row carries `source`, `source_id` (the MP material_id), `sourc
 resolvable materialsproject.org page) and the query that produced it.
 """
 from __future__ import annotations
+import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import argparse
 import itertools

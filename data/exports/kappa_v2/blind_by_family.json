@@ -1,0 +1,79 @@
+{
+  "_generated_by": "paper/fig04_blind.py",
+  "seed": 0,
+  "seed_note": "model predictions from the seed-0 blind-test file only",
+  "protocol": "in-domain blind set, global constant, leave-one-chemistry-out, single reference seed; NOT the deployed per-family route of family_calibration",
+  "n_in_domain": 39,
+  "families": {
+    "Ni-Pb": {
+      "median_ape": 11.0,
+      "n": 1
+    },
+    "Ni-Sb": {
+      "median_ape": 13.7,
+      "n": 8
+    },
+    "Fe-Sb": {
+      "median_ape": 17.4,
+      "n": 3
+    },
+    "Co-Sb": {
+      "median_ape": 21.1,
+      "n": 3
+    },
+    "Ni-Bi": {
+      "median_ape": 29.2,
+      "n": 1
+    },
+    "V-Ni": {
+      "median_ape": 34.3,
+      "n": 1
+    },
+    "Bi-Pd": {
+      "median_ape": 35.7,
+      "n": 3
+    },
+    "Co-Bi": {
+      "median_ape": 36.8,
+      "n": 1
+    },
+    "Sn-Pt": {
+      "median_ape": 40.3,
+      "n": 3
+    },
+    "Sb-Pd": {
+      "median_ape": 42.8,
+      "n": 4
+    },
+    "Sb-Pt": {
+      "median_ape": 43.0,
+      "n": 4
+    },
+    "Ni-Sn": {
+      "median_ape": 55.4,
+      "n": 3
+    },
+    "Co-Sn": {
+      "median_ape": 59.4,
+      "n": 3
+    },
+    "Sb-Ir": {
+      "median_ape": 74.0,
+      "n": 1
+    }
+  },
+  "out_of_domain": {
+    "Ag-Sb": {
+      "median_ape": 171.3,
+      "n": 2
+    },
+    "Co-Sb": {
+      "median_ape": 161.5,
+      "n": 2
+    },
+    "Ni-Sb": {
+      "median_ape": 65.6,
+      "n": 2
+    }
+  }
+}
