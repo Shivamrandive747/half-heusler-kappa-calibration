@@ -55,17 +55,13 @@ Fig.~\ref{fig:offset}(d)). The excess is systematic, appearing in
 \num{29} of the \num{34} compounds and in \num{10} of the \num{12} bonding families. The five
 exceptions, \ce{HfSnPt}, \ce{TiSnPt}, \ce{ZrSnPt}, \ce{ErBiPd} and \ce{LaBiPd}, all belong to the two
 families whose median calculation lies below measurement, \ce{Sn}--\ce{Pt} and \ce{Bi}--\ce{Pd}. On
-average the ratio of measured to calculated conductivity rises towards one with temperature
+average the calculated-to-measured ratio falls towards one as temperature rises
 (Fig.~\ref{fig:offset}(c)), consistent with extrinsic scattering truncating long mean free paths,
 although the data do not identify a mechanism. Because the offset shrinks with temperature, it is
 largest at room temperature: the fitted constant $c=\num{0.42}$ (Section~\ref{sec:transferresults})
 places the calculations about $1/c \approx 2.4$ times above measurement at \SI{300}{\kelvin}, whereas
-\num{1.69} is the median over all measured temperatures. Several effects can contribute, and the data
-do not separate them. Real specimens contain point defects and antisite disorder that scatter
-phonons~\cite{kim2017direct}, and grain boundaries that lower $\kappa_L$ further~\cite{schrade2017the};
-calculation settings such as the exchange--correlation functional and force-constant cut-offs
-matter; and four-phonon scattering, which most calculations omit, lowers the true conductivity, so
-its omission alone makes three-phonon calculations run high~\cite{feng2017fourphonon}.
+\num{1.69} is the median over all measured temperatures. Its possible sources are discussed in
+Section~\ref{sec:interpretation}.
 
 \begin{figure*}[t]
   \centering
@@ -74,8 +70,7 @@ its omission alone makes three-phonon calculations run high~\cite{feng2017fourph
   its removal.} (a)~Uncorrected and (b)~calibrated (Eq.~\eqref{eq:transfer}) $\kappa_L$ against
   measurement: \num{189} points, one per compound per \SI{100}{\kelvin} bin, from \num{34}
   in-domain compounds with one reference laboratory each; shaded, within a factor of two; colour,
-  temperature; the statistics above (a) and (b) are per point, whereas those in (d) and in the text
-  are per compound. (c)~Calculated/measured ratio against $T$, the same ratio as in (d), with the
+  temperature. (c)~Calculated/measured ratio against $T$, the same ratio as in (d), with the
   adopted correction drawn as its reciprocal, $1/\min[c\,(T/300)^p, 1]$ with $c=\num{0.42}$ and
   $p=\num{0.70}$; dotted, the \SI{1036}{\kelvin} cap, beyond which \num{3} of the \num{189} points
   lie. Points below unity, where the calculation already lies below the measurement, are out of
@@ -181,7 +176,7 @@ constant, so the issued \ce{Ni}--\ce{Sb} values carry \num{0.47} (shared constan
   error for all \num{31} held-out compounds; shaded, family constant better (better for \num{16},
   worse for \num{11}, tied for \num{4}; sign test $p=\num{0.44}$). (c)--(e)~$\kappa_L(T)$ for the
   three best of the \num{13} eligible held-out fits in validated families (at least five
-  temperatures over at least \SI{300}{\kelvin}): illustrations, not a representative sample; the
+  temperatures spanning at least \SI{300}{\kelvin}): illustrations, not a representative sample; the
   median over all \num{13} is \SI{18.0}{\percent}. Points, reference-laboratory measurement; dashed,
   uncorrected published calculation (squares at the calculated temperatures); solid,
   family-calibrated curve with the compound held out (fold exponents \numrange{0.65}{0.70}).
@@ -193,8 +188,8 @@ constant, so the issued \ce{Ni}--\ce{Sb} values carry \num{0.47} (shared constan
   \label{fig:family}
 \end{figure*}
 
-Every family reproduces its own reference papers closely: fitted in sample, the median error is
-\SIrange{2.4}{13.9}{\percent} across the nine families, and the single-member families fit
+Each of the nine families with two or more members reproduces its own reference papers closely:
+fitted in sample, the median error is \SIrange{2.4}{13.9}{\percent}, and the anchored families fit
 \ce{ZrCoBi} (\ce{Co}--\ce{Bi}) to \SI{6.3}{\percent} and \ce{ZrNiPb} (\ce{Ni}--\ce{Pb}) to
 \SI{5.6}{\percent}. In four families, \ce{Bi}--\ce{Pd}, \ce{Ni}--\ce{Sn}, \ce{Co}--\ce{Sn} and
 \ce{Sb}--\ce{Pd}, the constant fits each paper (\SIrange{2.8}{7.3}{\percent}) but does not transfer
@@ -213,35 +208,20 @@ refitted without each held-out compound and scored on the same \num{31}, gives \
 with \SI{83.9}{\percent} within a factor of two. The family constant lowers the median but is not
 significantly better compound by compound: it is the better of the two for \num{16} of the
 \num{31}, worse for \num{11} and tied for \num{4} (two-sided sign test on the \num{27} untied,
-$p=\num{0.44}$). Choosing between the capped and uncapped family forms inside each fold changes
-nothing, because the uncapped form is chosen in all \num{31} folds; the capped form throughout gives
-\SI{27.0}{\percent}.
+$p=\num{0.44}$). A capped family form, applied throughout, gives \SI{27.0}{\percent}; the uncapped
+form is preferred in all \num{31} folds. The same comparison over all \num{34} compounds, which mixes
+in the three single-member fits, is given in Section~S7 of the Supplementary material.
 
-Over all \num{34} in-domain compounds with a temperature-matched published calculation, the
-uncorrected calculations give \SI{64.1}{\percent} median error, with \SI{70.6}{\percent} within a
-factor of two. The shared constant brings that to \SI{31.9}{\percent} and \SI{85.3}{\percent}, and
-the family constants to \SI{20.3}{\percent} and \SI{94.1}{\percent}. These numbers follow the
-protocol of the family test (all matched rows, reference chosen without the family-paper rule, shared
-constant refitted without the compound itself), which is why the within-$2\times$ fractions differ
-from those of Section~\ref{sec:offset} (per compound against the standard reference, shared constant
-refitted without the chemistry cluster). They also mix the \num{31} held-out compounds with the three
-single-member fits, which is why we lead with the held-out comparison.
-
-Figure~\ref{fig:family}(c)--(e) shows what a held-out family fit looks like on individual curves.
-Of the \num{13} held-out compounds in validated families that were measured at five or more
-temperatures over at least \SI{300}{\kelvin}, it shows the three with the lowest held-out family
-error: \ce{TiSnPt} (\ce{Sn}--\ce{Pt}, \SI{7.7}{\percent}), \ce{LuNiSb} (\ce{Ni}--\ce{Sb},
-\SI{8.0}{\percent}) and \ce{VFeSb} (\ce{Fe}--\ce{Sb}, \SI{11.4}{\percent}). Each is drawn with the
-family constant of its own leave-one-out fold, exactly as in the family test. These curves show the
-method at its best and are not representative: the median over the \num{13} is
-\SI{18.0}{\percent}, and the full distribution is shown in Fig.~\ref{fig:family}(b). Because the
-family form is uncapped, it can raise $\kappa_L$ above the calculation: with a fold constant of
-\num{0.82} at $p=\num{0.65}$, the factor $c_f(T/300)^{p}$ exceeds one above about
-\SI{400}{\kelvin} for \ce{TiSnPt}, so its calibrated curve rises above the uncorrected calculation
-there, as the measurements do. The rise follows the reference measurements and implies no claim that the
-lattice conductivity exceeds that of the perfect crystal; such measured values more likely retain
-part of the electronic contribution (Section~\ref{sec:interpretation}). Every issued prediction lies below
-the calculation it calibrates.
+Figure~\ref{fig:family}(c)--(e) shows held-out family fits on individual curves: the three lowest
+held-out errors among the \num{13} compounds in validated families measured at five or more
+temperatures spanning at least \SI{300}{\kelvin}, namely \ce{TiSnPt} (\SI{7.7}{\percent}), \ce{LuNiSb}
+(\SI{8.0}{\percent}) and \ce{VFeSb} (\SI{11.4}{\percent}). These are the best cases; the
+median over the \num{13} is \SI{18.0}{\percent}. Because the family form is uncapped, the
+calibrated \ce{TiSnPt} curve rises above the calculation above about \SI{400}{\kelvin}, as the
+measurements do. This follows the reference data and is not a claim that the lattice conductivity
+exceeds that of the perfect crystal; such values more likely retain part of the electronic
+contribution (Section~\ref{sec:interpretation}). Every issued prediction lies below the calculation
+it calibrates.
 
 \paragraph{The shared constant on families never measured}
 \label{sec:unseenfamily}
@@ -261,9 +241,7 @@ chemistry cluster withheld from training (\num{27} clusters), the median error i
 \SI{21.9}{\percent} (reference seed), with \SI{88.3}{\percent} within a factor of two and a median
 ratio of \num{0.87} (Fig.~\ref{fig:modelblind}(a)). The result covers only the step from structure
 to calculation. The end-to-end test below already includes this step, so the two errors should not
-be compounded. In the pooled model comparison of Table~\ref{tab:models}, which is not comparable
-with this test (Section~\ref{sec:modelselection}), three of the four regressors reach nearly the
-same accuracy.
+be compounded.
 
 \begin{figure*}[t]
   \centering
@@ -293,23 +271,18 @@ same accuracy.
 
 We decompose the reference-seed model, fitted on all \num{681} training rows, with \textsc{shap}
 (SHapley Additive exPlanations)~\cite{lundberg2017a}, which assigns each descriptor an additive
-contribution to each prediction; on the $\log_{10}$ target a contribution of $+0.1$ multiplies the
-predicted calculation by about \num{1.26}. Figure~\ref{fig:modelblind}(b) shows the eight
-descriptors with the largest mean absolute contribution, and Section~S4 of the Supplementary
-material gives the twelve largest for every training row. The direction of each effect is read from
-the correlation between a descriptor's value and its contribution; below, the parentheses give the
-mean $|\textsc{shap}|$ and then that correlation. The full-Heusler flag leads (\num{0.079}, \num{-0.99}): a full Heusler is predicted to conduct less. Size
-and bond length come next: the X-site radius (\num{0.058}), the shortest bond (\num{0.055}), the
-mean bond length (\num{0.042}) and the sum of radii (\num{0.039}) all lower the prediction as they
-grow (correlations \num{-0.71} to \num{-0.93}), as do more atoms per conventional cell (\num{0.033},
-\num{-0.98}) and a heavier Y site (\num{0.024}, \num{-0.82}). The X-site electronegativity
-(\num{0.025}, \num{+0.43}) and the inverse-temperature descriptor $1000/T$ (\num{0.018},
-\num{+0.90}) raise it. The pattern is consistent
-with phonon physics: heavier atoms, longer and softer bonds and more atoms per cell lower a lattice's
-conductivity, and Umklapp scattering weakens as temperature falls. Consistency does not show that the
-model has learned that physics.
+contribution to each prediction. Figure~\ref{fig:modelblind}(b) shows the eight descriptors with the
+largest mean absolute contribution; Section~S4 of the Supplementary material gives the twelve
+largest for every training row, with the size and direction of each. The full-Heusler flag leads: a
+full Heusler is predicted to conduct less. Size and bond length come next: a larger X-site radius,
+longer bonds, a larger sum of radii, more atoms per conventional cell and a heavier Y site all lower
+the prediction, while a higher X-site electronegativity raises it, as does a lower temperature (the
+ninth-ranked descriptor, $1000/T$). The
+pattern is consistent with phonon physics: heavier atoms, longer and softer bonds and more atoms per
+cell lower a lattice's conductivity, and Umklapp scattering weakens as temperature falls. Consistency
+does not show that the model has learned that physics.
 
-Three cautions apply. The attribution explains the model of the \emph{calculation}, not of a
+The attribution has three limits. It explains the model of the \emph{calculation}, not of a
 measurement, which also depends on the specimen. Correlated descriptors share attribution (the sum
 of radii and the mean radius, the shortest and mean bond lengths, atoms per cell and the
 full-Heusler flag; correlation map in Section~S4 of the Supplementary material), so the ranking describes groups
@@ -328,15 +301,14 @@ X-site chemistry cluster removed from both the model's training and the fit of t
 Table~\ref{tab:accuracy} gathers the accuracy of every route against measurement. The calibrated
 prediction has a median error of \SI{33.1}{\percent} (bootstrap 95\,\% interval
 \SIrange{23.6}{38.9}{\percent}) and places \SI{87.2}{\percent} of compounds within a factor of two
-of measurement (Fig.~\ref{fig:modelblind}(c) and (d)), both medians over five model seeds. The median
-error varies across seeds from \SI{24.6}{\percent} to \SI{35.4}{\percent}, so it should be read as
-roughly one third, while the within-$2\times$ fraction varies only from \SI{87.2}{\percent} to
-\SI{89.7}{\percent}. The reference seed lies below the seed median (\SI{31.7}{\percent}), so results
+of measurement (Fig.~\ref{fig:modelblind}(c) and (d)), both medians over five model seeds. Across
+seeds the median error runs from \SI{24.6}{\percent} to \SI{35.4}{\percent}, so it is best read as
+roughly one third; the within-$2\times$ fraction moves only from \SI{87.2}{\percent} to
+\SI{89.7}{\percent}. The reference seed gives \SI{31.7}{\percent}, below the seed median, so results
 quoted at that seed may slightly favour the model. The correction moves the median ratio of
-predicted to measured conductivity from \num{1.40} to \num{0.90} (per compound, on the model
-route; not the per-point medians of Fig.~\ref{fig:offset}). Because it is a multiplier, it
-cannot remove the compression visible in Fig.~\ref{fig:modelblind}(c): the lowest-$\kappa_L$
-compounds tend to be over-predicted and the highest under-predicted.
+predicted to measured conductivity from \num{1.40} to \num{0.90}. Being a multiplier, it cannot
+remove the compression visible in Fig.~\ref{fig:modelblind}(c): the lowest-$\kappa_L$ compounds tend
+to be over-predicted and the highest under-predicted.
 
 \begin{table*}[t]
   \centering
@@ -367,101 +339,82 @@ compounds tend to be over-predicted and the highest under-predicted.
 
 The test covers X-site substitution within families that contain measured compounds; for a family
 with no measured member, only the separately reported errors of Sections~\ref{sec:unseenfamily}
-and~\ref{sec:mlrepro} apply. The \num{39} include \ce{YNiBi}, every measured curve of which fails
-the curve-shape test because its lattice conductivity rises with temperature. It keeps its
-measurement, ranked last, so that the scored population does not depend on that test; without it the
-median error is unchanged at \SI{33.1}{\percent} over \num{38} compounds, with \SI{86.8}{\percent}
-within a factor of two and paired $p=\num{0.005}$ and \num{0.006} against the nulls. Section~S7 of the Supplementary material gives the fraction within
+and~\ref{sec:mlrepro} apply. The result does not depend on \ce{YNiBi}, whose measured curve fails
+the curve-shape test: without it the median error is unchanged at \SI{33.1}{\percent}. Section~S7
+of the Supplementary material gives that check in full, with the fraction within
 \SI{30}{\percent} and the bias of every route.
 
 \paragraph{Against compound-blind baselines}
 \label{sec:vsnulls}
 Both null baselines are refitted with the same chemistry held out and scored against the same
-references. The model route is closer to measurement for \SI{71.8}{\percent} of compounds, and the
-median of the paired per-compound differences is \num{10.3} percentage points against the constant
-null (95\,\% interval \numrange{3.8}{22.9}) and \num{11.2} points against the power law
-(\numrange{3.5}{22.9}); the difference between the medians in Table~\ref{tab:accuracy} is larger
-because it is not paired.
-A paired Wilcoxon signed-rank test gives $p=\num{0.004}$ against each null at the median over seeds,
-or $p=\num{0.007}$ after a Holm correction for the two comparisons; on the least favourable seed the
-Holm-corrected value is \num{0.056}. Compounds of one chemistry cluster share a model fold and often
-a laboratory, so we repeat the test counting each of the \num{18} clusters once: the cluster-level
-Wilcoxon test gives $p<0.05$ on every seed against both nulls (largest \num{0.048}), but the
-cluster-level sign test does not, so the cluster-level evidence is marginal. Both nulls place
-slightly fewer compounds within a factor of two (\SI{84.6}{\percent}), so the gain lies in the
-typical error rather than in the tail; the model route also leads on the symmetric measure
-(\num{0.132} against \num{0.184} and \num{0.192}).
+references. The model route is closer to measurement for \SI{71.8}{\percent} of compounds. Paired
+compound by compound, it is better by a median \num{10.3} percentage points than the constant null
+(95\,\% interval \numrange{3.8}{22.9}) and by \num{11.2} points than the power law
+(\numrange{3.5}{22.9}). A paired Wilcoxon signed-rank test gives $p=\num{0.004}$ against each null
+at the median over seeds, and $p=\num{0.007}$ after a Holm correction for the two comparisons; on
+the least favourable seed the corrected value is \num{0.056}. Because compounds of one chemistry
+cluster share a model fold and often a laboratory, we repeat the test with each of the \num{18}
+clusters counted once. The Wilcoxon test then still gives $p<0.05$ on every seed (largest
+\num{0.048}), but the sign test does not, so the cluster-level evidence is marginal. The nulls place
+almost as many compounds within a factor of two (\SI{84.6}{\percent}): the gain lies in the typical
+error rather than in the tail.
 
 \paragraph{Without the domain screens} Over all \num{50} measured half Heuslers the same protocol
 gives \SI{37.4}{\percent} (seed range \SIrange{33.6}{38.9}{\percent}), against
-\SI{48.2}{\percent} uncorrected (medians over seeds). The
-comparison with the nulls holds, more weakly: at the reference seed the model route gives
-\SI{36.4}{\percent} against \SI{48.7}{\percent} for the constant null and \SI{48.2}{\percent} for the
-power law (paired Wilcoxon $p=\num{0.035}$ and $p=\num{0.033}$).
+\SI{48.2}{\percent} for the uncorrected model (both medians over seeds). It still improves on both
+nulls, more weakly (paired Wilcoxon $p=\num{0.035}$ and \num{0.033} at the reference seed;
+Section~S7).
 
 \subsection{Robustness and comparisons}
 \label{sec:robust}
 
-\paragraph{Outside the domain}
+\paragraph{Further checks}
 \label{sec:failure}
-The eleven compounds the screens exclude (\ce{AlNiSb}, \ce{BaAgSb}, \ce{LaSbPd}, \ce{LiAlGe},
-\ce{LiAlSi}, \ce{LiZnSb}, \ce{MgAgSb}, \ce{MgNiSb}, \ce{NbCoSb}, \ce{VCoSb}, \ce{VNiSn}) behave as a
-separate population: at the reference seed their median error is \SI{86.4}{\percent}, against
-\SI{31.7}{\percent} inside the domain (Mann--Whitney $p=\num{5.1e-5}$), with \SI{36.4}{\percent}
-within a factor of two and a median bias of \num{1.74} (open squares in
-Fig.~\ref{fig:modelblind}(c)).
-
-\paragraph{Ranking, temperature term and semi-empirical estimates} Spearman's $\rho$ between
-predicted and measured conductivity is \num{0.662} (seed range \numrange{0.642}{0.699}); at a fixed
-temperature this ordering comes from the model, while the correction supplies the temperature term
-and the absolute scale against which a screening threshold is set. Without the temperature term
-($\kappa_L^{\mathrm{exp}} = c\,\kappa_L^{\mathrm{BTE}}$) the error rises to \SI{38.5}{\percent} and
-the within-$2\times$ fraction falls to \SI{82.1}{\percent}; at the reference seed the paired
-difference is \num{7.7} pp (Wilcoxon $p=\num{0.0143}$), with the two-parameter form closer to
-measurement for \SI{61.5}{\percent} of compounds. Published Slack~\cite{slack1979the} and Debye--Callaway estimates,
-on the \num{22} in-domain compounds that have one, give \SI{91.6}{\percent} with
-\SI{54.5}{\percent} within a factor of two and a bias of \num{1.92}; they are published values with
-no holdout and are not paired with the blind-test set.
+Three further checks support the result; Section~S7 gives each in full. The eleven compounds the
+screens exclude behave as a separate population, with a median error of \SI{86.4}{\percent} against
+\SI{31.7}{\percent} inside the domain at the reference seed (open squares in
+Fig.~\ref{fig:modelblind}(c)). Dropping the temperature term
+($\kappa_L^{\mathrm{exp}} = c\,\kappa_L^{\mathrm{BTE}}$) raises the median error to
+\SI{38.5}{\percent} (median over seeds). Published semi-empirical estimates
+(Slack~\cite{slack1979the} and Debye--Callaway) do far worse, at \SI{91.6}{\percent} on the \num{22}
+in-domain compounds that have one. The predictions also order the compounds: Spearman's $\rho$
+between predicted and measured conductivity is \num{0.662}.
 
 \paragraph{Where the error falls, and a family-informed baseline}
 \label{sec:familynull}
-At the reference seed the worst families on the model route are \ce{Co}--\ce{Sn}
-(\SI{59.4}{\percent}) and \ce{Ni}--\ce{Sn} (\SI{55.4}{\percent}), three compounds each, while
-\ce{Ni}--\ce{Sb} (eight compounds: the seven members of Table~\ref{tab:famcal} and \ce{YbNiSb}) is at
-\SI{13.7}{\percent}; this grouping is descriptive, since the holdout unit is the X site. A stronger
-baseline fits a power law to the measured $\kappa(T)$ of the held-out compound's own family, with no
-calculation. On the \num{34} in-domain compounds where it is defined (the \num{39} minus \ce{AlVNi},
-\ce{YNiBi}, \ce{ZrCoBi}, \ce{ZrNiPb} and \ce{ZrSbIr}; not the \num{34} of the published route), it
-gives \SI{25.4}{\percent} against \SI{31.6}{\percent} for the model route at the reference seed, with
-neither significantly better (paired Wilcoxon $p=\num{0.99}$; model closer for \SI{50.0}{\percent}).
-Where a family has been measured, the model route does not beat this baseline on absolute accuracy,
-but the baseline cannot order compounds within a family and says nothing where no member is measured.
-For scale, calibrating a published calculation with the shared constant gives \SI{32.3}{\percent} on
-the \num{31} compounds of the family test, comparable to the model route's \SI{33.1}{\percent},
-though on a different population and under a weaker, leave-one-compound-out holdout.
+Counting the blind-test compounds of each family, which include measured compounds without a
+published calculation, the worst families on the model route at the reference seed are
+\ce{Co}--\ce{Sn} (\SI{59.4}{\percent}) and \ce{Ni}--\ce{Sn} (\SI{55.4}{\percent}), three compounds
+each, and the best is \ce{Ni}--\ce{Sb} (\SI{13.7}{\percent}, eight compounds); the grouping is
+descriptive, since the holdout unit is the X site. A stronger baseline fits a power law to the
+measured $\kappa(T)$ of the held-out compound's own family, with no calculation. It is defined for
+\num{34} of the \num{39} in-domain compounds (all but \ce{AlVNi}, \ce{YNiBi}, \ce{ZrCoBi},
+\ce{ZrNiPb} and \ce{ZrSbIr}; not the same \num{34} as the published route). There it gives
+\SI{25.4}{\percent} against \SI{31.6}{\percent} for the model route at the reference seed, and
+neither is significantly better (paired Wilcoxon $p=\num{0.99}$). Where a family has been measured,
+then, the model route does not beat this baseline on absolute accuracy; but the baseline cannot
+order compounds within a family and says nothing where no member is measured. For scale,
+calibrating a published calculation with the shared constant gives \SI{32.3}{\percent}, comparable
+to the model route's \SI{33.1}{\percent}; the \SI{32.3}{\percent} is measured on the \num{31}
+compounds of the family test under the weaker, leave-one-compound-out holdout.
 
 \paragraph{An independent machine-learned force field}
 \label{sec:sdnnff}
 
 Elemental-SDNNFF obtains $\kappa_L$ through the Boltzmann transport equation on a neural-network
-force field~\cite{rodriguez2023millionsca}, so its values are tier~2 and were never labels; the same
-paper's ShengBTE values are tier~1 and enter the published-calculation median for \num{6} of the
-\num{18} compounds below (\ce{NbFeSb}, \ce{TaFeSb}, \ce{TiNiSn}, \ce{VFeSb}, \ce{ZrCoSb},
-\ce{ZrNiSn}). On those \num{18} in-domain compounds SDNNFF reproduces the published calculations at
-\SI{300}{\kelvin} to a median \SI{18.8}{\percent} (ratio \num{0.99}). Against measurement, on the
-\num{21} in-domain compounds it covers, it lies a median factor of \num{2.01} above the reference
-(\SI{101.4}{\percent} median error, \SI{42.9}{\percent} within a factor of two), and the published
-calculations lie a factor of \num{1.99} above measurement on their \num{18}, a different set from
-that of Section~\ref{sec:offset}, compared at \SI{300}{\kelvin} only with matching windows from
-\SI{\pm 25}{\kelvin} to \SI{\pm 100}{\kelvin}. The offset therefore survives intact to the end of a
-screening pipeline. The shared
+force field~\cite{rodriguez2023millionsca}; its values are tier~2 and were never labels (the same
+paper's ShengBTE values are tier~1 and enter the published median for \num{6} of the \num{18}
+compounds below, so the two are not wholly independent). On the
+\num{18} in-domain compounds with a published calculation it reproduces that calculation at
+\SI{300}{\kelvin} to a median \SI{18.8}{\percent} (ratio \num{0.99}), yet on the \num{21} it shares
+with our measured set it lies a median factor of \num{2.01} above measurement (\SI{101.4}{\percent}
+median error). The offset therefore survives intact to the end of a screening pipeline. The shared
 constant, refitted without each compound's chemistry cluster, brings the SDNNFF values to
-\SI{36.8}{\percent} with \SI{76.2}{\percent} within a factor of two (paired Wilcoxon $p=\num{0.0033}$),
-so the correction transfers to an independent source of calculations. On the same \num{21}, our
-model route gives \SI{44.7}{\percent} (reference seed, \SI{71.4}{\percent} within a factor of two).
-It is closer to measurement than raw SDNNFF for \num{16} of the \num{21} (paired Wilcoxon
-$p=\num{0.0055}$) but not as close as calibrated SDNNFF, although the comparison favours SDNNFF,
-whose values are given no holdout.
+\SI{36.8}{\percent} (paired Wilcoxon $p=\num{0.0033}$), so the correction transfers to a
+separately computed set of calculations. Our model route gives \SI{44.7}{\percent} on the same \num{21}
+(reference seed): closer to measurement than raw SDNNFF for \num{16} of them, though not as close as
+calibrated SDNNFF, whose values are given no holdout. Section~S7 gives the overlap between the two
+sets of calculations and the matching windows.
 
 \subsection{Ten predictions for unmeasured compounds}
 \label{sec:screening}
@@ -558,18 +511,15 @@ validation rests mainly on one paper (Section~\ref{sec:familycal}). \ce{TiCoBi},
   \label{fig:predictions}
 \end{figure}
 
-The conformal bands (Section~\ref{sec:intervals}) are a factor of \num{1.62} and \num{2.85} at
-\SI{300}{\kelvin} (per-seed ranges \numrange{1.61}{1.67} and \numrange{2.70}{3.02}) and \num{1.38}
-and \num{1.89} at \SI{500}{\kelvin} (\numrange{1.31}{1.41} and \numrange{1.86}{1.94}) for the
-\SI{50}{\percent} and \SI{90}{\percent} levels. The calculations being calibrated come from published
-high-throughput
+The conformal bands are those of Section~\ref{sec:intervals} and vary little across the five seeds
+(Section~S7). The calculations being calibrated come from published high-throughput
 studies~\cite{li2025highthroug,ohnishi2026database,miyazaki2021machine,carrete2014finding,trans2022lattice},
-most from one~\cite{miyazaki2021machine}. Seven of the ten rest on a single published calculation at
-the quoted temperature. Independent calculations of the same half Heusler disagree by a median
-factor of \num{1.37}. The band describes the error of the transfer function, not the spread among
-its inputs; where only one calculation exists, it is therefore a lower bound on the uncertainty.
-Nine of the ten have a calculation at only one temperature (\ce{HfCoBi} has two), so no other
-temperature is quoted. \ce{GdNiSb} also carries a structural caveat the databases do not record: it
+most from one~\cite{miyazaki2021machine}, and seven of the ten rest on a single calculation at the
+quoted temperature. Since independent calculations of the same half Heusler disagree by a median
+factor of \num{1.37}, and the band describes the error of the transfer function rather than the
+spread among its inputs, a single-calculation band is a lower bound on the uncertainty. Nine of the
+ten have a calculation at only one temperature (\ce{HfCoBi} has two), so no other temperature is
+quoted. \ce{GdNiSb} also carries a structural caveat the databases do not record: it
 has been reported in a high-temperature \ce{AlB2}-type hexagonal form beside the low-temperature
 \ce{MgAgAs}-type cubic one~\cite{skolozdra1997magnetic}, and the prediction is for the cubic phase.
 
@@ -582,8 +532,9 @@ Supplementary material tabulates each with the check it fails and draws every st
 lie a factor of \numrange{1.36}{1.86} above the \SIrange{3.2}{3.5}{\watt\per\meter\per\kelvin} span
 of the two \ce{Bi}--\ce{Pd} compounds measured near room temperature. \ce{TmSbPd} and \ce{DySbPd}
 belong to \ce{Sb}--\ce{Pd}, likewise calibrated but not validated, and \ce{DySbPd} is also
-polymorphic. \ce{LaSbPt} and \ce{ScSbPt} are clear extrapolations in a validated family, a factor of
-\num{2.00} below the measured \ce{Sb}--\ce{Pt} floor and \num{1.97} above its ceiling. \ce{HfSbIr}
+polymorphic. \ce{LaSbPt} and \ce{ScSbPt} are clear extrapolations in a validated family:
+\ce{LaSbPt} lies a factor of \num{2.00} below the measured \ce{Sb}--\ce{Pt} floor and \ce{ScSbPt}
+\num{1.97} above its ceiling. \ce{HfSbIr}
 and \ce{TiSbIr} belong to \ce{Sb}--\ce{Ir}, whose single measured member its own constant does not
 reproduce within the bar. The range criterion is conservative and unvalidated: the two held-out compounds that lay further outside their
 family's span were predicted to a median of \SI{18.4}{\percent}, but two cases cannot justify issuing
@@ -593,31 +544,31 @@ Ten further estimates, in \ce{Ni}--\ce{Bi}, are conditional. The family's only m
 \ce{YNiBi}, reports a lattice conductivity that rises with temperature, which its authors attribute
 to a bipolar contribution~\cite{li2015synthesis}, so the family cannot be calibrated. On the shared
 constant the ten lie at \SIrange{2.21}{4.95}{\watt\per\meter\per\kelvin} at \SI{300}{\kelvin};
-Section~S12 of the Supplementary material lists them with the two measurements that would allow them
-to be issued. One of the ten, \ce{SmNiBi}, also carries a caveat, because samarium's valence is not
+Section~S12 of the Supplementary material lists them with the two measurements that would allow
+nine of them to be issued. One of the ten, \ce{SmNiBi}, also carries a caveat, because samarium's valence is not
 fixed; it is counted as conditional, not among the fifteen flagged. Across the three statuses the
 conformal band has the same relative width; what changes is the evidence behind the value, not its
 stated precision.
 
-Not every gap can be closed by a measurement. The cobalt arsenides \ce{XCoAs} (X = Ti, Zr, Hf) have
-published calculations but no measured family member, and the two that have been synthesised,
-\ce{ZrCoAs} and
-\ce{HfCoAs}, form the orthorhombic \ce{Co2Si} type~\cite{kleinke1998crystal}. The polymorph screen
-catches \ce{HfCoAs}, which has an orthorhombic record (space group 62), but not \ce{ZrCoAs} or
-\ce{TiCoAs}, whose records carry only the cubic cell.
+For one family a measurement of the cubic phase may not be possible at all. The cobalt arsenides
+\ce{XCoAs} (X = Ti, Zr, Hf) have published calculations but no measured family member, and the two
+that have been synthesised, \ce{ZrCoAs} and \ce{HfCoAs}, form the orthorhombic \ce{Co2Si}
+type~\cite{kleinke1998crystal}. We therefore carry none of the three as a candidate, so none has a
+status. The polymorph screen alone would have caught only \ce{HfCoAs}, which has an orthorhombic
+record (space group 62), and not \ce{ZrCoAs} or \ce{TiCoAs}, whose records carry only the cubic
+cell.
 
 \subsection{Two predictions from crystal structure alone}
 \label{sec:structonly}
 
 For compounds with no published lattice-thermal-conductivity calculation, the model supplies
 $\kappa_L^{\mathrm{BTE}}$ and the shared constant maps it onto the experimental scale. Each value
-carries two separately validated errors, which we state side by side: the model
-step, \SI{21.9}{\percent} median error (reference seed) with \SI{88.3}{\percent} within a factor of two
-against published calculations (Section~\ref{sec:mlrepro}), and the calibration step, the shared
-constant on a family never measured, \SI{33.0}{\percent} median with \SI{79.4}{\percent} within a
-factor of two (Section~\ref{sec:unseenfamily}). Two compounds are graded strong on the evidence for
-their model step (for \ce{HfTeOs}, on a single family member); Fig.~\ref{fig:predictions} (bottom) gives both values for each. No conformal band is
-given, because its coverage is not validated for a family never measured.
+carries two separately validated errors, stated side by side: \SI{21.9}{\percent} for the model
+step (reference seed; Section~\ref{sec:mlrepro}) and \SI{33.0}{\percent} for the shared constant on a family never
+measured (Section~\ref{sec:unseenfamily}). No conformal band is given, because its coverage is not
+validated for a family never measured. Two compounds are graded strong on the evidence for their
+model step (for \ce{HfTeOs}, on a single family member); Fig.~\ref{fig:predictions} (bottom) gives
+both values for each.
 
 For \ce{TmPbAu} (\ce{Pb}--\ce{Au} family) we use the OQMD cubic cell of the lowest-energy ordering,
 $a=\SI{6.782}{\angstrom}$. The six \ce{Pb}--\ce{Au} half Heuslers with published calculations are reproduced held out
@@ -630,13 +581,12 @@ the cubic half-Heusler structure~\cite{agarwal2026thermodyna}.
 For \ce{HfTeOs} (\ce{Te}--\ce{Os} family) we use the AFLOW cubic cell of the lowest-energy ordering,
 $a=\SI{6.33}{\angstrom}$. The strong grade rests on one member, \ce{TiTeOs}, reproduced to \SI{0.5}{\percent} held
 out; the seeds spread by a factor of \num{1.23}. The model gives \SI{12.99}{\watt\per\meter\per\kelvin}
-and the shared constant \SI{5.46}{\watt\per\meter\per\kelvin}. The SDNNFF value for its chemical twin
-\ce{ZrTeOs}~\cite{rodriguez2023millionsca}, which has Zr in place of Hf, gives
-\SI{14.06}{\watt\per\meter\per\kelvin} when carried to hafnium by the twin ratio of the Extended
-Methods; the model value is \num{0.92} times this. On calculated pairs the twin ratio has a median
-error of \SI{12.2}{\percent}, against \SI{9.8}{\percent} for the model; it was validated on
-calculations, not on a machine-learned input, so the cross-check is weaker than its validation suggests. We
-found no published report of \ce{HfTeOs}.
+and the shared constant \SI{5.46}{\watt\per\meter\per\kelvin}. As a cross-check, the SDNNFF value
+for its chemical twin \ce{ZrTeOs}~\cite{rodriguez2023millionsca}, carried to hafnium by the twin
+ratio of the Extended Methods, gives \SI{14.06}{\watt\per\meter\per\kelvin}; the model value is
+\num{0.92} times this. The twin ratio was validated on calculations (median error
+\SI{12.2}{\percent}), not on a machine-learned input, so the check is weaker than that figure
+suggests. We found no published report of \ce{HfTeOs}.
 
 The search also found further compounds with no published $\kappa_L$ and a group with only a
 machine-learned value from a published screen; Section~S16 of the Supplementary material reports

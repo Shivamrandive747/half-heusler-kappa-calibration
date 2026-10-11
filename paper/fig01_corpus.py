@@ -278,13 +278,13 @@ def main() -> int:
         axb.bar(x[i], c_yes[i], width=0.66, color=bcols[i], zorder=3)
         axb.bar(x[i], c_no[i], bottom=c_yes[i], width=0.66, color="white", edgecolor=bcols[i],
                 hatch="/////", lw=0.8, zorder=3)
-        axb.text(x[i], counts[i] + max(counts) * 0.03, str(counts[i]), ha="center", fontsize=7.0,
+        axb.text(x[i], counts[i] + max(counts) * 0.03, str(counts[i]), ha="center", fontsize=F.FS_MIN,
                  fontweight="bold" if i == 0 else "normal",
                  color=F.VERMILLION if i == 0 else "#555555")
     axb.set_xticks(x)
     axb.set_xticklabels(names)
     axb.tick_params(axis="x", which="minor", bottom=False, top=False)
-    axb.set_xlabel("independent papers per compound", labelpad=1.5)
+    axb.set_xlabel("independent papers\nper compound", labelpad=1.5, linespacing=1.05)
     axb.set_ylabel("measured compounds", labelpad=1.5)
     axb.tick_params(labelsize=F.FS_TICK, pad=1.5)
     axb.set_ylim(0, max(counts) * 1.42)

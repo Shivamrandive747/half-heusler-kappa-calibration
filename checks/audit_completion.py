@@ -573,9 +573,11 @@ def main() -> int:
         print(f"  SKIPPED: {dr_path} absent -- run compute_deployed_route.py")
     if Path(dr_path).exists():
         dr = json.load(open(dr_path))
-        res = flat("section3_results")
         # Sentences of the 2026-10-04 rewrite, which leads with the held-out comparison and gives
-        # the pooled 34 (held-out + anchored fits) after it.
+        # the pooled 34 (held-out + anchored fits) after it. Since 2026-10-11 the pooled-34
+        # paragraph lives in the supplement (S7, "The family test over all 34 compounds"), so the
+        # search runs over the results section and the supplement together.
+        res = flat("section3_results") + "\n" + flat("supplementary")
         fa = dr["family_arm_compounds"]
         want = {
             "held-out n": (r"On the \\num\{(\d+)\} such compounds the family constant", fa["n"]),

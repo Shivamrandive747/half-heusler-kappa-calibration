@@ -91,10 +91,13 @@ def temp_cmap(lo: float = 0.12, hi: float = 0.90):
 # point size here is the point size on paper. Nothing in any figure may go below FS_MIN; the
 # scripts use these names rather than typing a size, so the floor cannot be undercut by one
 # hard-coded 6.2 in one panel.
-FS_MIN = 7.0       # floor for any text: annotations, legends, value labels
-FS_TICK = 7.0      # tick labels
-FS_LABEL = 8.0     # axis labels and panel headings
-FS_PANEL = 9.0     # panel letters, bold
+# The figures are 190 mm wide (Elsevier double column), but the elsarticle 5p preprint's text
+# block is 183.5 mm, so there they print at 96.6 %. The sizes below carry that factor so that no
+# text falls under 7 pt in the preprint; in the journal, at 190 mm, they print slightly larger.
+FS_MIN = 7.3       # floor for any text: annotations, legends, value labels
+FS_TICK = 7.3      # tick labels
+FS_LABEL = 8.3     # axis labels and panel headings
+FS_PANEL = 9.3     # panel letters, bold
 
 # One panel-letter style for every figure: bold, 9 pt, in a light square box.
 PANEL_KW = dict(fontsize=FS_PANEL, fontweight="bold", zorder=20,

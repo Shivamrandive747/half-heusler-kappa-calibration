@@ -256,10 +256,13 @@ def main() -> int:
         ax.tick_params(labelsize=F.FS_TICK, pad=1.5)
         r = d[col] / d.k_exp
         n_out_hi, n_out_lo = int((r > 2).sum()), int((r < 0.5).sum())
-        # SAY WHICH WAY THE RATIO GOES -- the direction is the figure's whole claim.
-        _title(ax, ttl, f"{who}/measured: median {np.median(r):.2f}\n"
-                        f"{100 * r.between(0.5, 2.0).mean():.0f}% within 2$\\times$; "
-                        f"{n_out_hi} above, {n_out_lo} below")
+        # ONE SET OF STATISTICS PER FIGURE (2026-10-11): per-point medians above (a) and (b) sat
+        # beside the per-compound ones in (d) and the text (1.41 vs 1.69), and readers compared
+        # them. The parity panels now say what they show; the numbers live in (d) only.
+        sub = ("one point per compound per 100 K bin\nstatistics per compound: panel (d)"
+               if col == "k_dft" else
+               "chemistry cluster held out of the fit\nsame points as (a)")
+        _title(ax, ttl, sub)
         pts = _pts_axes(ax, d.k_exp, d[col])
         _panel_letter(ax, "ab"[col == "k_cal"], pts)
 
@@ -342,7 +345,7 @@ def main() -> int:
     axd.yaxis.set_major_formatter(mticker.FixedFormatter([f"{v:g}" for v in rticks]))
     axd.yaxis.set_minor_locator(mticker.NullLocator())
     axd.grid(axis="x", visible=False)
-    axd.set_ylabel("calculated / measured", labelpad=1.0)
+    axd.set_ylabel("ratio to measured", labelpad=1.0)
     axd.tick_params(labelsize=F.FS_TICK, pad=1.5)
     XL = (-0.62, 1.62)
     axd.set_xlim(*XL)

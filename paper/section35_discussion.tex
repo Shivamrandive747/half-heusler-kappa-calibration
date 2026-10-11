@@ -10,14 +10,20 @@
 \subsection{What the offset and the constants mean}
 \label{sec:interpretation}
 
+Several effects can make published calculations run high, and our data do not separate them. Real
+specimens contain point defects and antisite disorder that scatter phonons~\cite{kim2017direct},
+and grain boundaries that lower $\kappa_L$ further~\cite{schrade2017the}. Calculation settings such
+as the exchange--correlation functional and force-constant cut-offs matter. And four-phonon
+scattering, which most calculations omit, lowers the true conductivity, so its omission alone makes
+three-phonon calculations run high~\cite{feng2017fourphonon}.
+
 Phenomenological temperature dependences have been fitted to, or tested against, measured
 half-Heusler curves before~\cite{geng2014lattice,petersen2015critical}; here we fit instead the \emph{ratio} of
 measurement to calculation. The functional form is therefore not new; what this work adds is the
-corpus, the class-wide magnitude and its held-out validation. Only one published tier-1
-calculation in the corpus spans three or more temperatures (log--log slope \num{-1.02}), so for
-nearly every pair the calculated temperature dependence is the assumed $T^{-1}$, and $p$ is in
-effect the measured slope relative to it: $p=\num{0.70}$ implies a corrected
-$\kappa_L \propto T^{-0.30}$.
+corpus, the class-wide magnitude and its held-out validation. Because nearly every pair carries the
+assumed $T^{-1}$ calculated dependence (Section~\ref{sec:transfer}; the one multi-temperature
+calculation has a log--log slope of \num{-1.02}), $p$ is in effect the measured slope relative to
+it: $p=\num{0.70}$ implies a corrected $\kappa_L \propto T^{-0.30}$.
 
 The correction is empirical, not a boundary-scattering term. Any temperature-independent extrinsic
 scattering (boundaries, point defects or static disorder) added to three-phonon Umklapp scattering
@@ -63,10 +69,10 @@ bonding family has been validated, the family constant is the most accurate opti
 the same compounds). Where a calculation exists but the family has no measured member, only the
 shared constant applies, with the \SI{33.0}{\percent} median error measured on families withheld
 from the fit. Where no calculation exists, the machine-learned model supplies one, and the value
-carries two separate errors: \SI{21.9}{\percent} for the model step and \SI{33.0}{\percent} for the
+carries two separate errors: \SI{21.9}{\percent} for the model step (reference seed) and \SI{33.0}{\percent} for the
 shared constant.
 
-Two cautions temper this order. A family that has already been measured well can be described
+This order has two limits. A family that has already been measured well can be described
 almost as accurately by a power law fitted to its own members (\SI{25.4}{\percent} against
 \SI{31.6}{\percent} for the model route, not significantly different), so the method adds most
 where measurements are sparse: in ordering compounds within a family and in families never
@@ -100,12 +106,13 @@ The issued values rest on few calculations. Seven of the ten rest on a single pu
 at the quoted temperature, and most on one study. A systematic error there would pass undiluted into
 those values; a transfer function calibrates the scale of a calculation, not its correctness.
 
-The model learns only from full calculations, which leaves \num{284} half Heuslers to learn from;
+Every half-Heusler training label is a full calculation, which leaves \num{284} compounds to learn
+from;
 where a bond descriptor cannot be computed it is left missing, which the model handles natively.
 Structure-only values carry two errors and assume a structure: neither compound has, as far as we
 could find, been synthesised, so each value is conditional on the cubic phase forming.
 
 Several alternatives were tested and not adopted, because they did not improve held-out accuracy
-consistently: a correction without the temperature term (Section~\ref{sec:blind}), a capped family
+consistently: a correction without the temperature term (Section~\ref{sec:robust}), a capped family
 form, a two-stage (hurdle) model, a magnitude-dependent calibration term, and training on
 experimental or doped-composition values.

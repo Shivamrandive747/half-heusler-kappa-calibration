@@ -154,7 +154,7 @@ def honest_label(sel: dict) -> str:
     words = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five"}
     k = len(sel["pick"])
     return (f"{words.get(k, str(k))} best of {n_ok} eligible held-out fits in validated families "
-            f"(≥{MIN_POINTS} temperatures over ≥{MIN_SPAN:.0f} K); "
+            f"(≥{MIN_POINTS} temperatures spanning ≥{MIN_SPAN:.0f} K); "
             f"median over all {n_ok}: {sel['ok'].ape.median():.1f}%")
 
 

@@ -223,7 +223,7 @@ def main() -> int:
             fontsize=SS, color="#00694E", fontstyle="italic", linespacing=1.15, zorder=4)
 
     # ---- lane tags ------------------------------------------------------------------------
-    for (y0, y1), fam, name in ((TOP, "calc", "CALCULATIONS"), (BOT, "meas", "MEASUREMENTS")):
+    for (y0, y1), fam, name in ((TOP, "calc", "CALCULATED"), (BOT, "meas", "MEASURED")):
         s = FAM[fam]
         ax.add_patch(FancyBboxPatch((0.5, y0), 4.0, y1 - y0,
                                     boxstyle="round,pad=0,rounding_size=1.0",
@@ -237,7 +237,7 @@ def main() -> int:
     box(*X[0], *TOP, "calc", "Published $\\kappa_L$",
         f"DFT-BTE\n{C['calc_n']} compounds\n{C['calc_src']} sources")
     box(*X[1], *TOP, "calc", "Tier by method", "tier 1: full BTE\nonly tier 1 fitted")
-    box(*X[2], *TOP, "ml", "ML surrogate", "CatBoost, tier 1\nfills missing $\\kappa^\\mathrm{BTE}$")
+    box(*X[2], *TOP, "ml", "ML surrogate", "CatBoost, on calc.\nfills missing $\\kappa^\\mathrm{BTE}$")
     arrow((X[0][1], ytop_lane), (X[1][0], ytop_lane))
     arrow((X[1][1], ytop_lane), (X[2][0], ytop_lane))
 

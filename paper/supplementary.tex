@@ -374,6 +374,41 @@ leave-one-out over \num{23} pairs of calculated values, this ratio reproduces th
 median \SI{12.2}{\percent}, against \SI{9.8}{\percent} for the model on the same pairs, so it does not
 outperform the model.
 
+\subsection*{Stability of the shared constant}
+
+Removing any one of the \num{16} chemistry clusters among the \num{34} compounds of the published
+route moves $c$ within \numrange{0.41}{0.56} and $p$ within \numrange{0.50}{0.80}; removing any one
+of the \num{12} bonding families moves $c$ within \numrange{0.40}{0.54} and $p$ within
+\numrange{0.60}{0.80}. The main text gives the bootstrap ranges, which tell the same story: the
+magnitude is well determined and the exponent is not.
+
+\subsection*{Chemistry clusters in each population}
+
+There are \num{27} clusters among the \num{230} calculated $\mathrm{VEC}=18$ half Heuslers,
+\num{16} among the \num{34} compounds of the published route, \num{18} among the \num{39} in-domain
+compounds and \num{21} among all \num{50} measured ones.
+
+\subsection*{Conformal bands and their coverage}
+
+At \SI{300}{\kelvin} the bands are a factor of \num{1.62}, \num{2.56} and \num{2.85} at
+\SI{50}{\percent}, \SI{80}{\percent} and \SI{90}{\percent} nominal, covering \num{20}, \num{31} and
+\num{36} of the \num{39} in-domain compounds. At \SI{500}{\kelvin} they are \num{1.38}, \num{1.70}
+and \num{1.89}, covering \num{20}, \num{32} and \num{36}. The binomial uncertainty of each coverage
+fraction is roughly \SI{8}{pp}.
+
+\subsection*{Per-row metrics for model selection}
+
+Model selection scores the fit to calculated labels per row, on $y=\log_{10}\kappa_L$. Over $N$ rows
+with labels $y_k$, out-of-fold predictions $\hat{y}_k$ and label mean $\bar{y}$,
+%
+\begin{gather*}
+  \mathrm{RMSE} = \sqrt{\frac{1}{N}\sum_{k=1}^{N}\bigl(\hat{y}_k-y_k\bigr)^2},
+  \qquad
+  \mathrm{MAE} = \frac{1}{N}\sum_{k=1}^{N}\bigl|\hat{y}_k-y_k\bigr|,
+  \\
+  R^2 = 1-\frac{\sum_k\bigl(\hat{y}_k-y_k\bigr)^2}{\sum_k\bigl(y_k-\bar{y}\bigr)^2}.
+\end{gather*}
+
 \section{Provenance of every measurement and calculation}
 \label{sec:provenance}
 
@@ -444,7 +479,7 @@ mass; mean radius and sum of radii; X--Z electronegativity difference and electr
 volume per atom and bond-length scale; shortest and mean bond length; atoms per cell and the
 full-Heusler flag; and the three encodings of temperature. Such redundancy does not harm a tree
 ensemble's predictions, but it splits the attribution between the members of each pair. The main
-text (subsection ``What the model has learned'') discusses the \textsc{shap} (SHapley Additive
+text (Section~3.4, ``The model's attributions are consistent with phonon physics'') discusses the \textsc{shap} (SHapley Additive
 exPlanations) attribution of the retained model and draws its eight largest terms, and applies this
 caveat there. Figure~\ref{fig:shap} gives the full attribution for the twelve descriptors with the
 largest mean absolute contribution, row by row.
@@ -485,6 +520,16 @@ largest mean absolute contribution, row by row.
   correlated descriptors share their attribution.}
   \label{fig:shap}
 \end{figure*}
+
+\paragraph{Size and direction of each attribution} The direction of each effect is read from the
+correlation between a descriptor's value and its \textsc{shap} contribution. Giving the mean
+$|\textsc{shap}|$ and then that correlation: the full-Heusler flag (\num{0.079}, \num{-0.99}); the
+X-site radius (\num{0.058}), the shortest bond (\num{0.055}), the mean bond length (\num{0.042}) and
+the sum of radii (\num{0.039}), with correlations from \num{-0.71} to \num{-0.93}; atoms per
+conventional cell (\num{0.033}, \num{-0.98}); a heavier Y site (\num{0.024}, \num{-0.82}); the X-site
+electronegativity (\num{0.025}, \num{+0.43}); and the inverse-temperature descriptor $1000/T$
+(\num{0.018}, \num{+0.90}). On the $\log_{10}$ target a contribution of $+0.1$ multiplies the
+predicted calculation by about \num{1.26}.
 
 \section{Support behind each family constant}
 \label{sec:famsupport}
@@ -574,7 +619,7 @@ the members differ as materials. None of the five families issues a prediction: 
 %                  one_parameter_c_only}, .nulls.{constant, power}, .published_semi_empirical
 % ---------------------------------------------------------------------------------------------
 
-\section{End-to-end blind test: the full table}
+\section{End-to-end blind test: the full table and further checks}
 \label{sec:blindtable}
 
 Table~\ref{tab:blind} gives the end-to-end blind test inside the domain of applicability with every
@@ -618,6 +663,74 @@ estimates.
     carry one. They are published values with no holdout and are not paired with the blind-test set.
   \end{minipage}
 \end{table}
+
+\subsection{Further checks of the end-to-end test}
+\label{sec:blindchecks}
+
+The main text states each of these checks in a sentence. The full figures follow.
+
+\paragraph{Without \ce{YNiBi}} Every measured curve of \ce{YNiBi} fails the curve-shape test because
+its lattice conductivity rises with temperature. It keeps its measurement, ranked last, so that the
+scored population does not depend on that test. Without it the median error is unchanged at
+\SI{33.1}{\percent} over \num{38} compounds, with \SI{86.8}{\percent} within a factor of two and
+paired Wilcoxon $p=\num{0.005}$ and \num{0.006} against the constant and power-law nulls.
+
+\paragraph{Without the domain screens} Over all \num{50} measured half Heuslers (\num{21}
+chemistry clusters), the calibrated route gives \SI{37.4}{\percent} and the uncorrected model
+\SI{48.2}{\percent} (both medians over the five seeds). The null comparison is made at the reference
+seed: there the model route gives \SI{36.4}{\percent} against \SI{48.7}{\percent} for the constant
+null and \SI{48.2}{\percent} for the power law (paired Wilcoxon $p=\num{0.035}$ and
+$p=\num{0.033}$). The two \SI{48.2}{\percent} figures are different quantities that happen to
+coincide.
+
+\paragraph{Outside the domain} The eleven compounds the screens exclude are \ce{AlNiSb},
+\ce{BaAgSb}, \ce{LaSbPd}, \ce{LiAlGe}, \ce{LiAlSi}, \ce{LiZnSb}, \ce{MgAgSb}, \ce{MgNiSb},
+\ce{NbCoSb}, \ce{VCoSb} and \ce{VNiSn}. At the reference seed their median error is
+\SI{86.4}{\percent}, with \SI{36.4}{\percent} within a factor of two and a median bias of
+\num{1.74}, against \SI{31.7}{\percent} inside the domain (Mann--Whitney $p=\num{5.1e-5}$).
+
+\paragraph{Conformal bands across seeds} The bands applied to the issued predictions vary little
+with the model seed. Across the five seeds they run from \numrange{1.61}{1.67} at \SI{50}{\percent}
+and \numrange{2.70}{3.02} at \SI{90}{\percent} at \SI{300}{\kelvin}, and from \numrange{1.31}{1.41}
+and \numrange{1.86}{1.94} at \SI{500}{\kelvin}.
+
+\paragraph{The temperature term} Without it ($\kappa_L^{\mathrm{exp}} = c\,\kappa_L^{\mathrm{BTE}}$)
+the within-$2\times$ fraction falls from \SI{87.2}{\percent} to \SI{82.1}{\percent}
+(Table~\ref{tab:blind}). At the reference seed the paired difference is \num{7.7} pp (Wilcoxon
+$p=\num{0.0143}$), and the two-parameter form is closer to measurement for \SI{61.5}{\percent} of
+compounds.
+
+\paragraph{Ranking} Spearman's $\rho$ between predicted and measured conductivity is \num{0.662}
+(seed range \numrange{0.642}{0.699}). At a fixed temperature this ordering comes from the model; the
+correction supplies the temperature term and the absolute scale against which a screening threshold
+is set.
+
+\paragraph{The family-informed baseline} The power law fitted to the held-out compound's own family
+is closer than the model route for half of the \num{34} compounds where it is defined (model closer
+for \SI{50.0}{\percent}). In the per-family breakdown of the main text, \ce{Ni}--\ce{Sb} counts eight
+compounds: the seven members of the main-text family table and \ce{YbNiSb}.
+
+\paragraph{The family test over all 34 compounds} Over all \num{34} in-domain compounds with a
+temperature-matched published calculation, the uncorrected calculations give \SI{64.1}{\percent}
+median error, with \SI{70.6}{\percent} within a factor of two. The shared constant brings that to
+\SI{31.9}{\percent} and \SI{85.3}{\percent}, and the family constants to \SI{20.3}{\percent} and
+\SI{94.1}{\percent}. These figures follow the protocol of the family test (all matched rows,
+reference chosen without the family-paper rule, shared constant refitted without the compound
+itself), which is why the within-$2\times$ fractions differ from those of the offset comparison
+(per compound against the standard reference, shared constant refitted without the chemistry
+cluster). They also mix the \num{31} held-out compounds with the three single-member fits, which is
+why the main text leads with the held-out comparison.
+
+\paragraph{Elemental-SDNNFF} The same paper's ShengBTE values are tier~1 and enter the
+published-calculation median for \num{6} of the \num{18} compounds compared (\ce{NbFeSb},
+\ce{TaFeSb}, \ce{TiNiSn}, \ce{VFeSb}, \ce{ZrCoSb}, \ce{ZrNiSn}). Raw SDNNFF places
+\SI{42.9}{\percent} of the \num{21} compounds within a factor of two of measurement, and calibrated
+SDNNFF \SI{76.2}{\percent}. On their \num{18}, a different set from that of the main-text offset
+comparison, the published calculations lie a factor of \num{1.99} above measurement. All of these
+comparisons are at \SI{300}{\kelvin} only, with matching windows from \SI{\pm 25}{\kelvin} to
+\SI{\pm 100}{\kelvin}. Our model route (reference seed) places \SI{71.4}{\percent} within a factor
+of two, and is closer to measurement than raw SDNNFF for \num{16} of the \num{21} (paired Wilcoxon
+$p=\num{0.0055}$).
 
 \section{Accuracy above and below the cap temperature}
 \label{sec:cap}
@@ -789,7 +902,7 @@ Table~\ref{tab:conditional} lists ten compounds that cannot be issued, because t
 \ce{Ni}--\ce{Bi}, has no usable measured member (Section~\ref{sec:nibi}). A bonding family is the set
 of half Heuslers XYZ that share their Y (late transition metal) and Z (main-group) elements; its
 label names those two elements, in no meaningful order. Nine of the ten pass every structural and
-chemical screen of the main text; the tenth, \ce{SmNiBi}, is flagged (below). They are not
+chemical screen of the main text; the tenth, \ce{SmNiBi}, carries a valence caveat (below). They are not
 predictions. Each row is the value the method would issue once the family can be calibrated. We
 record it before the measurement that would allow it to be issued, so that the measurement can test
 it instead of being used to fit it.
@@ -810,11 +923,13 @@ the gain is not significant: the family constant is closer for \num{16} compound
 \num{11} and tied for \num{4} (two-sided sign test, $p=\num{0.44}$). Later sections refer back to these
 numbers.
 
-One row is flagged. The valence-electron count (VEC) used by the screens sums, over the three
+One row carries a caveat (marked $^{\dagger}$). It is still counted as conditional, not among the
+fifteen flagged compounds of Section~\ref{sec:flagged}. The valence-electron count (VEC) used by the
+screens sums, over the three
 elements, the group number for groups 1--12 and the group number minus 10 for groups 13--18, and
 counts every lanthanide as 3. \ce{Sm} can be di- or trivalent, so the count of 18 for \ce{SmNiBi}
 is not secure. Its admission to the domain therefore rests on an assumption the other nine do not
-need. It is flagged on the same grounds as \ce{SmBiPd} (Section~\ref{sec:structureonly}). A
+need, the same caveat that applies to \ce{SmBiPd} (Section~\ref{sec:structureonly}). A
 \ce{Ni}--\ce{Bi} family constant would release the other nine, but not this row.
 
 \begin{table}[htb]
@@ -910,7 +1025,7 @@ Four kinds of measurement would change what the method can say, and each buys so
 
 Two sound \ce{Ni}--\ce{Bi} measurements would release nine of the ten estimates of
 Table~\ref{tab:conditional} at once, by giving the family its own constant. The tenth, \ce{SmNiBi},
-stays flagged. No other measurement releases as many.
+stays conditional because of its valence caveat. No other measurement releases as many.
 
 One further measured compound in \ce{Co}--\ce{Bi} or in \ce{Ni}--\ce{Pb} would add no predictions,
 but would change the standing of four issued ones. Each of these families is anchored, that is,

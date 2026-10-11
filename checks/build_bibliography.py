@@ -151,6 +151,17 @@ def bibkey(m: dict, taken: set) -> str:
     return key
 
 
+TITLE_MARKUP = {
+    "10.1002/adma.201702091": (
+        "Direct Observation of Inherent Atomic-Scale Defect Disorders responsible for "
+        "High-Performance Ti$_{1-x}$Hf$_{x}$NiSn$_{1-y}$Sb$_{y}$ Half-Heusler Thermoelectric Alloys"),
+    "10.1103/physrevapplied.14.054046": (
+        "Thermoelectric Performance of the Half-Heusler Phases $R$NiSb ($R$ = Sc, Dy, Er, Tm, Lu): "
+        "High Mobility Ratio between Majority and Minority Charge Carriers"),
+    "10.3390/ma18133189": "Thermoelectric Properties of NbCoNi$_{x}$Sn ($x$ = 0--1)",
+}
+
+
 def esc(s: str) -> str:
     """Protect the characters LaTeX would eat, and translate the markup Crossref returns.
 
@@ -225,10 +236,21 @@ def esc(s: str) -> str:
                  ("#", r"\#"), ("_", r"\_"), ("{", r"\{"), ("}", r"\}"), ("~", r"\textasciitilde{}"),
                  ("^", r"\textasciicircum{}")):
         s = s.replace(a, b)
-    # restore the placeholders as real maths now that escaping is done
-    s = re.sub(r"@@SUB\\\{(.*?)\\\}@@", r"$_{\1}$", s)
-    s = re.sub(r"@@SUP\\\{(.*?)\\\}@@", r"$^{\1}$", s)
-    s = re.sub(r"@@MATH\\\{\\textbackslash\{\}(.*?)\\\}@@", r"$\\\1$", s)
+    # restore the placeholders as real maths now that escaping is done. Crossref pretty-prints some
+    # titles with newlines inside <sub>...</sub>, so whitespace is collapsed first (".*?" does not
+    # cross a newline) and the space left inside a subscript is dropped.
+    s = re.sub(r"\s+", " ", s)
+    # a subscript binds to the element before it: "Zr @@SUB 1-x @@" -> "Zr$_{1-x}$". The space AFTER
+    # it is left alone, because there it often separates a formula from the next word.
+    s = re.sub(r"\s+(@@SUB\\\{)", r"\1", s)
+    s = re.sub(r"@@SUB\\\{(.*?)\\\}@@",
+               lambda m: "$_{" + m.group(1).replace(" ", "").replace("--", "-") + "}$", s)
+    s = re.sub(r"@@SUP\\\{(.*?)\\\}@@", lambda m: "$^{" + m.group(1).replace(" ", "") + "}$", s)
+    # The escaping pass turns "\leq" into "\textbackslash{}leq" and then escapes that command's own
+    # braces as well, so the placeholder reads "@@MATH\{\textbackslash\{\}leq\}@@". The old pattern
+    # expected unescaped "{}" after \textbackslash, never matched, and shipped "@@MATH...@@" into
+    # the reference list.
+    s = re.sub(r"@@MATH\\\{\\textbackslash\\\{\\\}(.*?)\\\}@@", r"$\\\1$", s)
     return latin_safe(re.sub(r"\s+", " ", s).strip())
 
 
@@ -315,11 +337,17 @@ def to_bibtex(m: dict, key: str) -> str:
     # version, so the reference list carries a descriptive title instead
     if m.get("DOI", "").lower() == "10.6084/m9.figshare.29438735":
         title = "Starrydata2 dataset snapshot"
+    # Crossref flattens or mangles subscripts in these registered titles ("Ti $_{1-}$ $_{x}$",
+    # "R Ni Sb ( R = Sc , ...", "NbCoNixSn"); the words are Crossref's, only the formula markup is
+    # restored so the reference list reads as the article does.
+    title = TITLE_MARKUP.get(m.get("DOI", "").lower(), title)
+    container = esc((m.get("container-title") or [""])[0])
     fields = {
         "author": esc(names),
         # double braces: elsarticle-num lowercases titles, which turned ZrCoBi into "zrcobi"
         "title": ("{" + title + "}") if title else "",
-        "journal": esc((m.get("container-title") or [""])[0]),
+        # a book chapter names its book in booktitle; under "journal" elsarticle-num dropped it
+        ("booktitle" if kind == "incollection" else "journal"): container,
         "year": yr,
         "volume": esc(m.get("volume", "")),
         "number": esc(m.get("issue", "")),

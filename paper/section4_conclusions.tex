@@ -33,7 +33,7 @@
 Used as a pair, machine learning and transfer-function calibration predict the measured lattice
 thermal conductivity of half Heuslers from crystal structure. The machine-learned model reproduces
 published first-principles calculations to a median error of \SI{21.9}{\percent} (reference seed) with each
-chemistry cluster held out, and what it has learned is consistent with phonon physics. The transfer
+chemistry cluster held out, and its attributions are consistent with phonon physics. The transfer
 function is needed because the calculations run high, by a median factor of \num{1.69} and in
 \num{10} of \num{12} bonding families, and it can be closed-form because that offset is regular.
 
@@ -41,56 +41,42 @@ With each compound's chemistry cluster held out of both steps, and inside a doma
 defined by the screens every candidate must pass, the median error is \SI{33.1}{\percent} and
 \SI{87.2}{\percent} of \num{39} compounds lie within a factor of two, against \SI{41.9}{\percent}
 uncorrected and \SI{46.7}{\percent} and \SI{45.6}{\percent} for constant and power-law null baselines.
-The improvement is significant per compound on every model seed before correction for the two
-comparisons; after a Holm correction $p = \num{0.007}$ at the median seed and \num{0.056} on the
-least favourable one. Counted once per cluster, it passes
-the Wilcoxon test on every seed ($p < 0.05$, largest \num{0.048}), but the sign test is not
-significant on every seed, so the cluster-level evidence is marginal. The result does not depend on
-\ce{YNiBi}, whose measured curve fails the curve-shape test, and without the domain screens, over all
-\num{50} measured compounds, the same test gives \SI{37.4}{\percent} and still improves on both nulls
-(Section~\ref{sec:blind}). The route performs
-comparably to calibrating a published calculation (\SI{32.3}{\percent} on the \num{31} compounds of
-the family test, a different set under a weaker holdout). Where a family has been measured, a power
-law fitted to its measured members is as accurate (\SI{25.4}{\percent} against \SI{31.6}{\percent},
-not significantly different), so the method's value lies in ordering compounds within a family and
-in families never measured. The correction also carries over to an independent machine-learned
-force field, lowering its median error against measurement from \SI{101.4}{\percent} to
+The improvement is significant compound by compound (Holm-corrected $p = \num{0.007}$ at the median
+seed, \num{0.056} on the least favourable) and marginal when each chemistry cluster is counted once.
+Without the domain screens, over all \num{50} measured compounds, the same test gives
+\SI{37.4}{\percent} and still improves on both nulls. Where a family has already been measured, a
+power law fitted to its members is as accurate (\SI{25.4}{\percent} against \SI{31.6}{\percent}, not
+significantly different), so the method adds most in ordering compounds within a family and in
+families never measured. The correction also carries over to an independent machine-learned force
+field, lowering its median error against measurement from \SI{101.4}{\percent} to
 \SI{36.8}{\percent}.
 
-A magnitude refitted per bonding family is validated held out in five families, at
-\SIrange{7.4}{24.9}{\percent}; in two of them (\ce{Co}--\ce{Sb} and \ce{Ni}--\ce{Sb}) the shared
-constant does as well or better on the same compounds, and the family constant is applied there by
-the pre-specified rule. Four further families are calibrated on their own papers but do not transfer
-between members held out, because their members are different materials as made; no predictions
-are issued through them. The best result, \SI{7.4}{\percent} for \ce{Sb}--\ce{Pt}, rests on three
-members from a single paper, each measured at only three temperatures. Pooled, the family
-constant lowers the median error from \SI{32.3}{\percent} to \SI{21.7}{\percent}, but it is better for
-\num{16} compounds, worse for \num{11} and tied for \num{4} (sign test $p = \num{0.44}$), so it is not
-significantly better compound by compound.
+A magnitude refitted per bonding family lowers the pooled held-out error from \SI{32.3}{\percent}
+to \SI{21.7}{\percent}, though not significantly compound by compound (sign test $p = \num{0.44}$).
+It is validated held out in five families, at \SIrange{7.4}{24.9}{\percent}; the best of these,
+\ce{Sb}--\ce{Pt}, rests mainly on one paper. Four further families fit their own papers but do not
+transfer between members, because their members are different materials as made, and no prediction
+is issued through them.
 
 We issue \num{10} predictions with intervals, flag \num{15} candidates with the reason named for each,
 and report \num{10} estimates as conditional on a measurement in their family. From crystal structure
 alone we give $\kappa_L$ at \SI{300}{\kelvin} of \SI{1.39}{\watt\per\meter\per\kelvin} for
 \ce{TmPbAu} and \SI{5.46}{\watt\per\meter\per\kelvin} for \ce{HfTeOs}, compounds for which we find no
-published report. Each carries two separate error estimates: \SI{21.9}{\percent} for the model and
+published report. Each carries two separate error estimates: \SI{21.9}{\percent} for the model
+(reference seed) and
 \SI{33.0}{\percent} for the shared constant on families never measured.
 
 The method estimates $\kappa_L$ at a stated temperature but does not predict its temperature
-dependence: over a bootstrap of compounds the magnitude stays between \num{0.35} and \num{0.55} while
-the exponent ranges from \num{0.45} to \num{1.15}, and at high temperature the measured lattice
-values may retain part of the electronic contribution. Scores depend on the single reference laboratory
-chosen per compound, in a field whose laboratories disagree by a median factor of \num{1.33}, and the
-compounds share clusters, families and laboratories. A family constant interpolates within its
-family, three families (\ce{Co}--\ce{Bi}, \ce{Ni}--\ce{Pb} and \ce{Sb}--\ce{Ir}) rest on a single
-measured compound, and the intervals are validated only on
-in-domain compounds. Seven of the ten issued predictions rest on a single calculation source at the
-quoted temperature. The method should not be used outside its domain.
+dependence, because the exponent is poorly determined (bootstrap range \numrange{0.45}{1.15}, against
+\numrange{0.35}{0.55} for the magnitude). Scores depend on the single reference laboratory chosen per
+compound, in a field whose laboratories disagree by a median factor of \num{1.33}; the intervals are
+validated only inside the domain, and the method should not be used outside it.
 
 A single synthesis and measurement of the cubic phase can falsify any issued prediction. Four kinds
 of measurement would most improve the method: a first measurement in a family with no measured
 member, such as \ce{Pb}--\ce{Au} or \ce{Te}--\ce{Os}; a second, bulk member from another laboratory in
 each family that rests on one compound or one paper; wide-range measurements on dense specimens to
-constrain the exponent; and two sound \ce{Ni}--\ce{Bi} measurements. Free of the bipolar
-contribution that rules out the existing \ce{YNiBi} curve, these would allow nine of the ten
-conditional estimates to be issued. For this class the binding constraint is experimental: what the conditional estimates lack
-is a measured member of their family, not a calculation.
+constrain the exponent; and two sound \ce{Ni}--\ce{Bi} measurements, free of the bipolar
+contribution that rules out the existing \ce{YNiBi} curve, which would allow nine of the ten
+conditional estimates to be issued. What holds these estimates back is a missing measured member
+of their family, not a missing calculation.

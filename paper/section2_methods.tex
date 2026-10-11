@@ -35,7 +35,8 @@
   \caption{\textbf{Calculations and measurements meet only at the transfer function.} Upper lane
   (grey, dashed): published calculations are collected (step~1) and tiered by method (step~2); only
   tier~1, a full first-principles solution of the Boltzmann transport equation on DFT forces, is
-  fitted, and the CatBoost surrogate (pink, step~3), trained on tier~1, supplies a calculation only
+  fitted, and the CatBoost surrogate (pink, step~3), trained on calculations (tier~1 for every half
+  Heusler), supplies a calculation only
   where none is published. Lower lane (orange): measured total conductivities from \num{152} papers
   have the electronic part removed by the Wiedemann--Franz law, one reference laboratory per
   compound, and pass the domain screens (\num{39} in domain). The transfer function (blue, step~4) is
@@ -78,17 +79,12 @@ function. Rules stated here only in outline are given in full in the Extended Me
 conductivity and $\kappa_L^{\mathrm{exp}}$ for a value on the experimental scale, whether a
 measurement or a calculation mapped onto that scale. A half Heusler is written XYZ, with X the most
 electropositive element (a rare earth or an early transition metal), Y the late transition metal and
-Z the main-group element. A \emph{bonding family} is the pair of elements on the Y and Z sites,
-labelled by those two elements, as in the \ce{Sb}--\ce{Pt} family; neither the order of the two
-symbols nor the order of the elements in a formula carries meaning. Formulas are written with the
-elements in order of increasing electronegativity, as the descriptors order them, so the compound
-often written TmPtSb in the literature appears here as \ce{TmSbPt}. Each prediction for an
-unmeasured compound carries one of three \emph{statuses} (Section~\ref{sec:screening}):
-\emph{issued}, a prediction this paper makes; \emph{flagged}, a calibrated value declined because it
-fails a named check; and \emph{conditional}, an estimate on the shared constant in a family with no
-usable measured member. The word \emph{tier} is reserved for the method tiers 0--3 of
-Section~\ref{sec:tiering}. The \emph{adopted} constants are those used for the issued predictions.
-Table~\ref{tab:notation} collects the symbols and labels used throughout.
+Z the main-group element; a bonding family is labelled by its Y and Z elements, as in
+\ce{Sb}--\ce{Pt}, in no meaningful order. Formulas are written with the elements in order of
+increasing electronegativity, as the descriptors order them, so the compound often written TmPtSb
+in the literature appears here as \ce{TmSbPt}. The \emph{adopted} constants are those used for the
+issued predictions. Table~\ref{tab:notation} collects the other symbols and labels, including the
+three prediction statuses (Sections~\ref{sec:screening} and~\ref{sec:refusals}).
 
 \begin{table}[tbp]
   \centering
@@ -151,20 +147,18 @@ single-parabolic-band expression of Kim and Snyder~\cite{kim2015characteri},
 $L = [1.5 + \exp(-|S|/116)]\times\SI{e-8}{\watt\ohm\per\kelvin\squared}$ with the Seebeck coefficient
 $S$ in \si{\micro\volt\per\kelvin}. Rows without a Seebeck coefficient use the degenerate limit,
 \SI{2.44e-8}{\watt\ohm\per\kelvin\squared}, which overstates the electronic part of a semiconductor
-and so biases its lattice value low; every row records which route produced it. Because
-Eq.~\eqref{eq:wf} is a difference of two measured quantities, $\rho$ must lie between
-\SI{e-8}{\ohm\meter} and \SI{e-2}{\ohm\meter}, the range available to a dense intermetallic; a row
-outside it reports total conductivity under a lattice label and is removed. Four further rules
+and so biases its lattice value low; every row records which route produced it. The resistivity
+of a dense intermetallic lies between \SI{e-8}{\ohm\meter} and \SI{e-2}{\ohm\meter}. A row whose
+$\rho$ falls outside that range cannot give a valid subtraction by Eq.~\eqref{eq:wf}; in practice it
+is a total conductivity filed under a lattice label, and it is removed. Four further rules
 decide what counts as a measurement: a value one paper quotes from another is not one; a sample
 digitised twice enters once; a data deposit that republishes curves is never counted as a
 laboratory; and a composition must be a Heusler. A preprint or data deposit that duplicates a
 published article is merged with the version of record, so that one calculation is never counted as
 two independent groups. The rules are given in full in the Extended Methods.
 
-Figure~\ref{fig:corpus} summarises the corpus. Of the \num{735} half Heuslers with any
-thermal-conductivity record, \num{284} have a full transport calculation and \num{50} have been
-measured, and the evidence behind the measured set is uneven: many compounds rest on a single
-publication, a few on ten or more.
+Figure~\ref{fig:corpus} summarises the corpus. The evidence behind the measured set is uneven:
+many compounds rest on a single publication, a few on ten or more.
 
 \subsection{The measured values and the choice of reference}
 \label{sec:measured}
@@ -173,27 +167,23 @@ A transfer function is only as well defined as the experimental scale it maps on
 is a stoichiometric parent compound (each coefficient within \num{0.02} of an integer), so the
 doped and alloyed specimens that dominate the half-Heusler literature are excluded and the
 correction measures the offset between a calculation and a measurement of the same compound. That
-offset still has two sources, which we do not separate: error in the calculation itself (a
-three-phonon calculation omits higher-order scattering, and the exchange-correlation functional is
-approximate) and the specimen, whose point defects, grain boundaries and incomplete density are
-absent from the calculation of a perfect crystal.
+offset mixes error in the calculation with the effect of the specimen, which we do not separate
+(Section~\ref{sec:interpretation}).
 
 We never blend the curves of several laboratories, since a blend is a curve nobody measured. A fixed
-hierarchy of criteria, which reads only the specimen and the temperature coverage of each measurement
-and never a calculation, chooses one reference laboratory per compound. When four or more
-laboratories report a compound, the reference is the one closest, in logarithm, to their median
-curve; otherwise it is the densest specimen, and then the widest temperature range. A
-\emph{family-paper rule} makes one primary publication that measured two or more members of a family
-the reference for those members, so that a family constant describes one kind of specimen. Four
-kinds of source rank last but are never deleted: a laboratory more than a factor of two from the
-geometric mean of four or more others, a data deposit, a nanostructured specimen (ball-milled for
-\SI{10}{\hour} or longer, a reported grain size below \SI{1}{\micro\meter}, or described as
-nanostructured) and a source with fewer than four temperatures. A curve-shape test rejects a curve of four or more
-points whose log--log slope rises faster than $T^{+0.2}$ over at least \SI{150}{\kelvin} or falls
-faster than $T^{-2}$, the signature of a mis-subtracted electronic term. Within the chosen
-publication, the value in each \SI{100}{\kelvin} temperature bin is the median of its rows. In the
-blind test, and for the compound held out in the family test, the reference is chosen without the
-family-paper rule, so that it never depends on which siblings have been measured. Of the \num{50}
+hierarchy, which reads only the specimen and the temperature coverage of each measurement and never a
+calculation, chooses one reference laboratory per compound: the laboratory closest to the median
+curve when four or more report it, otherwise the densest specimen, then the widest temperature
+range. A \emph{family-paper rule} makes one publication that measured two or more members of a
+family their common reference, so that a family constant describes one kind of specimen; it is
+dropped in the blind test and for the compound held out in the family test, so that a score never
+depends on which siblings have been measured. A laboratory that contradicts a consensus, a data
+deposit, a nanostructured specimen and a source with fewer than four temperatures rank last but are
+never deleted. A curve-shape test removes from the calibration any curve whose slope signals a
+mis-subtracted electronic term; in the blind test a compound whose every curve fails keeps one,
+ranked last, so that the scored population does not depend on the test. Within the chosen
+publication, each \SI{100}{\kelvin} bin takes the median of its rows. Section~S1 gives every rule in
+full, with its thresholds. Of the \num{50}
 measured compounds, \num{26} have a single publication, so the hierarchy decides the reference only
 for the rest. The sources record little about each specimen, and independent laboratories measuring
 the same compound disagree by a median factor of \num{1.33}. The correction is therefore an average
@@ -213,12 +203,12 @@ calibration and, for half Heuslers, the training of the regression model. The ti
 the method string, never from a repository's label, and tier~1 requires a positive match for a
 transport solution with no disclaimer attached.
 
-Five quality-control conditions are applied when the corpus is generated: a cubic $C1_b$ record
-(space group 216) from a source that is not a prototype-substitution database; a polymorph flag for a
-compound also recorded in a non-cubic space group; separation of half from full Heuslers by the site
+Five quality-control conditions, given with their reasons in Section~S1, are applied when the corpus
+is generated: a cubic $C1_b$ record (space group 216) from a source that is not a
+prototype-substitution database; a polymorph flag; separation of half from full Heuslers by the site
 ratio; a \SI{200}{\kelvin} temperature floor, below which a boundary-free calculation and a
 boundary-limited measurement are not the same quantity; and a transport-calculation method string
-for tier~1. They are stated with their reasons in the Extended Methods.
+for tier~1.
 
 \subsection{Domain of applicability}
 \label{sec:domain}
@@ -349,12 +339,10 @@ material.
 \subsection{The transfer function}
 \label{sec:transfer}
 
-A first-principles calculation describes a perfect, infinite crystal; a laboratory specimen is a
-polycrystal with grain boundaries, point defects and finite density, each of which scatters phonons
-the calculation lets propagate freely. For the \ce{XNiSn} half Heuslers, the role of such scattering
-has been analysed directly against measurement~\cite{schrade2017the}. The measured conductivity is therefore lower, and the
-specimen contribution would be expected to grow as temperature falls and the intrinsic mean free
-path grows.
+A laboratory specimen scatters phonons at grain boundaries, point defects and pores that a
+calculation of the perfect crystal lacks, as analysed directly against measurement for the
+\ce{XNiSn} half Heuslers~\cite{schrade2017the}. Its conductivity is therefore lower, and the
+specimen contribution should grow as temperature falls and intrinsic mean free paths lengthen.
 
 \paragraph{The shared form} We describe the offset empirically with two parameters:
 %
@@ -389,12 +377,11 @@ stop a single digitisation artefact from steering the fit. Fitted on all \num{34
 gives the adopted values $c=\num{0.42}$ and $p=\num{0.70}$; $c\,(T/300)^{p}$ then reaches one at
 \SI{1036}{\kelvin}.
 
-The magnitude is well determined and the exponent is not. Removing any one of the \num{16} chemistry
-clusters among the \num{34} compounds moves $c$ within \numrange{0.41}{0.56} and $p$ within
-\numrange{0.50}{0.80}; removing any one of the \num{12} bonding families moves $c$ within
-\numrange{0.40}{0.54} and $p$ within \numrange{0.60}{0.80}. Over \num{200} bootstrap resamples of the
+The magnitude is well determined and the exponent is not. Over \num{200} bootstrap resamples of the
 compounds, the 10th--90th percentile range is \numrange{0.35}{0.55} for $c$ but \numrange{0.45}{1.15}
-for $p$. We therefore do not claim to predict the temperature dependence of an individual compound.
+for $p$, and leaving out one chemistry cluster or one family at a time tells the same story
+(Section~S1). We therefore do not claim to predict the temperature dependence of an individual
+compound.
 
 \paragraph{The family form} Every bonding family with at least one member that has both a published
 calculation and a usable reference measurement carries its own constant:
@@ -468,10 +455,8 @@ Every result for the model route is obtained with the target compound's \emph{en
 withheld: compounds are clustered by their X element and a whole cluster is removed at once
 (\emph{leave-one-chemistry-out}), from the model and from the shared constant alike. Family-mates
 with a different X element remain in training, so the test measures accuracy for a new X-site
-substitution within a known family. There are \num{27} clusters among the \num{230} calculated
-$\mathrm{VEC}=18$ half Heuslers, \num{16} among the \num{34} compounds of the published route,
-\num{18} among the \num{39} in-domain compounds and \num{21} among all \num{50} measured ones. Every
-main result is the median over five model seeds, quoted with its range. Two \emph{null baselines}
+substitution within a known family (cluster counts per population in Section~S1). Every main
+result is the median over five model seeds, quoted with its range. Two \emph{null baselines}
 use no compound-specific information: a constant equal to the median measured conductivity of the
 training compounds, and a power law $A(T/300)^{q}$ fitted to them. Both use the same held-out
 chemistry and the same references, and the paired comparison is repeated with each cluster counted
@@ -495,32 +480,20 @@ where $R_i$ is the ratio of prediction to reference for compound $i$ in that bin
 factor of $10^{\delta_\alpha}$ either way. Exchangeability of the residuals is assumed, not shown,
 and compounds sharing a cluster or a laboratory weaken it, so we treat coverage as an empirical
 frequency: each compound is checked against a band built only from the other clusters' residuals,
-for each seed, and we use the median band over seeds.
-At \SI{300}{\kelvin} the bands are a factor of \num{1.62}, \num{2.56} and \num{2.85} at
-\SI{50}{\percent}, \SI{80}{\percent} and \SI{90}{\percent} nominal, covering \num{20}, \num{31} and
-\num{36} of the \num{39} in-domain compounds; at \SI{500}{\kelvin} they are \num{1.38}, \num{1.70}
-and \num{1.89}, covering \num{20}, \num{32} and \num{36} (binomial uncertainty roughly
-\SI{8}{pp}). Coverage is not validated for an anchored family or a family never measured.
+for each seed, and we use the median band over seeds. At \SI{300}{\kelvin} the \SI{50}{\percent}
+and \SI{90}{\percent} bands are a factor of \num{1.62} and \num{2.85}, covering \num{20} and
+\num{36} of the \num{39} in-domain compounds; at \SI{500}{\kelvin} they are \num{1.38} and
+\num{1.89} (every level and its coverage in Section~S1). Coverage is not validated for an anchored
+family or a family never measured.
 
 \subsection{Metrics}
 \label{sec:metrics}
 \label{sec:definitions}
 
-Model selection scores the fit to calculated labels \emph{per row}, on $y=\log_{10}\kappa_L$. Over
-$N$ rows with labels $y_k$, out-of-fold predictions $\hat{y}_k$ and label mean $\bar{y}$,
-%
-\begin{gather}
-  \mathrm{RMSE} = \sqrt{\frac{1}{N}\sum_{k=1}^{N}\bigl(\hat{y}_k-y_k\bigr)^2},
-  \qquad
-  \mathrm{MAE} = \frac{1}{N}\sum_{k=1}^{N}\bigl|\hat{y}_k-y_k\bigr|,
-  \label{eq:rmse}\\
-  R^2 = 1-\frac{\sum_k\bigl(\hat{y}_k-y_k\bigr)^2}{\sum_k\bigl(y_k-\bar{y}\bigr)^2};
-  \label{eq:r2}
-\end{gather}
-%
-an RMSE of \num{0.270} on the logarithm corresponds to a typical scatter by a factor of
-$10^{0.270}\approx\num{1.86}$. Every other statistic, including every comparison with measurement,
-is computed \emph{per compound}. The error of a prediction $\hat{\kappa}$ at temperature $T$ against the
+Model selection scores the fit to calculated labels \emph{per row}, on $y=\log_{10}\kappa_L$, by
+RMSE, MAE and $R^2$ (defined in Section~S1); an RMSE of \num{0.270} on the logarithm corresponds to a
+typical scatter by a factor of $10^{0.270}\approx\num{1.86}$. Every other statistic, including every
+comparison with measurement, is computed \emph{per compound}. The error of a prediction $\hat{\kappa}$ at temperature $T$ against the
 reference $\kappa$ is
 %
 \begin{equation}
@@ -548,5 +521,4 @@ twofold over-prediction counts as \SI{100}{\percent}, a twofold under-prediction
 For the model route, the \emph{five-seed median} is the median over seeds of each seed's median
 error; a paired test quoted ``at the median over seeds'' is the median of the five per-seed
 $p$-values, which summarises the seeds and is not itself a $p$-value, so the per-seed range is
-given where it matters. Differences between percentages are given in
-percentage points (pp).
+given where it matters.
