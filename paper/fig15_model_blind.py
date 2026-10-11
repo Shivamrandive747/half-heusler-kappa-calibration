@@ -84,17 +84,27 @@ def main() -> int:
     # the blind-test table's n and the drawn in-domain set must be the same compounds' count
     assert len(ins) == int(it["n"]), f"drawn in-domain n {len(ins)} != registry {it['n']}"
 
+    # EXPLICIT MILLIMETRE LAYOUT (2026-10-11 polish): the two parity panels (a) and (c) are the
+    # evidence and get the width -- 57 mm squares, up from ~47 -- while the SHAP ranking (b), which
+    # only needs room for its labels and eight bars, is narrowed. (d) keeps its two aligned axes.
     F.use_style()
-    fig = plt.figure(figsize=(F.DOUBLE, 118 * F.MM))
-    # the left column is sized to the square parity panels, so no white space is left beside them
-    gs = fig.add_gridspec(2, 2, width_ratios=[1.0, 1.9])
-    axa, axb = fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])
-    axc = fig.add_subplot(gs[1, 0])
+    plt.rcParams["figure.constrained_layout.use"] = False
+    W, SQ = F.DOUBLE / F.MM, 57.0
+    YC, YA = 10.0, 10.0 + SQ + 14.5          # bottom row / top row
+    H = YA + SQ + 1.0
+    fig = plt.figure(figsize=(W * F.MM, H * F.MM))
+
+    def ax_mm(x, y, w, h, **kw):
+        return fig.add_axes([x / W, y / H, w / W, h / H], **kw)
+
+    XR = W - 0.8                              # right edge of the right-hand panels
+    axa = ax_mm(13.0, YA, SQ, SQ)
+    axb = ax_mm(108.0, YA, XR - 108.0, SQ)
+    axc = ax_mm(13.0, YC, SQ, SQ)
     # (d) is two aligned bar charts sharing one row per method: median error and within 2x, so the
     # two statistics a table would carry are both read off an axis rather than off a text column
-    gd = gs[1, 1].subgridspec(1, 2, width_ratios=[1.45, 1.0], wspace=0.04)
-    axd = fig.add_subplot(gd[0])
-    axw = fig.add_subplot(gd[1], sharey=axd)
+    axd = ax_mm(95.0, YC, 54.0, SQ)
+    axw = ax_mm(152.0, YC, XR - 152.0, SQ, sharey=axd)
     unit = "(W m$^{-1}$ K$^{-1}$)"
 
     # ---- (a) model vs published calculation ----------------------------------------------------
@@ -111,7 +121,7 @@ def main() -> int:
              f"{mv['median_ape']:.1f}% median error\n{mv['within_2x_pct']:.0f}% within 2$\\times$\n"
              f"{mv['n_compounds']} compounds, {mv['n_clusters']} clusters\n"
              f"{len(V300)} drawn (those with a 300 K value)",
-             transform=axa.transAxes, ha="right", va="bottom", fontsize=6.3, linespacing=1.25,
+             transform=axa.transAxes, ha="right", va="bottom", fontsize=F.FS_MIN, linespacing=1.25,
              zorder=6)
     F.panel_label(axa, "a")
 
@@ -123,9 +133,9 @@ def main() -> int:
     for i, r in enumerate(top):
         arrow = "$\\downarrow$" if r["corr_value_shap"] < 0 else "$\\uparrow$"
         axb.text(r["mean_abs_shap"] + max(vals) * 0.02, i, f"{r['mean_abs_shap']:.3f} {arrow}",
-                 va="center", ha="left", fontsize=6.3, color="#333333")
+                 va="center", ha="left", fontsize=F.FS_MIN, color="#333333")
     axb.set_yticks(y)
-    axb.set_yticklabels([NAME.get(r["descriptor"], r["label"]) for r in top], fontsize=6.8)
+    axb.set_yticklabels([NAME.get(r["descriptor"], r["label"]) for r in top], fontsize=F.FS_MIN)
     axb.set_ylim(len(top) - 0.5, -0.6)
     axb.set_xlim(0, max(vals) * 1.32)
     axb.tick_params(axis="y", which="both", length=0)
@@ -134,7 +144,7 @@ def main() -> int:
     axb.text(0.985, 0.04,
              f"CatBoost, {sh['n_rows']} rows, {sh['n_descriptors']} descriptors\n"
              "$\\downarrow$ larger value lowers $\\kappa_L$",
-             transform=axb.transAxes, ha="right", va="bottom", fontsize=6.3, color="#444444",
+             transform=axb.transAxes, ha="right", va="bottom", fontsize=F.FS_MIN, color="#444444",
              linespacing=1.3)
     F.panel_label(axb, "b", loc="upper right")
 
@@ -150,14 +160,14 @@ def main() -> int:
     F.kappa_ticks(axc)
     n_off = sum(F.edge_markers(axc, g.ref.values, g.cal.values, axis=a, color=col)
                 for g, col in ((out, "#8C8C8C"), (ins, F.OURS)) for a in ("y", "x"))
-    axc.legend(loc="lower right", fontsize=6.3, borderaxespad=0.3, handletextpad=0.2)
+    axc.legend(loc="lower right", fontsize=F.FS_MIN, borderaxespad=0.3, handletextpad=0.2)
     # the empty upper-left triangle (over-prediction of low-kappa compounds by > 2x) carries the
     # headline; nothing is measured there
     axc.text(0.035, 0.86, f"{sm['calibrated']['within_2x']['median']:.1f}% within 2$\\times$",
-             transform=axc.transAxes, ha="left", va="top", fontsize=6.8, color=F.OURS,
+             transform=axc.transAxes, ha="left", va="top", fontsize=7.5, color=F.OURS,
              fontweight="bold")
     axc.text(0.035, 0.79, f"in domain,\nmedian of {it['n_seeds']} seeds", transform=axc.transAxes, ha="left",
-             va="top", fontsize=6.3, color="#444444", linespacing=1.2)
+             va="top", fontsize=F.FS_MIN, color="#444444", linespacing=1.2)
     if n_off:
         print(f"  (c) {n_off} point(s) drawn on the axis edge")
     F.panel_label(axc, "c")
@@ -191,7 +201,7 @@ def main() -> int:
         if rng:
             whisker(axd, rng, i)
         ours = "this work" in lab
-        tk = dict(fontsize=6.8, fontweight="bold" if ours else "normal",
+        tk = dict(fontsize=F.FS_MIN, fontweight="bold" if ours else "normal",
                   color=F.OURS if ours else "#333333")
         axd.text(max(med, rng[1] if rng else 0) + xmax * 0.03, i, f"{med:.1f}%", va="center",
                  ha="left", **tk)
@@ -204,7 +214,7 @@ def main() -> int:
                  **{**tk, "color": "white" if ours else "#222222"},
                  bbox=(dict(fc="white", ec="none", pad=0.6) if "hatch" in sty else None))
     axd.set_yticks(yy)
-    axd.set_yticklabels([r[0] for r in rows], fontsize=6.8)
+    axd.set_yticklabels([r[0] for r in rows], fontsize=F.FS_MIN)
     for ax_ in (axd, axw):
         ax_.tick_params(axis="y", which="both", length=0)
         ax_.grid(axis="y", visible=False)
@@ -220,10 +230,10 @@ def main() -> int:
     ptxt = (f"paired Wilcoxon vs each null: p = {pc:g}" if pc == pp
             else f"paired Wilcoxon: p = {pc:g} (constant), {pp:g} (power law)")
     axd.text(0.03, 0.975, f"{it['n']} in-domain compounds, held out\n" + ptxt,
-             transform=axd.transAxes, ha="left", va="top", fontsize=6.3, color="#444444",
+             transform=axd.transAxes, ha="left", va="top", fontsize=F.FS_MIN, color="#444444",
              linespacing=1.25)
     axw.text(0.04, 0.975, f"model rows: median of\n{it['n_seeds']} seeds; whisker = range",
-             transform=axw.transAxes, ha="left", va="top", fontsize=6.3, color="#444444",
+             transform=axw.transAxes, ha="left", va="top", fontsize=F.FS_MIN, color="#444444",
              linespacing=1.25)
     F.panel_label(axw, "d", loc="lower right")
 

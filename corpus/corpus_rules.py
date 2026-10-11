@@ -27,7 +27,9 @@ THE RULES (FIXPASS D1, D3, D4, D5; D2 lives in `secondary_quotes.py`, D6 in
   D4 non-Heuslers and one typo. ZnNiSn is Starrydata's typo for ZrNiSn: re-labelled ONLY where the
      source's own title (Crossref cache) names ZrNiSn, otherwise removed. CuAgTe is a two-phase
      (Cu2Te)50(Ag2Te)50 composite; five Phonix ABO oxides are not Heuslers; AgSbSe2 is a rocksalt
-     chalcogenide. BaAgSb (hexagonal), LiZnSb (hexagonal) and MgAgSb (tetragonal) are real
+     chalcogenide. BaBrCl and NaAgO are removed by name (author ruling 2026-10-09). A general
+     oxide/halide-anion rule exists in `non_heusler_reason` but is OFF (ANION_RULE_ON) until the
+     next full rerun. BaAgSb (hexagonal), LiZnSb (hexagonal) and MgAgSb (tetragonal) are real
      compounds outside the cubic domain and are KEPT -- the structure screen excludes them, and
      `is_half_heusler_in_domain` is the only test a count should use.
 
@@ -39,6 +41,7 @@ from __future__ import annotations
 import os as _rel_os, sys as _rel_sys; _rel_sys.path[1:1] = [_rel_os.path.join(_rel_os.path.dirname(_rel_os.path.abspath(__file__)), "..", _d) for _d in ("analysis", "corpus", "checks", "paper", "")]  # release layout: see make_release.patch_release_paths
 
 import json
+import re
 from functools import lru_cache
 from pathlib import Path
 
@@ -70,7 +73,39 @@ NON_HEUSLER: dict[str, str] = {
     "RbAgO": "Phonix ABO oxide, not a Heusler",
     "RbAuO": "Phonix ABO oxide, not a Heusler",
     "AgSbSe2": "rocksalt-derived I-V-VI2 chalcogenide, not a Heusler",
+    # author ruling 2026-10-09; also caught by the anion rule below, named so the ruling survives
+    # any later change to that rule
+    "BaBrCl": "author ruling 2026-10-09: ionic mixed halide (matlockite-type), not a Heusler",
+    "NaAgO": "author ruling 2026-10-09: alkali argentate oxide, not a Heusler",
 }
+
+# D4 -- the principled criterion (author, 2026-10-09). A Heusler is an X2YZ or XYZ intermetallic;
+# a compound carrying an oxide or halide anion is an ionic salt even when a database decorates the
+# F-43m prototype with it (Phonix / AFLOW T0003 / AMRL rows: ABO cuprates and argentates, mixed
+# halides, rare-earth oxyfluorides, chalcohalides). Any formula containing one of these elements is
+# removed. N, P, B, C, S, Se and H are NOT listed: Nowotny-Juza nitrides/phosphides (LiMgN, LiZnP)
+# and B/C/P Z-site compounds are treated as half Heuslers in the literature and stay.
+ANION_NON_HEUSLER: dict[str, str] = {
+    "O": "oxide", "F": "fluoride", "Cl": "chloride", "Br": "bromide", "I": "iodide", "At": "astatide",
+}
+_ELEMENT = re.compile(r"[A-Z][a-z]?")
+# OFF until the next full rerun (author, 2026-10-09: remove only BaBrCl and NaAgO now, no rerun).
+# Switched on, it also drops 28 further oxide/halide database decorations (LaOF, PbBrCl, NaCuO, ...);
+# four of them (BiSeCl, LaFeF, LaRuF, PbBrCl) are counted among the 230 VEC-18 half Heuslers today.
+ANION_RULE_ON = False
+
+
+def non_heusler_reason(formula) -> str | None:
+    """Why `formula` is not a Heusler, or None. Named entries first, then the anion criterion."""
+    f = str(formula)
+    if f in NON_HEUSLER:
+        return NON_HEUSLER[f]
+    if not ANION_RULE_ON:
+        return None
+    anions = [ANION_NON_HEUSLER[e] for e in dict.fromkeys(_ELEMENT.findall(f)) if e in ANION_NON_HEUSLER]
+    if anions:
+        return f"{'/'.join(anions)} anion: ionic compound, not an intermetallic Heusler"
+    return None
 
 # Real compounds outside the cubic domain: kept, never counted as in-domain half Heuslers.
 NON_CUBIC_KEPT: dict[str, str] = {
@@ -158,10 +193,10 @@ def fix_typos_and_non_heuslers(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataF
             audit.append(d.loc[gone].assign(rule="D4", action="removed",
                                             reason=f"{bad}: Starrydata typo not confirmed by the source title"))
             d = d.drop(index=gone)
-    m = d.formula.astype(str).isin(NON_HEUSLER)
+    why = d.formula.map(non_heusler_reason)
+    m = why.notna()
     if m.any():
-        audit.append(d[m].assign(rule="D4", action="removed",
-                                 reason=d.loc[m, "formula"].map(NON_HEUSLER)))
+        audit.append(d[m].assign(rule="D4", action="removed", reason=why[m]))
         d = d[~m]
     return d, (pd.concat(audit) if audit else df.iloc[0:0].assign(rule=None, action=None, reason=None))
 
@@ -287,15 +322,16 @@ def clean_gap_rows(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     from build_kappa_pool import tier_of
     d = df.copy()
     meas = d.method.map(tier_of) == 0
-    nonh = d.formula.astype(str).isin(NON_HEUSLER)
+    why = d.formula.map(non_heusler_reason)
+    nonh = why.notna()
     gone = d[meas | nonh].copy()
     gone["rule"] = "D5"
     gone["action"] = "removed"
     gone["reason"] = np.where(meas[meas | nonh], "measured value, not a semi-empirical estimate", "")
     nh = nonh[meas | nonh]
     gone.loc[nh[nh].index, "reason"] = [
-        (r + "; " if r else "") + "non-Heusler: " + NON_HEUSLER[f]
-        for r, f in zip(gone.loc[nh[nh].index, "reason"], gone.loc[nh[nh].index, "formula"])]
+        (r + "; " if r else "") + "non-Heusler: " + w
+        for r, w in zip(gone.loc[nh[nh].index, "reason"], why[nh[nh].index])]
     return d[~(meas | nonh)], gone
 
 

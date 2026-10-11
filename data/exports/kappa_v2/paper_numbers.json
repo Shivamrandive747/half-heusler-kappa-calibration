@@ -1,5 +1,5 @@
 {
-  "_generated": "2026-10-06T02:48:01+00:00",
+  "_generated": "2026-10-11T04:09:14+00:00",
   "_source": "make_paper_numbers.py",
   "_rule": "the manuscript quotes this file; nothing is typed by hand",
   "corpus": {
@@ -40,6 +40,17 @@
       ],
       "n_seeds": 5,
       "note": "seed-averaged; a single-seed nested figure is a draw, not an effect"
+    },
+    "unscreened_same_protocol": {
+      "median_ape": 37.4,
+      "seed_range": [
+        33.6,
+        38.9
+      ],
+      "within_2x_pct": 78.0,
+      "uncorrected_median_ape": 48.2,
+      "n": 50,
+      "protocol": "leave-one-chemistry-cluster-out, median over the five seed files, as the in-domain headline"
     }
   },
   "in_domain_table": {
@@ -3354,12 +3365,19 @@
   },
   "curves_best3": {
     "_generated_by": "paper/fig03_curves.py",
-    "selection_rule": "held-out family-arm compounds (arm == 'family' in family_deployed_pooled.csv; family constant fitted without the compound, on its leave-one-out fold reference) whose reference curve has >= 5 distinct temperatures spanning >= 300 K; the 3 with the lowest held-out family error",
+    "selection_rule": "held-out family-arm compounds in validated families (Co-Sb, Fe-Sb, Ni-Sb, Sb-Pt, Sn-Pt; family constant fitted without the compound, on its leave-one-out fold reference) whose reference curve has >= 5 distinct temperatures spanning >= 300 K; the 3 with the lowest held-out family error",
     "min_points": 5,
     "min_span_K": 300.0,
     "n_heldout_family_arm": 31,
-    "n_eligible": 21,
-    "eligible_median_heldout_error_pct": 21.7,
+    "n_eligible": 13,
+    "validated_families": [
+      "Co-Sb",
+      "Fe-Sb",
+      "Ni-Sb",
+      "Sb-Pt",
+      "Sn-Pt"
+    ],
+    "eligible_median_heldout_error_pct": 18.0,
     "protocol": "per-family SHAPE_NOCAP calibration held out: c_family_loo, p_family_loo from compute_deployed_route.py, scored on family_calibration.fold_pairs(compound)",
     "not_representative": "the three BEST fits by construction; the full per-compound distribution is family_deployed_pooled.csv",
     "compounds": [
@@ -3390,17 +3408,17 @@
         "reference_doi": "10.1103/physrevapplied.14.054046"
       },
       {
-        "compound": "LaBiPd",
-        "family": "Bi-Pd",
-        "heldout_error_pct": 10.1,
-        "c_family_loo": 0.8371,
+        "compound": "VFeSb",
+        "family": "Fe-Sb",
+        "heldout_error_pct": 11.4,
+        "c_family_loo": 0.43,
         "p_family_loo": 0.65,
-        "n_temperatures": 9,
+        "n_temperatures": 8,
         "T_range_K": [
-          320,
-          710
+          350,
+          700
         ],
-        "reference_doi": "10.2320/matertrans.e-mra2007807"
+        "reference_doi": "10.1007/s11664-016-4804-y"
       }
     ]
   },
@@ -3517,5 +3535,330 @@
     },
     "HOW_TO_STATE": "each chemistry cluster's median error counted once; quote beside the compound-level p, which treats compounds as independent"
   },
-  "_blocklist_check": "clean"
+  "accuracy_summary": {
+    "_what": "re-scoring of existing per-compound predictions; no model or calibration procedure is refitted beyond the deterministic cached shared-constant calls the original producers make",
+    "definitions": {
+      "per_compound_ape": "median over matched temperatures of |pred - ref| / ref, in %",
+      "within_2x": "per-compound median ratio pred/ref in [0.5, 2]; % of compounds",
+      "median_abs_log10_ratio": "NEW, symmetric: median over compounds of |log10(per-compound median ratio)|; 0.301 = a factor of 2",
+      "model_routes": "each statistic computed per seed file (seed 0 = target_blind_test.csv, seeds 1-4 = paper/evidence/blind_d2_s{1..4}.csv); reported value = median over the five seeds, seed_range = min-max over them"
+    },
+    "bootstrap": {
+      "resamples": 5000,
+      "rng": "numpy.random.default_rng(20261011), fresh per route",
+      "interval": "percentile 2.5-97.5, compounds resampled with replacement",
+      "model_routes": "one draw of compound indices is applied to all five seeds jointly; on each resample the per-seed median APE (within-2x share) is computed and the median over seeds taken, so the CI is for the five-seed median that is reported. Chosen over (a) a seed-0 CI, which would bracket a figure the paper does not quote, and (b) bootstrapping per-compound seed medians, whose median is a different statistic from the table's."
+    },
+    "routes": {
+      "ml_shared_in_domain": {
+        "holdout": "leave-one-chemistry-cluster-out (X-site cluster); shared constant refitted on the published calculation pairs without the held-out cluster (shared_constant.shared_cp_without_cluster); in domain = VEC 18 and cubic C1b, not polymorphic",
+        "n": 39,
+        "n_seeds": 5,
+        "median_ape": 33.1,
+        "within_2x_pct": 87.2,
+        "median_abs_log10_ratio": 0.132,
+        "seed_range": {
+          "median_ape": [
+            24.6,
+            35.4
+          ],
+          "within_2x_pct": [
+            87.2,
+            89.7
+          ],
+          "median_abs_log10_ratio": [
+            0.108,
+            0.158
+          ]
+        },
+        "per_seed": {
+          "0": {
+            "median_ape": 31.7,
+            "within_2x_pct": 87.2,
+            "median_abs_log10_ratio": 0.132
+          },
+          "1": {
+            "median_ape": 35.4,
+            "within_2x_pct": 87.2,
+            "median_abs_log10_ratio": 0.132
+          },
+          "2": {
+            "median_ape": 24.6,
+            "within_2x_pct": 87.2,
+            "median_abs_log10_ratio": 0.108
+          },
+          "3": {
+            "median_ape": 35.1,
+            "within_2x_pct": 89.7,
+            "median_abs_log10_ratio": 0.131
+          },
+          "4": {
+            "median_ape": 33.1,
+            "within_2x_pct": 89.7,
+            "median_abs_log10_ratio": 0.158
+          }
+        },
+        "ci95_median_ape": [
+          23.6,
+          38.9
+        ],
+        "ci95_within_2x_pct": [
+          76.9,
+          97.4
+        ]
+      },
+      "ml_uncorrected_in_domain": {
+        "holdout": "model predictions as made (each seed's blind test holds out the chemistry cluster); no calibration",
+        "n": 39,
+        "n_seeds": 5,
+        "median_ape": 41.9,
+        "within_2x_pct": 76.9,
+        "median_abs_log10_ratio": 0.182,
+        "seed_range": {
+          "median_ape": [
+            40.2,
+            49.4
+          ],
+          "within_2x_pct": [
+            74.4,
+            79.5
+          ],
+          "median_abs_log10_ratio": [
+            0.165,
+            0.196
+          ]
+        },
+        "per_seed": {
+          "0": {
+            "median_ape": 40.6,
+            "within_2x_pct": 79.5,
+            "median_abs_log10_ratio": 0.196
+          },
+          "1": {
+            "median_ape": 47.3,
+            "within_2x_pct": 74.4,
+            "median_abs_log10_ratio": 0.182
+          },
+          "2": {
+            "median_ape": 40.2,
+            "within_2x_pct": 79.5,
+            "median_abs_log10_ratio": 0.167
+          },
+          "3": {
+            "median_ape": 41.9,
+            "within_2x_pct": 76.9,
+            "median_abs_log10_ratio": 0.165
+          },
+          "4": {
+            "median_ape": 49.4,
+            "within_2x_pct": 76.9,
+            "median_abs_log10_ratio": 0.191
+          }
+        },
+        "ci95_median_ape": [
+          31.4,
+          74.5
+        ],
+        "ci95_within_2x_pct": [
+          64.1,
+          89.7
+        ]
+      },
+      "ml_shared_all": {
+        "holdout": "leave-one-chemistry-cluster-out on every half Heusler in the blind test, no domain screen (the blind test's `cluster` column, as compute_null_baselines)",
+        "n": 50,
+        "n_seeds": 5,
+        "median_ape": 37.4,
+        "within_2x_pct": 78.0,
+        "median_abs_log10_ratio": 0.175,
+        "seed_range": {
+          "median_ape": [
+            33.6,
+            38.9
+          ],
+          "within_2x_pct": [
+            76.0,
+            80.0
+          ],
+          "median_abs_log10_ratio": [
+            0.133,
+            0.187
+          ]
+        },
+        "per_seed": {
+          "0": {
+            "median_ape": 36.4,
+            "within_2x_pct": 76.0,
+            "median_abs_log10_ratio": 0.185
+          },
+          "1": {
+            "median_ape": 38.9,
+            "within_2x_pct": 78.0,
+            "median_abs_log10_ratio": 0.175
+          },
+          "2": {
+            "median_ape": 33.6,
+            "within_2x_pct": 76.0,
+            "median_abs_log10_ratio": 0.133
+          },
+          "3": {
+            "median_ape": 37.9,
+            "within_2x_pct": 80.0,
+            "median_abs_log10_ratio": 0.187
+          },
+          "4": {
+            "median_ape": 37.4,
+            "within_2x_pct": 80.0,
+            "median_abs_log10_ratio": 0.175
+          }
+        },
+        "ci95_median_ape": [
+          30.9,
+          47.6
+        ],
+        "ci95_within_2x_pct": [
+          66.0,
+          88.0
+        ]
+      },
+      "null_constant_in_domain": {
+        "holdout": "leave-one-chemistry-cluster-out; a single constant kappa: the median of the training clusters' reference rows; contains no compound information; seed-free",
+        "n": 39,
+        "median_ape": 46.7,
+        "within_2x_pct": 84.6,
+        "median_abs_log10_ratio": 0.184,
+        "ci95_median_ape": [
+          38.3,
+          52.8
+        ],
+        "ci95_within_2x_pct": [
+          71.8,
+          94.9
+        ]
+      },
+      "null_power_law_in_domain": {
+        "holdout": "leave-one-chemistry-cluster-out; A (T/300)^q fitted on the training clusters' reference rows; contains no compound information; seed-free",
+        "n": 39,
+        "median_ape": 45.6,
+        "within_2x_pct": 84.6,
+        "median_abs_log10_ratio": 0.192,
+        "ci95_median_ape": [
+          35.9,
+          55.7
+        ],
+        "ci95_within_2x_pct": [
+          71.8,
+          94.9
+        ]
+      },
+      "published_calc_shared_family_test": {
+        "holdout": "published full calculation x shared constant refitted without the scored compound, on the pairs as they stand in that compound's fold (shared_constant.shared_cp_in_fold); the 31 compounds scored held out on the family arm (compute_deployed_route)",
+        "ratio_source": "recomputed with compute_deployed_route's own global-arm expressions (the CSV stores ape_global but no global ratio); per-compound APE asserted equal to ape_global, 1e-9",
+        "n": 31,
+        "median_ape": 32.3,
+        "within_2x_pct": 83.9,
+        "median_abs_log10_ratio": 0.136,
+        "ci95_median_ape": [
+          28.7,
+          38.9
+        ],
+        "ci95_within_2x_pct": [
+          71.0,
+          96.8
+        ]
+      },
+      "published_calc_family_constant": {
+        "holdout": "published full calculation x family constant fitted leave-one-compound-out within the family (references re-chosen inside the fold, PREREG amendment A)",
+        "ratio_source": "family_deployed_pooled.csv `ratio` (deployed/measured, per-compound median)",
+        "n": 31,
+        "median_ape": 21.7,
+        "within_2x_pct": 93.5,
+        "median_abs_log10_ratio": 0.106,
+        "ci95_median_ape": [
+          16.4,
+          30.4
+        ],
+        "ci95_within_2x_pct": [
+          83.9,
+          100.0
+        ]
+      },
+      "shared_constant_unseen_family": {
+        "holdout": "leave-one-bonding-family-out on the published calculation pairs; shared constant refitted without the held-out family (test_shared_constant.py, candidate C0)",
+        "n": 34,
+        "median_ape": 33.0,
+        "within_2x_pct": 79.4,
+        "median_abs_log10_ratio": null,
+        "ci95_median_ape": null,
+        "ci95_within_2x_pct": null,
+        "_unavailable": "test_shared_constant.py builds the per-compound rows in memory and writes only the summary (paper/evidence/shared_constant_test.json); no per-compound file exists, so the symmetric metric and the CIs are not computed here (recomputing them would rerun the leave-one-family-out fits)",
+        "source": "paper/evidence/shared_constant_test.json lofo.C0 (the source of the registry key)"
+      }
+    },
+    "paired_in_domain": {
+      "population": "in domain, n = 39",
+      "definition": "per seed: per-compound model APE minus null APE (percentage points), its median over compounds, and a paired Wilcoxon on per-compound APE (compute_seed_averaged); reported = median over the five seeds. Negative difference = the model is closer.",
+      "bootstrap": "compounds resampled jointly across seeds, per-seed median difference, median over seeds; same rng rule as the routes",
+      "holm": "Holm step-down over the two nulls, applied to the seed-median Wilcoxon p values; a median of p values is a summary, not itself a p value, so the per-seed Holm maximum is given beside it",
+      "vs_constant_null": {
+        "median_paired_diff_pp": -10.3,
+        "median_paired_diff_pp_seed_range": [
+          -14.7,
+          -9.9
+        ],
+        "ci95_median_paired_diff_pp": [
+          -22.9,
+          -3.8
+        ],
+        "wilcoxon_p_seed_median": 0.0035,
+        "wilcoxon_p_per_seed": {
+          "0": 0.0035,
+          "1": 0.0322,
+          "2": 0.0032,
+          "3": 0.03,
+          "4": 0.0025
+        },
+        "model_better_pct_seed_median": 71.8,
+        "holm_p_seed_median": 0.0071,
+        "holm_p_max_over_seeds": 0.0557
+      },
+      "vs_power_null": {
+        "median_paired_diff_pp": -11.2,
+        "median_paired_diff_pp_seed_range": [
+          -12.7,
+          -10.6
+        ],
+        "ci95_median_paired_diff_pp": [
+          -22.9,
+          -3.5
+        ],
+        "wilcoxon_p_seed_median": 0.0043,
+        "wilcoxon_p_per_seed": {
+          "0": 0.0032,
+          "1": 0.0278,
+          "2": 0.0043,
+          "3": 0.0197,
+          "4": 0.0032
+        },
+        "model_better_pct_seed_median": 71.8,
+        "holm_p_seed_median": 0.0071,
+        "holm_p_max_over_seeds": 0.0557
+      }
+    },
+    "consistency_checks": {
+      "n": 50,
+      "failed": 0,
+      "registry_compared": true,
+      "sources": [
+        "deployed_route.json",
+        "null_baselines.json",
+        "paper_numbers.json",
+        "results_indomain.json",
+        "seed_averaged_indomain.json"
+      ]
+    },
+    "source": "compute_accuracy_summary.py -> accuracy_summary.json",
+    "HOW_TO_STATE": "one table of every scored route: n, median error, within 2x and the symmetric median |log10 ratio|, each with its holdout; model routes are five-seed medians with the seed range, and their bootstrap CIs bracket that five-seed median; route 8 has no per-compound file, so no symmetric metric or CI"
+  },
+  "_blocklist_check": "REVIEW THESE: 18.0 at curves_best3.eligible_median_heldout_error_pct (NbGaRu2 'measurement' fabricated from a title-only stub)"
 }

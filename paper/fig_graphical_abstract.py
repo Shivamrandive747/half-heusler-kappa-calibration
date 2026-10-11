@@ -36,59 +36,99 @@ def main() -> int:
     raw = raw[raw.klass == "half"] if "klass" in raw.columns else raw
     M = S.per_cmp(S.nested(S.in_domain(raw)))
 
+    blue = F.OURS
+    # 2026-10-11: redrawn in the style of Figure 1 (fig08_method) -- same millimetre canvas, the
+    # same stage-family fills (ML reddish purple, transfer function accent blue), the same 8 pt
+    # titles / 7 pt-plus body, and no text below 7 pt at the printed size (168 mm wide).
+    import matplotlib.ticker as mticker
+    from matplotlib.patches import FancyArrowPatch
+    from fig08_method import FAM
+
     F.use_style()
-    fig = plt.figure(figsize=(6.6, 2.64), dpi=300)
+    import matplotlib as mpl
+    mpl.rcParams["figure.constrained_layout.use"] = False
+    W, H = 168.0, 67.0
+    fig = plt.figure(figsize=(W * F.MM, H * F.MM), dpi=300)
     ax = fig.add_axes([0, 0, 1, 1])
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
+    ax.set_xlim(0, W)
+    ax.set_ylim(0, H)
     ax.axis("off")
+    renderer = fig.canvas.get_renderer()
 
-    def box(x0, x1, title, body, col):
-        ax.add_patch(FancyBboxPatch((x0, 0.30), x1 - x0, 0.44, boxstyle="round,pad=0.01,rounding_size=0.02",
-                                    fc="white", ec=col, lw=1.4))
-        ax.text((x0 + x1) / 2, 0.67, title, ha="center", va="center", fontsize=7.6, fontweight="bold", color=col)
-        ax.text((x0 + x1) / 2, 0.47, body, ha="center", va="center", fontsize=6.4, color="#222222", linespacing=1.3)
+    def fit(t, x0, x1, pad=2.0):
+        w = t.get_window_extent(renderer=renderer).width / fig.dpi / F.MM
+        assert w <= (x1 - x0) - pad, f"text {t.get_text()!r} is {w:.1f} mm, box {x1 - x0:.1f} mm"
 
-    def arrow(x0, x1, label=""):
-        ax.annotate("", xy=(x1, 0.52), xytext=(x0, 0.52),
-                    arrowprops=dict(arrowstyle="-|>", color="#555555", lw=1.2))
+    Y0, Y1 = 15.0, 51.0
+    ym = (Y0 + Y1) / 2
+    STRUCT = dict(fc="#ECEEF0", ec="#3A3F44", tc="#2B2B2B", bc="#2E2E2E", ls="-")
+
+    def box(x0, x1, title, lines, s, lw=1.2):
+        ax.add_patch(FancyBboxPatch((x0, Y0), x1 - x0, Y1 - Y0,
+                                    boxstyle="round,pad=0,rounding_size=2.0",
+                                    fc=s["fc"], ec=s["ec"], lw=lw, ls=s["ls"], zorder=3))
+        xc = (x0 + x1) / 2
+        fit(ax.text(xc, Y1 - 3.0, title, ha="center", va="top", fontsize=9, fontweight="bold",
+                    color=s["tc"], zorder=4), x0, x1, pad=1.6)
+        pitch = 4.4
+        yc = (Y1 - 8.5 + Y0) / 2
+        for i, ln in enumerate(lines):
+            fit(ax.text(xc, yc + ((len(lines) - 1) / 2 - i) * pitch, ln, ha="center",
+                        va="center", fontsize=7.5, color=s["bc"], zorder=4), x0, x1)
+
+    def arrow(x0, x1, label="", col="#5F6368"):
+        ax.add_patch(FancyArrowPatch((x0, ym), (x1, ym),
+                                     arrowstyle="-|>,head_length=2.8,head_width=1.7",
+                                     mutation_scale=1, lw=1.2, color=col, shrinkA=0, shrinkB=0,
+                                     zorder=2))
         if label:
-            ax.text((x0 + x1) / 2, 0.58, label, ha="center", va="bottom", fontsize=5.6, color="#555555")
+            ax.text((x0 + x1) / 2, ym + 2.2, label, ha="center", va="bottom", fontsize=8,
+                    color=col)
 
-    blue, grey, dark = F.OURS, "#6E8FA8", "#1A1A1A"
-    box(0.015, 0.155, "Crystal structure", "half Heusler XYZ\ncubic $C1_b$, VEC 18", dark)
-    arrow(0.16, 0.20)
-    box(0.205, 0.37, "Machine learning", f"CatBoost, {N['shap_ranking']['n_descriptors']} descriptors\nvs DFT: {mv['median_ape']:.1f}% median\n(cluster held out)", grey)
-    arrow(0.375, 0.415, "$\\kappa_L^{\\mathrm{BTE}}$")
-    box(0.42, 0.60, "Transfer function", f"$\\kappa_L^{{\\mathrm{{exp}}}}=\\kappa_L^{{\\mathrm{{BTE}}}}$\n"
-        f"$\\times\\min[c\\,(T/300)^{{p}},1]$\n$c={c:.2f},\\ p={p:.2f}$", blue)
-    arrow(0.605, 0.645, "$\\kappa_L^{\\mathrm{exp}}$")
+    XS, XM, XT = (1.0, 28.5), (34.0, 66.5), (74.0, 105.5)
+    box(*XS, "Crystal structure", ["half Heusler XYZ", "cubic $C1_b$, VEC 18"], STRUCT)
+    arrow(XS[1], XM[0])
+    box(*XM, "Machine learning",
+        [f"CatBoost, {N['shap_ranking']['n_descriptors']} descriptors",
+         f"vs DFT: {mv['median_ape']:.1f}% median", "cluster held out"], FAM["ml"])
+    arrow(XM[1], XT[0], "$\\kappa_L^{\\mathrm{BTE}}$", col=F.PURPLE)
+    box(*XT, "Transfer function",
+        ["$\\kappa_L^{\\mathrm{exp}}=\\kappa_L^{\\mathrm{BTE}}\\times$",
+         "$\\min[c\\,(T/300)^{p},1]$", f"$c={c:.2f},\\ p={p:.2f}$"], FAM["tf"], lw=1.7)
+    arrow(XT[1], 113.0, "$\\kappa_L^{\\mathrm{exp}}$", col=F.OURS)
 
-    axi = fig.add_axes([0.70, 0.15, 0.27, 0.70])
+    # ---- inset: the end-to-end blind test against measurement --------------------------------
+    IX, IY, IS = 125.0, 14.0, 39.0
+    axi = fig.add_axes([IX / W, IY / H, IS / W, IS / H])
     lo, hi = 0.4, 30
     F.band_2x(axi, lo, hi, label=None)
-    axi.scatter(M.ref, M.k, s=9, c=blue, lw=0.3, edgecolors="white", zorder=3)
-    axi.plot([lo, hi], [lo, hi], color="#777777", lw=0.7, ls="--", zorder=2)
+    axi.scatter(M.ref, M.k, s=10, c=blue, lw=0.3, edgecolors="white", zorder=3)
     axi.set_xscale("log")
     axi.set_yscale("log")
     axi.set_xlim(lo, hi)
     axi.set_ylim(lo, hi)
+    axi.set_aspect("equal", adjustable="box")
     # measurement wears the measurement colour (figlib role): the axis it is read on, and a rug of
     # the measured values along it
     axi.plot(M.ref, np.full(len(M), lo * 1.07), ls="none", marker="|", ms=5, mew=0.8,
              color=F.MEASURED, zorder=4)
-    axi.set_xlabel("measured $\\kappa_L$ (W m$^{-1}$ K$^{-1}$)", fontsize=6.4, labelpad=1,
+    axi.set_xlabel("measured $\\kappa_L$ (W m$^{-1}$ K$^{-1}$)", fontsize=F.FS_LABEL, labelpad=1,
                    color=F.MEASURED)
-    axi.set_ylabel("predicted $\\kappa_L$ (W m$^{-1}$ K$^{-1}$)", fontsize=6.4, labelpad=1, color=blue)
-    import matplotlib.ticker as mticker
+    axi.set_ylabel("predicted $\\kappa_L$ (W m$^{-1}$ K$^{-1}$)", fontsize=F.FS_LABEL,
+                   labelpad=1, color=blue)
     for a_ in (axi.xaxis, axi.yaxis):
         a_.set_major_locator(mticker.FixedLocator([0.5, 1, 2, 5, 10, 20]))
         a_.set_major_formatter(mticker.FixedFormatter(["0.5", "1", "2", "5", "10", "20"]))
         a_.set_minor_locator(mticker.NullLocator())
-    axi.tick_params(labelsize=5.6)
-    axi.set_title(f"blind test vs experiment ({len(M)} compounds)\n{h['median_ape']['median']:.1f}% median error, "
-                  f"{h['within_2x']['median']:.1f}% within 2$\\times$\n(five-seed median; points: one seed)",
-                  fontsize=6.0, pad=2)
+    axi.tick_params(labelsize=F.FS_TICK, pad=1.5)
+    xc_i = IX + IS / 2
+    ax.text(xc_i, IY + IS + 9.6, f"Blind test vs experiment, n = {len(M)}", ha="center",
+            va="bottom", fontsize=8, fontweight="bold", color="#1A1A1A")
+    ax.text(xc_i, IY + IS + 5.4, f"{h['median_ape']['median']:.1f}% median error, "
+            f"{h['within_2x']['median']:.1f}% within 2$\\times$", ha="center", va="bottom",
+            fontsize=7.5, color=blue)
+    ax.text(xc_i, IY + IS + 1.6, "five-seed median; points: one seed", ha="center", va="bottom",
+            fontsize=F.FS_MIN, color="#555555")
 
     out = Path(__file__).resolve().parent / "figures"
     fig.savefig(out / "graphical_abstract.png", dpi=300)

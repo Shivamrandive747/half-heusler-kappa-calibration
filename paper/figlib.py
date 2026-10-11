@@ -86,8 +86,41 @@ def temp_cmap(lo: float = 0.12, hi: float = 0.90):
         "temp", base(np.linspace(lo, hi, 256)))
 
 
+# ---------------------------------------------------------------------------------------------
+# TYPE AT FINAL PRINT SIZE. Every figure is drawn at the width it prints at (SINGLE / DOUBLE), so a
+# point size here is the point size on paper. Nothing in any figure may go below FS_MIN; the
+# scripts use these names rather than typing a size, so the floor cannot be undercut by one
+# hard-coded 6.2 in one panel.
+FS_MIN = 7.0       # floor for any text: annotations, legends, value labels
+FS_TICK = 7.0      # tick labels
+FS_LABEL = 8.0     # axis labels and panel headings
+FS_PANEL = 9.0     # panel letters, bold
+
+# One panel-letter style for every figure: bold, 9 pt, in a light square box.
+PANEL_KW = dict(fontsize=FS_PANEL, fontweight="bold", zorder=20,
+                bbox=dict(boxstyle="square,pad=0.25", fc="white", ec="#BBBBBB", lw=0.5,
+                          alpha=0.92))
+
+
 def use_style() -> None:
     plt.style.use(STYLE)
+    # TrueType (Type 42) embedding, never Type 3: journals' preflight rejects Type 3 bitmaps and
+    # they do not stay searchable. Set here as well as in the style file so a figure that loads
+    # the style some other way still embeds TrueType.
+    mpl.rcParams.update({
+        "pdf.fonttype": 42, "ps.fonttype": 42,
+        "font.size": FS_LABEL, "axes.labelsize": FS_LABEL, "axes.titlesize": FS_LABEL,
+        "xtick.labelsize": FS_TICK, "ytick.labelsize": FS_TICK,
+        "legend.fontsize": FS_MIN, "legend.title_fontsize": FS_MIN,
+        "figure.titlesize": FS_PANEL,
+    })
+
+
+def panel_text(ax, x: float, y: float, letter: str, ha: str = "left", va: str = "top",
+               transform=None):
+    """The one panel-letter artist, "(a)", used by every figure (directly or via panel_label)."""
+    return ax.text(x, y, f"({letter})", transform=transform or ax.transAxes, ha=ha, va=va,
+                   **PANEL_KW)
 
 
 def nested_calibrate(d, cp_without_cluster, apply_cp, cluster_of):
@@ -126,16 +159,23 @@ def figure(width: float = SINGLE, height: float | None = None, **kw):
     return plt.subplots(figsize=(width, height if height else width * 0.72), **kw)
 
 
-def save(fig, name: str, also_png: bool = True) -> Path:
-    """Write the PDF the journal wants, plus a PNG so the figure can actually be inspected."""
+def save(fig, name: str, also_png: bool = True, pad: float | None = None) -> Path:
+    """Write the PDF the journal wants, plus a PNG so the figure can actually be inspected.
+
+    `pad` (inches) overrides the style's tight-bbox padding. Figures drawn on a full-width
+    millimetre canvas pass pad=0, so the PDF is exactly the column width it was drawn at and a
+    7 pt label prints at 7 pt -- the default 0.02 in pad on each side otherwise makes a 190 mm
+    canvas a 191 mm PDF, which LaTeX then shrinks.
+    """
     OUTDIR.mkdir(parents=True, exist_ok=True)
     pdf = OUTDIR / f"{name}.pdf"
+    kw = {} if pad is None else {"pad_inches": pad}
     # dpi applies ONLY to artists marked rasterized=True; everything else stays vector. 600 is the
     # usual journal floor for a raster panel, and without it a rasterized layer would fall back to
     # the ~100 dpi screen default and look soft in print.
-    fig.savefig(pdf, dpi=600)
+    fig.savefig(pdf, dpi=600, **kw)
     if also_png:
-        fig.savefig(OUTDIR / f"{name}.png", dpi=300)
+        fig.savefig(OUTDIR / f"{name}.png", dpi=300, **kw)
     plt.close(fig)
     print(f"  wrote {pdf}  (+ .png for inspection)")
     return pdf
@@ -262,16 +302,13 @@ def panel_label(ax, letter: str, dx: float = -0.16, dy: float = 1.04, *,
     rare panel whose upper corners are both occupied by data.
     """
     if outside:
-        ax.text(dx, dy, f"({letter})", transform=ax.transAxes, fontsize=9, fontweight="bold",
-                va="top", ha="left")
+        panel_text(ax, dx, dy, letter, ha="left", va="top")
         return
     x, y, ha, va = {"upper left": (0.035, 0.965, "left", "top"),
                     "upper right": (0.965, 0.965, "right", "top"),
                     "lower left": (0.035, 0.035, "left", "bottom"),
                     "lower right": (0.965, 0.035, "right", "bottom")}[loc]
-    ax.text(x, y, f"({letter})", transform=ax.transAxes, fontsize=8.5, fontweight="bold",
-            va=va, ha=ha, zorder=20,
-            bbox=dict(boxstyle="square,pad=0.28", fc="white", ec="#BBBBBB", lw=0.5, alpha=0.92))
+    panel_text(ax, x, y, letter, ha=ha, va=va)
 
 
 def annotate_n(ax, n: int, where: str = "lower right") -> None:
@@ -280,7 +317,7 @@ def annotate_n(ax, n: int, where: str = "lower right") -> None:
            "upper left": (0.03, 0.97, "left", "top"),
            "upper right": (0.97, 0.97, "right", "top")}[where]
     ax.text(pos[0], pos[1], f"n = {n}", transform=ax.transAxes,
-            ha=pos[2], va=pos[3], fontsize=7, color="#444444")
+            ha=pos[2], va=pos[3], fontsize=FS_MIN, color="#444444")
 
 
 def check_cvd(colors: list) -> None:

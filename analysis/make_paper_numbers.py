@@ -64,7 +64,13 @@ BLOCK_ALLOW = {"in_domain_table.one_parameter_ablation.within_2x_pct",
                "in_domain_table.seed_medians.one_parameter_c_only.within_2x.median",
                "split_4f_test.per_family.Ni-Sb.sub.4f.loo_ape",
                "split_4f_test.paired_test.per_compound.DyNiSb.split",
-               "vs_published_model.positive_control.sdnnff_vs_published_calculation.median_ape"}
+               "vs_published_model.positive_control.sdnnff_vs_published_calculation.median_ape",
+               # 2026-10-11: compute_accuracy_summary.py carries the per-seed uncorrected within-2x,
+               # 31/39 = 79.5 by coincidence -- the same share already allowed above, not the
+               # withdrawn inter-lab literal
+               "accuracy_summary.routes.ml_uncorrected_in_domain.seed_range.within_2x_pct[1]",
+               "accuracy_summary.routes.ml_uncorrected_in_domain.per_seed.0.within_2x_pct",
+               "accuracy_summary.routes.ml_uncorrected_in_domain.per_seed.2.within_2x_pct"}
 
 
 def _leaves(obj, path=""):
@@ -546,6 +552,22 @@ def main() -> int:
             seed_range=[round(float(v["seed_lo"]), 1), round(float(v["seed_hi"]), 1)],
             n_seeds=int(v["n_seeds"]),
             note="seed-averaged; a single-seed nested figure is a draw, not an effect")
+
+    # The unscreened figure on the HEADLINE's own protocol (leave-one-chemistry-out, five-seed median),
+    # quoted beside the in-domain 33.1 (author ruling 2026-10-09). headline.unconditional above is the
+    # nested split-half protocol and is NOT like-for-like with the in-domain headline.
+    try:
+        _ms = jload(f"{EX}/null_baselines.json")["model_seed_median"]
+        _ps = list(_ms["per_seed"].values())
+        N["headline"]["unscreened_same_protocol"] = dict(
+            median_ape=round(float(_ms["median_ape"]), 1),
+            seed_range=[round(float(min(_ps)), 1), round(float(max(_ps)), 1)],
+            within_2x_pct=round(float(_ms["within_2x_pct"]), 1),
+            uncorrected_median_ape=round(float(_ms["uncorrected_median_ape"]), 1),
+            n=int(_ms["n_compounds"]),
+            protocol="leave-one-chemistry-cluster-out, median over the five seed files, as the in-domain headline")
+    except Exception as e:  # noqa: BLE001
+        N["headline"]["unscreened_same_protocol"] = {"_unavailable": str(e)}
 
     # ---- the in-domain headline table (Table 2) and the offset (Section 3.1) -------------------
     # The abstract's 33.7 / 86.8 / 50.5 / 44.0 / 78.9 / 94.6-on-21 and Section 3.1's 1.55 /
@@ -1154,6 +1176,50 @@ def main() -> int:
         N["cap_test"] = {"_unavailable": str(e)}
 
     _new_results(N)
+
+    # ---- one accuracy table across every route: symmetric metric, bootstrap CIs, paired tests ----
+    # compute_accuracy_summary.py re-scores existing per-compound predictions; it runs before this
+    # script in the chain (with --chain, so it cannot compare itself with the registry), so the
+    # comparison happens HERE, against the leaves just written: a stale file is refused, not quoted.
+    try:
+        _acc = jload(f"{EX}/accuracy_summary.json")
+        _r = _acc["routes"]
+        _sm = N["in_domain_table"]["seed_medians"]
+        _ho = N["deployed_route"]["held_out"]
+        _uf = N["shared_constant_unseen_family"]
+        _hu = N["headline"]["unscreened_same_protocol"]
+        _pairs = [
+            (_r["ml_shared_in_domain"]["median_ape"], _sm["calibrated"]["median_ape"]["median"]),
+            (_r["ml_shared_in_domain"]["within_2x_pct"], _sm["calibrated"]["within_2x"]["median"]),
+            (_r["ml_shared_all"]["median_ape"], _hu["median_ape"]),
+            (_r["ml_shared_all"]["within_2x_pct"], _hu["within_2x_pct"]),
+            (_r["ml_uncorrected_in_domain"]["median_ape"], _sm["uncorrected_surrogate"]["median_ape"]["median"]),
+            (_r["ml_uncorrected_in_domain"]["within_2x_pct"], _sm["uncorrected_surrogate"]["within_2x"]["median"]),
+            (_r["null_constant_in_domain"]["median_ape"], N["in_domain_table"]["nulls"]["constant"]["median_ape"]),
+            (_r["null_constant_in_domain"]["within_2x_pct"], N["in_domain_table"]["nulls"]["constant"]["within_2x_pct"]),
+            (_r["null_power_law_in_domain"]["median_ape"], N["in_domain_table"]["nulls"]["power"]["median_ape"]),
+            (_r["null_power_law_in_domain"]["within_2x_pct"], N["in_domain_table"]["nulls"]["power"]["within_2x_pct"]),
+            (_r["published_calc_shared_family_test"]["median_ape"], _ho["global_on_same_compounds"]["median_ape"]),
+            (_r["published_calc_shared_family_test"]["within_2x_pct"], _ho["global_within_2x_pct"]),
+            (_r["published_calc_family_constant"]["median_ape"], _ho["median_ape"]),
+            (_r["published_calc_family_constant"]["within_2x_pct"], _ho["within_2x_pct"]),
+            (_r["shared_constant_unseen_family"]["median_ape"], _uf["median_ape"]),
+            (_r["shared_constant_unseen_family"]["within_2x_pct"], _uf["within_2x_pct"])]
+        _bad = [(a, b) for a, b in _pairs if abs(float(a) - float(b)) > 1e-9]
+        if _bad:
+            raise ValueError(f"accuracy_summary.json is stale against this registry: {_bad} "
+                             "-- run: python compute_accuracy_summary.py")
+        N["accuracy_summary"] = dict(
+            **{k: v for k, v in _acc.items() if k != "_generated_by"},
+            source="compute_accuracy_summary.py -> accuracy_summary.json",
+            HOW_TO_STATE=("one table of every scored route: n, median error, within 2x and the "
+                          "symmetric median |log10 ratio|, each with its holdout; model routes are "
+                          "five-seed medians with the seed range, and their bootstrap CIs bracket that "
+                          "five-seed median; route 8 has no per-compound file, so no symmetric metric "
+                          "or CI"))
+    except Exception as e:  # noqa: BLE001
+        N["accuracy_summary"] = {"_unavailable": str(e)}
+        print(f"  !! accuracy_summary UNAVAILABLE ({e})")
 
     # ---- guard: no withdrawn literal may reappear -------------------------------------------
     import re

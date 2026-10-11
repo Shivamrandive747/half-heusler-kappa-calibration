@@ -8,7 +8,7 @@ route's accuracy, scored the way Section 3.6 scores it, and what a good held-out
       predicted from its family-mates alone, paired with the shared constant on the same compounds.
       Families calibrated on their own reference paper -- multi-member families whose held-out error
       is at or above 25 % (held-out figures in the supplementary table) and single-member anchored
-      families -- are drawn hatched as in-sample fits, labelled "in sample, not a test". A family
+      families -- are drawn hatched as in-sample fits, under the heading "Calibrated on own papers (in sample)". A family
       that misses the bar even fitted on itself (Sb-Ir) is left to the supplement.
   (b) PER COMPOUND. Shared against family error for all held-out compounds; points below the
       diagonal are where the family constant does better.
@@ -86,18 +86,19 @@ def main() -> int:
     plt.rcParams["figure.constrained_layout.use"] = False
     plt.rcParams["hatch.linewidth"] = 0.6
     W = 190.0
-    HB, YB = 33.0, 8.5                 # bottom row: height, bottom offset (room for the x label)
+    HB, YB = 34.0, 9.0                 # bottom row: height, bottom offset (room for the x label)
     YS = YB + HB + 1.5                 # legend strip, between the rows
-    HT, YT = 54.0, YB + HB + 17.5      # top row: height, bottom offset
+    HT, YT = 66.0, YB + HB + 18.5      # top row: height, bottom offset
     H = YT + HT + 1.5
     fig = plt.figure(figsize=(W * F.MM, H * F.MM))
 
     def ax_mm(x, y, w, h, **kw):
         return fig.add_axes([x / W, y / H, w / W, h / H], **kw)
 
-    axa = ax_mm(21.5, YT, 97.0, HT)
-    axb = ax_mm(134.5, YT, HT, HT)
-    x0, gap = 11.5, 2.5
+    SB = 62.0                          # side of the square panel (b)
+    axa = ax_mm(23.0, YT, 90.0, HT)
+    axb = ax_mm(190.0 - 0.8 - SB, YT, SB, SB)
+    x0, gap = 12.0, 2.5
     wc = (W - x0 - 1.0 - 2 * gap) / 3
     axc = ax_mm(x0, YB, wc, HB)
     axes_c = [axc] + [ax_mm(x0 + k * (wc + gap), YB, wc, HB, sharey=axc) for k in (1, 2)]
@@ -106,24 +107,27 @@ def main() -> int:
     rows = list(fam.index) + list(one.index)
     y = np.arange(len(rows), dtype=float)
     y[len(fam):] += 0.9                                   # a gap before the in-sample group
-    h = 0.40
+    h = 0.46
     xmax = float(max(fam.glob_err.max(), fam.fam_err.max(), one.fam_err.max() if len(one) else 0))
     # the 25 % bar, drawn per group so it never runs through a group heading
     for a_, b_ in ((0, len(fam) - 1), (len(fam), len(rows) - 1)):
         if b_ >= a_:
-            axa.vlines(BAR, y[a_] - 0.55, y[b_] + 0.6, color="#888888", lw=0.7, ls=":", zorder=2)
-    fs_val = 6.0
+            axa.vlines(BAR, y[a_] - (0.55 if a_ == 0 else 0.42), y[b_] + 0.6, color="#888888",
+                       lw=0.7, ls=":", zorder=2)
+    fs_val = F.FS_MIN
     for i, f in enumerate(fam.index):
         r = fam.loc[f]
         axa.barh(y[i] - h / 2, r.glob_err, height=h, color=F.REFUSED, zorder=3)
         axa.barh(y[i] + h / 2, r.fam_err, height=h, color=F.OURS, zorder=3)
-        for v, dy, col, wt in ((r.glob_err, -h / 2, "#6A6A6A", "normal"),
-                               (r.fam_err, h / 2, F.OURS, "bold")):
-            # a white knock-out only where the number would sit on the dotted 25 % line
-            knock = v < BAR < v + xmax * 0.09
-            axa.text(v + xmax * 0.012, y[i] + dy, f"{v:.1f}", va="center", fontsize=fs_val,
-                     color=col, fontweight=wt, zorder=4,
-                     bbox=dict(boxstyle="square,pad=0.0", fc="white", ec="none") if knock else None)
+        # Values sit INSIDE the end of each bar when it is long enough (2026-10-11): at 7 pt two
+        # labels outside a pair of touching bars collide whenever the two values are close
+        # (Co-Sb: 23.0 against 24.9). Short bars keep the label just outside.
+        for v, dy, inside_col, out_col, wt in ((r.glob_err, -h / 2, "#2E2E2E", "#6A6A6A", "normal"),
+                                               (r.fam_err, h / 2, "white", F.OURS, "bold")):
+            fits_in = v > xmax * 0.13
+            axa.text(v - xmax * 0.012 if fits_in else v + xmax * 0.012, y[i] + dy, f"{v:.1f}",
+                     va="center", ha="right" if fits_in else "left", fontsize=fs_val,
+                     color=inside_col if fits_in else out_col, fontweight=wt, zorder=4)
     for j, f in enumerate(one.index):
         k = len(fam) + j
         r = one.loc[f]
@@ -134,28 +138,30 @@ def main() -> int:
     nn = {**fam.n.to_dict(), **one.n.to_dict()}
     axa.set_yticks(y)
     axa.set_yticklabels([f"{f}{'*' if f in issues_in else ''} ({int(nn[f])})" for f in rows],
-                        fontsize=6.6)
+                        fontsize=F.FS_MIN)
     axa.tick_params(axis="y", which="both", length=0, pad=2)
     axa.grid(axis="y", visible=False)
     axa.set_xlim(0, xmax * 1.16)
     axa.set_ylim(y[-1] + 0.65, y[0] - 1.40)               # inverted, room for the group headings
-    axa.text(BAR, y[-1], " 25%", fontsize=6.0, color="#666666", ha="left", va="center")
+    axa.text(BAR, y[0] - 0.80, " 25%", fontsize=F.FS_MIN, color="#666666", ha="left",
+             va="center")
     axa.set_xlabel("median error per family (%)")
-    head = dict(fontsize=6.6, fontweight="bold", ha="left", va="center",
+    head = dict(fontsize=F.FS_LABEL, fontweight="bold", ha="left", va="center",
                 transform=axa.get_yaxis_transform())
-    axa.text(0.012, y[0] - 0.78, f"validated: each compound held out "
-             f"({int(fam.n.sum())} compounds)", color=F.OURS, **head)
+    # The two group headings, worded exactly as the text and caption use them (2026-10-11).
+    axa.text(0.012, y[0] - 0.80, "Validated (held out)", color=F.OURS, **head)
     if len(one):
-        axa.text(0.012, y[len(fam)] - 0.78, "calibrated on own paper: in sample, not a test",
+        axa.text(0.012, y[len(fam)] - 0.80, "Calibrated or anchored on own papers (in sample)",
                  color=F.OURS, **head)
-    hdl = [Patch(fc=F.REFUSED, label="shared constant, held out"),
-           Patch(fc=F.OURS, label="own family constant, held out"),
-           Patch(fc="white", ec=F.OURS, hatch="////", lw=0.6,
-                 label="own paper (in sample, not a test)"),
-           Line2D([], [], ls="none", marker="$*$", color="#222222", ms=5,
-                  label="predictions issued in family")]
-    axa.legend(handles=hdl, loc="lower right", fontsize=6.2, borderaxespad=0.5,
-               handlelength=1.4, handleheight=0.9)
+    # Legend (2026-10-11): what each bar style IS; whether it is held out or in sample is said
+    # once, by the group headings, not repeated in every entry.
+    hdl = [Patch(fc=F.REFUSED, label="shared constant"),
+           Patch(fc=F.OURS, label="family constant"),
+           Patch(fc="white", ec=F.OURS, hatch="////", lw=0.6, label="family constant, own papers"),
+           Line2D([], [], ls="none", marker="$*$", color="#222222", ms=5.5,
+                  label="predictions issued")]
+    axa.legend(handles=hdl, loc="lower right", fontsize=F.FS_MIN, borderaxespad=0.5,
+               handlelength=1.4, handleheight=0.9, labelspacing=0.35)
     F.panel_label(axa, "a", loc="upper right")
 
     # ---- (b) per compound ------------------------------------------------------------------------
@@ -177,13 +183,13 @@ def main() -> int:
                                f"within 2$\\times$ {gc['within2x_pct']:.1f}% $\\rightarrow$ "
                                f"{fa['within2x_pct']:.1f}%\n"
                                f"family better for {fa['n_family_better']} of {fa['n']}",
-                        transform=axb.transAxes, ha=ha, va=va, fontsize=6.2, linespacing=1.3,
+                        transform=axb.transAxes, ha=ha, va=va, fontsize=F.FS_MIN, linespacing=1.3,
                         color=F.OURS, zorder=20)
     _, occ = C.place_free(axb, mk_stats, xy_b, corners=[(0.035, 0.84, "left", "top")])
 
     def mk_below(x, yy, ha, va):
         return axb.text(x, yy, "below line:\nfamily better", transform=axb.transAxes, ha=ha,
-                        va=va, fontsize=6.0, color="#666666", zorder=20)
+                        va=va, fontsize=F.FS_MIN, color="#666666", zorder=20)
     C.place_free(axb, mk_below, xy_b, occupied=occ,
                  corners=[(0.965, 0.035, "right", "bottom"), (0.965, 0.30, "right", "bottom")])
     F.panel_label(axb, "b", loc="upper left")
@@ -196,20 +202,17 @@ def main() -> int:
         span = float(xy[:, 0].max() - xy[:, 0].min())
         ax.xaxis.set_major_locator(mticker.MultipleLocator(200 if span > 600 else 100))
         ax.set_xlabel("$T$ (K)", labelpad=1.0)
-        ax.tick_params(labelsize=6.6, pad=1.5)
+        ax.tick_params(labelsize=F.FS_TICK, pad=1.5)
         if k:
             ax.tick_params(labelleft=False)
 
         def mk_letter(x, yy, ha, va, ax=ax, k=k):
-            return ax.text(x, yy, f"({'cde'[k]})", transform=ax.transAxes, fontsize=8.5,
-                           fontweight="bold", ha=ha, va=va, zorder=20,
-                           bbox=dict(boxstyle="square,pad=0.28", fc="white", ec="#BBBBBB",
-                                     lw=0.5, alpha=0.92))
+            return F.panel_text(ax, x, yy, "cde"[k], ha=ha, va=va)
         _, occ = C.place_free(ax, mk_letter, xy)
 
         def mk_note(x, yy, ha, va, ax=ax, q=q):
             return ax.text(x, yy, f"{q.compound} ({q.family})\nheld-out error {q.ape:.1f}%",
-                           transform=ax.transAxes, fontsize=6.6, ha=ha, va=va, color=F.OURS,
+                           transform=ax.transAxes, fontsize=F.FS_MIN, ha=ha, va=va, color=F.OURS,
                            zorder=20, linespacing=1.2)
         C.place_free(ax, mk_note, xy, occupied=occ,
                      corners=[(0.965, 0.965, "right", "top"), (0.965, 0.035, "right", "bottom"),
@@ -219,10 +222,10 @@ def main() -> int:
     # the strip between the rows: the selection caveat, then the curve key
     hc, lc = C.legend_handles()
     fig.legend(handles=hc, labels=lc, loc="lower left", bbox_to_anchor=(x0 / W, YS / H),
-               ncol=4, frameon=False, fontsize=6.4, handlelength=1.8, columnspacing=1.2,
+               ncol=4, frameon=False, fontsize=F.FS_MIN, handlelength=1.8, columnspacing=1.2,
                borderaxespad=0.0, borderpad=0.0)
     lab = C.honest_label(sel)
-    fig.text(x0 / W, (YS + 4.6) / H, f"(c)–(e): {lab}", ha="left", va="bottom", fontsize=6.6,
+    fig.text(x0 / W, (YS + 5.0) / H, f"(c)–(e): {lab}", ha="left", va="bottom", fontsize=7.5,
              fontweight="bold", color="#222222")
 
     print(fam.round(1).to_string())

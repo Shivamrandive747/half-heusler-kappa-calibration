@@ -98,9 +98,16 @@ def select_best(n_show: int = N_SHOW, verbose: bool = True) -> dict:
                          T_hi=float(T.max()), span=float(T.max() - T.min()),
                          ref_doi=str(r.ref_doi_heldout)))
     R = pd.DataFrame(rows)
-    ok = R[(R.n_T >= MIN_POINTS) & (R.span >= MIN_SPAN)].sort_values("ape").reset_index(drop=True)
+    # only VALIDATED families (held-out family error under 25 %) are illustrated in the main text:
+    # the held-out errors of calibrated-not-validated families stay in the supplement (author rule)
+    import json as _json
+    fams = _json.load(open("data/exports/kappa_v2/family_calibration.json"))["families"]
+    validated = sorted(f for f, v in fams.items()
+                       if v.get("loo_family_ape") is not None and v["loo_family_ape"] < 25)
+    ok = R[(R.n_T >= MIN_POINTS) & (R.span >= MIN_SPAN) & R.family.isin(validated)] \
+        .sort_values("ape").reset_index(drop=True)
     pick = ok.head(n_show)
-    rule = (f"held-out family-arm compounds (arm == 'family' in family_deployed_pooled.csv; family "
+    rule = (f"held-out family-arm compounds in validated families ({', '.join(validated)}; family "
             f"constant fitted without the compound, on its leave-one-out fold reference) whose "
             f"reference curve has >= {MIN_POINTS} distinct temperatures spanning >= "
             f"{MIN_SPAN:.0f} K; the {n_show} with the lowest held-out family error")
@@ -127,7 +134,7 @@ def select_best(n_show: int = N_SHOW, verbose: bool = True) -> dict:
         _generated_by="paper/fig03_curves.py",
         selection_rule=rule,
         min_points=MIN_POINTS, min_span_K=MIN_SPAN,
-        n_heldout_family_arm=int(len(R)), n_eligible=int(len(ok)),
+        n_heldout_family_arm=int(len(R)), n_eligible=int(len(ok)), validated_families=validated,
         eligible_median_heldout_error_pct=round(float(ok.ape.median()), 1),
         protocol=("per-family SHAPE_NOCAP calibration held out: c_family_loo, p_family_loo from "
                   "compute_deployed_route.py, scored on family_calibration.fold_pairs(compound)"),
@@ -146,7 +153,7 @@ def honest_label(sel: dict) -> str:
     n_ok = len(sel["ok"])
     words = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five"}
     k = len(sel["pick"])
-    return (f"{words.get(k, str(k))} best of {n_ok} eligible held-out fits "
+    return (f"{words.get(k, str(k))} best of {n_ok} eligible held-out fits in validated families "
             f"(≥{MIN_POINTS} temperatures over ≥{MIN_SPAN:.0f} K); "
             f"median over all {n_ok}: {sel['ok'].ape.median():.1f}%")
 

@@ -115,16 +115,26 @@ def main() -> int:
     print("  combinations: " + ", ".join(f"{'+'.join(s)}={v}" for s, v in cols))
     print(f"  measured AND calculated: {both}; measured only (no tier-1): {n_meas - both}")
 
+    # EXPLICIT MILLIMETRE LAYOUT (2026-10-11 polish). Constrained layout let one long label push
+    # every panel around; here each block has a fixed place at print size, with every text at
+    # 7 pt or more. Left to right: the text block over the set-size bars, the row labels, the
+    # UpSet matrix with its intersection bars, then (b).
     F.use_style()
-    fig = plt.figure(figsize=(F.DOUBLE, F.DOUBLE * 0.30))
-    outer = fig.add_gridspec(1, 2, width_ratios=[2.25, 1.0], wspace=0.06)
-    ga = outer[0].subgridspec(2, 2, width_ratios=[0.40, 1.0], height_ratios=[1.0, 1.0],
-                              wspace=0.02, hspace=0.04)
-    ax_int = fig.add_subplot(ga[0, 1])
-    ax_mat = fig.add_subplot(ga[1, 1], sharex=ax_int)
-    ax_set = fig.add_subplot(ga[1, 0], sharey=ax_mat)
-    ax_txt = fig.add_subplot(ga[0, 0])
-    axb = fig.add_subplot(outer[1])
+    plt.rcParams["figure.constrained_layout.use"] = False
+    W, H = F.DOUBLE / F.MM, 64.0
+    fig = plt.figure(figsize=(W * F.MM, H * F.MM))
+
+    def ax_mm(x, y, w, h, **kw):
+        return fig.add_axes([x / W, y / H, w / W, h / H], **kw)
+
+    XM, WM = 62.0, 68.0                       # UpSet matrix and intersection bars
+    YM, HM = 9.5, 22.0                        # matrix rows
+    YI, HI = 35.5, 21.5                       # intersection bars
+    ax_int = ax_mm(XM, YI, WM, HI)
+    ax_mat = ax_mm(XM, YM, WM, HM, sharex=ax_int)
+    ax_set = ax_mm(2.5, YM, 25.5, HM, sharey=ax_mat)
+    ax_txt = ax_mm(1.0, 34.0, 54.0, H - 34.0 - 0.5)
+    axb = ax_mm(143.5, 9.5, 46.0, 46.5)
 
     # gap between the two column groups, so "measured" reads as one block
     xs = np.array([i + (0.0 if i < n_meas_cols else 0.8) for i in range(len(cols))])
@@ -141,11 +151,11 @@ def main() -> int:
             col = "#C4C8CC"
         ax_int.bar(x, v, width=0.68, color=col, zorder=3)
         ax_int.text(x, v + max(combo.values()) * 0.02, str(v), ha="center", va="bottom",
-                    fontsize=6.2, color="#333333")
+                    fontsize=F.FS_MIN, color="#333333")
     ymax = max(combo.values()) * 1.36
     ax_int.set_ylim(0, ymax)
     ax_int.set_ylabel("compounds", labelpad=1.5)
-    ax_int.tick_params(axis="y", labelsize=6.4, pad=1.5)
+    ax_int.tick_params(axis="y", labelsize=F.FS_TICK, pad=1.5)
     ax_int.yaxis.set_major_locator(mticker.MultipleLocator(100))
     ax_int.grid(False)
     ax_int.tick_params(axis="x", which="both", bottom=False, top=False, labelbottom=False)
@@ -159,7 +169,7 @@ def main() -> int:
         for xe in (x0 - 0.34, x1 + 0.34):
             ax_int.plot([xe, xe], [y, y - ymax * 0.035], color=col, lw=0.8, clip_on=False)
         ax_int.text((x0 + x1) / 2, y + ymax * 0.02, label, ha="center", va="bottom",
-                    fontsize=6.4, color=col, fontweight="bold")
+                    fontsize=7.5, color=col, fontweight="bold")
     bracket(xs[0], xs[n_meas_cols - 1], f"measured: {n_meas}", F.MEASURED)
     bracket(xs[n_meas_cols], xs[-1], f"never measured: {n_half - n_meas}", "#6E757C")
 
@@ -178,7 +188,7 @@ def main() -> int:
     ax_mat.set_ylim(-0.5, ny - 0.5)
     ax_mat.set_xlim(xs[0] - 0.6, xs[-1] + 0.6)
     ax_mat.set_yticks([yrow[k] for k in keys])
-    ax_mat.set_yticklabels([lab for _, lab, _ in ROWS], fontsize=6.3)
+    ax_mat.set_yticklabels([lab for _, lab, _ in ROWS], fontsize=F.FS_MIN)
     ax_mat.tick_params(axis="y", which="both", left=False, right=False, pad=2)
     ax_mat.tick_params(axis="x", which="both", bottom=False, top=False, labelbottom=False)
     ax_mat.grid(False)
@@ -192,13 +202,13 @@ def main() -> int:
         ax_set.barh(yrow[k], n, height=0.62, color=col, zorder=3,
                     edgecolor="#9AA0A6" if col == "#D3D6D9" else "none", lw=0.4)
         ax_set.text(n + max(sizes) * 0.04, yrow[k], f"{n}", ha="right", va="center",
-                    fontsize=6.6, fontweight="bold",
+                    fontsize=F.FS_MIN, fontweight="bold",
                     color={"M": F.MEASURED, "B": "#33383D"}.get(k, "#555555"), zorder=4)
     ax_set.set_xlim(max(sizes) * 1.38, 0)
-    ax_set.set_xlabel("compounds per tier", fontsize=6.6, labelpad=1.0)
+    ax_set.set_xlabel("compounds per tier", fontsize=F.FS_LABEL, labelpad=1.0)
     ax_set.grid(False)
     ax_set.tick_params(axis="y", which="both", left=False, right=False, labelleft=False)
-    ax_set.tick_params(axis="x", which="both", top=False, labelsize=6.2, pad=1.2)
+    ax_set.tick_params(axis="x", which="both", top=False, labelsize=F.FS_TICK, pad=1.2)
     ax_set.tick_params(axis="x", which="minor", bottom=False)
     ax_set.spines[["top", "left", "right"]].set_visible(False)
     ax_set.set_xticks([0, 200, 400])
@@ -206,25 +216,47 @@ def main() -> int:
     # -- the headline, in the empty corner. Computed, never typed: an earlier draft read
     # "10 to 1" from memory while the data said 5.6.
     ratio = n_calc / n_meas
+    # Left block (2026-10-11): one left edge (2.5 mm) for everything, drawn on a millimetre overlay.
+    # The corpus size is a two-line note; the headline ratio is ONE callout -- a boxed statement
+    # joined by a bracket to the two set-size bars it is computed from (tier 0 and tier 1), so the
+    # reader sees which bars make up "284 : 50" without an arrow crossing a bar or its label.
     ax_txt.axis("off")
-    F.panel_label(ax_txt, "a", loc="upper left")
-    ax_txt.text(0.0, 0.70, f"{n_half} half Heuslers\nwith a $\\kappa_L$ record\n"
-                f"(of {n_all} Heuslers)", transform=ax_txt.transAxes, fontsize=6.6, va="top",
-                ha="left", color="#333333", linespacing=1.25)
-    ax_txt.text(0.0, 0.18, f"calculated : measured\n= {n_calc} : {n_meas} = {ratio:.1f} : 1",
-                transform=ax_txt.transAxes, fontsize=6.6, va="top", ha="left",
-                color="#222222", fontweight="bold", linespacing=1.25)
-    # No figure title (2026-10-06 compaction): the caption names the panel. The column-bar key sits
-    # inside the intersection panel, over the measured group, where the bars are short.
-    leg = ax_int.legend(handles=[Patch(fc=F.MEASURED, label="includes a measurement"),
-                                 Patch(fc="#7D848B", label="tier-1 calculation, never measured"),
-                                 Patch(fc="#C4C8CC", label="tiers 2-3 only")],
-                        loc="upper left", bbox_to_anchor=(0.0, 0.80), fontsize=6.0,
-                        frameon=False, handlelength=1.0, handleheight=0.7, borderaxespad=0.2,
-                        labelspacing=0.2, handletextpad=0.4)
+    ov = fig.add_axes([0, 0, 1, 1], zorder=-1)
+    ov.set_xlim(0, W)
+    ov.set_ylim(0, H)
+    ov.axis("off")
+    F.panel_text(ov, 1.6, H - 1.2, "a", ha="left", va="top", transform=ov.transData)
+    XL = 2.5
+    ov.text(XL, H - 9.0, f"{n_half} half Heuslers with a $\\kappa_L$\n"
+            f"record (of {n_all} Heuslers)", fontsize=F.FS_MIN, va="top", ha="left",
+            color="#333333", linespacing=1.3)
+
+    def to_mm(ax_, x, y):
+        fx, fy = fig.transFigure.inverted().transform(ax_.transData.transform((x, y)))
+        return fx * W, fy * H
+    _, y_top = to_mm(ax_set, 0, yrow["M"] + 0.31)          # top of the tier-0 bar
+    _, y_bot = to_mm(ax_set, 0, yrow["B"] - 0.31)          # bottom of the tier-1 bar
+    xb_mm = to_mm(ax_set, 0, 0)[0] + 1.2                   # just right of the bars' zero edge
+    ov.plot([xb_mm - 0.8, xb_mm, xb_mm, xb_mm - 0.8], [y_top, y_top, y_bot, y_bot],
+            color="#6E757C", lw=0.7, solid_capstyle="butt", zorder=5)
+    y_box = y_top + 6.0
+    ov.plot([xb_mm, xb_mm], [y_top, y_box], color="#6E757C", lw=0.7, zorder=5)
+    ov.text(XL + 0.9, y_box + 0.9, f"calculated : measured\n{n_calc} : {n_meas} = {ratio:.1f} : 1",
+            ha="left", va="bottom", fontsize=F.FS_LABEL, fontweight="bold", color="#222222",
+            linespacing=1.3, zorder=6,
+            bbox=dict(boxstyle="round,pad=0.35,rounding_size=0.25", fc="#F3F4F5", ec="#9AA0A6",
+                      lw=0.6))
+    # The bar key sits in one row under the matrix, where nothing else is drawn, so it never
+    # competes with the bars or the note above the measured group.
+    fig.legend(handles=[Patch(fc=F.MEASURED, label="includes a measurement"),
+                        Patch(fc="#7D848B", label="tier-1 calculation, never measured"),
+                        Patch(fc="#C4C8CC", label="tiers 2-3 only")],
+               loc="lower right", bbox_to_anchor=((XM + WM) / W, 0.4 / H), ncol=3,
+               fontsize=F.FS_MIN, frameon=False, handlelength=1.0, handleheight=0.7,
+               borderaxespad=0.0, borderpad=0.0, columnspacing=1.0, handletextpad=0.4)
     ax_int.text(xs[n_meas_cols - 1] + 0.3, max(v for s, v in cols if "M" in s) * 1.0
                 + ymax * 0.07, f"{both} of {n_meas} measured also\ncarry a tier-1 calculation",
-                ha="right", va="bottom", fontsize=6.0, color=F.MEASURED, linespacing=1.15)
+                ha="right", va="bottom", fontsize=F.FS_MIN, color=F.MEASURED, linespacing=1.15)
 
     # (b) how much independent evidence stands behind each measured compound
     src = meas.groupby("red").source_doi.nunique()
@@ -254,21 +286,21 @@ def main() -> int:
     axb.tick_params(axis="x", which="minor", bottom=False, top=False)
     axb.set_xlabel("independent papers per compound", labelpad=1.5)
     axb.set_ylabel("measured compounds", labelpad=1.5)
-    axb.tick_params(labelsize=6.6, pad=1.5)
+    axb.tick_params(labelsize=F.FS_TICK, pad=1.5)
     axb.set_ylim(0, max(counts) * 1.42)
     axb.grid(False)
     axb.grid(axis="y", color="#E6E6E6", lw=0.4)
-    axb.legend(handles=[Patch(fc="#5E666E", ec="none", label="also has a tier-1 calculation"),
+    axb.legend(handles=[Patch(fc="#5E666E", ec="none", label="with a tier-1 calculation"),
                         Patch(fc="white", ec="#5E666E", hatch="/////",
                               label="measured only")],
-               loc="upper right", fontsize=6.0, handlelength=1.4, borderaxespad=0.4)
-    axb.set_title(f"{counts[0]} of the {sum(counts)} measured rest on one paper",
-                  fontsize=7.2, loc="center", pad=3)
+               loc="upper right", fontsize=F.FS_MIN, handlelength=1.4, borderaxespad=0.4)
+    axb.set_title(f"{counts[0]} of {sum(counts)} rest on one paper",
+                  fontsize=F.FS_LABEL, loc="center", pad=3)
     print("  sources per measured compound (calc / no calc): " +
           ", ".join(f"{n}={a}/{b}" for n, a, b in zip(names, c_yes, c_no)))
     F.panel_label(axb, "b", loc="upper left")
 
-    F.save(fig, "fig01_corpus")
+    F.save(fig, "fig01_corpus", pad=0)
     # the caption's counts, so they reach the registry instead of being read off the console
     import json
     Path("data/exports/kappa_v2/corpus_figure.json").write_text(json.dumps(dict(

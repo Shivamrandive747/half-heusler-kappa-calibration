@@ -310,9 +310,15 @@ def to_bibtex(m: dict, key: str) -> str:
     ty = m.get("type", "journal-article")
     kind = {"journal-article": "article", "proceedings-article": "inproceedings",
             "book-chapter": "incollection", "book": "book"}.get(ty, "article")
+    title = esc((m.get("title") or [""])[0])
+    # the registered figshare title of the Starrydata snapshot is its date stamp; the DOI pins the
+    # version, so the reference list carries a descriptive title instead
+    if m.get("DOI", "").lower() == "10.6084/m9.figshare.29438735":
+        title = "Starrydata2 dataset snapshot"
     fields = {
         "author": esc(names),
-        "title": esc((m.get("title") or [""])[0]),
+        # double braces: elsarticle-num lowercases titles, which turned ZrCoBi into "zrcobi"
+        "title": ("{" + title + "}") if title else "",
         "journal": esc((m.get("container-title") or [""])[0]),
         "year": yr,
         "volume": esc(m.get("volume", "")),
