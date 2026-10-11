@@ -135,7 +135,7 @@ def main() -> int:
         if fc.get("loo_family_ape") is not None:
             return "validated", f"held out {fc['loo_family_ape']:.1f}%"
         if fc.get("insample_ape") is not None:
-            return "anchored", f"anchored, in-sample {fc['insample_ape']:.1f}%"
+            return "anchored", f"in sample {fc['insample_ape']:.1f}%"
         raise SystemExit(f"{fam}: issued with neither a held-out nor an anchored constant")
 
     fams = sorted(set(iss.family),
@@ -196,7 +196,7 @@ def main() -> int:
 
     # ---- draw ---------------------------------------------------------------------------------------
     F.use_style()
-    fig = plt.figure(figsize=(F.SINGLE, (nrow * 3.55 + 27) * F.MM))
+    fig = plt.figure(figsize=(F.SINGLE, (nrow * 3.9 + 31) * F.MM))
     gs = fig.add_gridspec(1, 2, width_ratios=[1.0, 0.43], wspace=0.0)
     ax = fig.add_subplot(gs[0])
     axt = fig.add_subplot(gs[1], sharey=ax)
@@ -237,34 +237,51 @@ def main() -> int:
             ax.scatter([r["ke"]], [yy], s=20, c=F.OURS, lw=0.5, edgecolors="white", zorder=6)
         # the right-hand column: the value a reader would otherwise read off a log axis
         head = r["kind"] in ("meas", "anchor", "sohead")
-        axt.text(0.04, yy, r["note"], va="center", ha="left", fontsize=6.2,
-                 color="#555555" if head else (F.OURS if r["kind"] in ("iss", "so") else "#333333"),
+        axt.text(0.04, yy, r["note"], va="center", ha="left", fontsize=F.FS_MIN,
+                 color="#444444" if head else (F.OURS if r["kind"] in ("iss", "so") else "#333333"),
                  style="italic" if head else "normal", transform=axt.get_yaxis_transform())
     # the span of a validated family continues through the header row, so the members sit inside it
     for r in rows:
         if r["kind"] == "meas":
             lo_, hi_, _ = SPANS[r["fam"]]
             ax.fill_betweenx([r["y"] - H, r["y"] + H], lo_, hi_, color=SPAN, lw=0, zorder=1)
+    # FAMILY HEADER ROWS (2026-10-11): each group opens with a full-width tinted strip, from the
+    # left edge of the labels to the right edge of the value column, and groups are divided by a
+    # full-width rule -- so a header reads as a header, not as one more compound.
+    import matplotlib.transforms as mtrans
+    from matplotlib.patches import Rectangle
+    band = mtrans.blended_transform_factory(fig.transFigure, ax.transData)
+    for a_ in (ax, axt):
+        a_.set_facecolor("none")
+    for r in rows:
+        if r["kind"] in ("meas", "anchor", "sohead"):
+            fig.patches.append(Rectangle((0.0, r["y"] - 0.5), 1.0, 1.0, transform=band,
+                                         fc="#EEF0F2", ec="none", zorder=-5))
     for a, b in groups[1:]:
-        for a_ in (ax, axt):
-            a_.axhline(a - 0.5, color="#BBBBBB", lw=0.5, zorder=0)
+        fig.lines.append(Line2D([0.0, 1.0], [a - 0.5, a - 0.5], transform=band, color="#8A8F94",
+                                lw=0.6, zorder=-4))
 
     ax.set_xscale("log")
     ax.set_xlim(*F.KAPPA_LIM)
     F.kappa_ticks(ax, both=False)
     ax.set_ylim(nrow - 0.5, -0.5)
     ax.set_yticks([r["y"] for r in rows])
-    ax.set_yticklabels([r["label"] for r in rows], fontsize=6.6)
-    for t, r in zip(ax.get_yticklabels(), rows):
-        if r["kind"] in ("meas", "anchor", "sohead"):
-            t.set_fontweight("bold")
-            t.set_color("#333333")
+    # Header rows carry no tick label: their name is written flush left across the tinted strip
+    # (below), running into the empty low-kappa end of the axis, so the label column is only as
+    # wide as a compound name and the forest panel keeps its width at 7.5 pt.
+    is_head = [r["kind"] in ("meas", "anchor", "sohead") for r in rows]
+    ax.set_yticklabels(["" if h_ else r["label"] for r, h_ in zip(rows, is_head)], fontsize=7.5)
+    for r, h_ in zip(rows, is_head):
+        if h_:
+            fig.text(0.008, r["y"], r["label"], transform=band, ha="left", va="center",
+                     fontsize=7.5, fontweight="bold", color="#1F1F1F", zorder=6,
+                     bbox=dict(boxstyle="square,pad=0.15", fc="#EEF0F2", ec="none"))
     ax.tick_params(axis="y", which="both", length=0)
     ax.grid(axis="y", visible=False)
     ax.set_xlabel(F.KAPPA_LABEL)
     axt.set_axis_off()
     axt.text(0.04, -0.62, "$\\kappa_L$ (90% band)", transform=axt.get_yaxis_transform(), ha="left",
-             va="bottom", fontsize=6.2, color="#333333", fontweight="bold")
+             va="bottom", fontsize=7.5, color="#333333", fontweight="bold")
 
     handles = [
         (Line2D([], [], color=F.MEASURED, marker="o", ls="none", ms=3.2), "measured member"),
@@ -281,7 +298,7 @@ def main() -> int:
          "model, theory scale"),
     ]
     fig.legend([h for h, _ in handles], [t for _, t in handles], loc="outside upper center", ncol=2,
-               frameon=False, fontsize=6.2, handlelength=1.6, columnspacing=1.0, labelspacing=0.25)
+               frameon=False, fontsize=F.FS_MIN, handlelength=1.6, columnspacing=1.0, labelspacing=0.3)
 
     # nothing FLAGGED or REFUSED may be named anywhere on the figure
     fig.canvas.draw()
@@ -289,7 +306,7 @@ def main() -> int:
     leak = sorted({h for h in hidden for t in texts if h in t})
     assert not leak, f"FLAGGED/REFUSED compound named on the figure: {leak}"
 
-    F.save(fig, "fig05_predictions")
+    F.save(fig, "fig05_predictions", pad=0)
     for r in rows:
         if r["kind"] in ("iss", "so"):
             print(f"    {r['label']:<20} {r['note']}")

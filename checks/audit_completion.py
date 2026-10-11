@@ -533,6 +533,38 @@ def main() -> int:
         else:
             print(f"  tab:blind (supplement): {got_rows} rows match in_domain_table")
 
+    # tab:accuracy (main text, added 2026-10-11): every route's n, median error with its bootstrap
+    # interval, within-2x and median |log10 r| against the registry's accuracy_summary, in row order.
+    acc_rows = rows_of("tab:accuracy")
+    acc = (json.load(open("data/exports/kappa_v2/paper_numbers.json")).get("accuracy_summary") or {}).get("routes", {})
+    order = ["ml_shared_in_domain", "ml_shared_all", "ml_uncorrected_in_domain", "null_constant_in_domain",
+             "null_power_law_in_domain", "published_calc_shared_family_test", "published_calc_family_constant",
+             "shared_constant_unseen_family"]
+    if acc_rows is None or not acc:
+        print("  tab:accuracy: NOT FOUND (table or registry key)"); tbl_ok = False
+    else:
+        data_rows = [r for r in acc_rows if len(r) >= 6 and re.search(r"\d", r[2])]
+        acc_bad = []
+        if len(data_rows) != len(order):
+            acc_bad.append(f"{len(data_rows)} data rows, expected {len(order)}")
+        for key, r in zip(order, data_rows):
+            w = acc.get(key, {})
+            toks = lambda s: re.findall(r"-?\d+\.?\d*", re.sub(r"\\textbf\{|\}", "", s))
+            want = [w.get("n"), w.get("median_ape")] + list(w.get("ci95_median_ape") or []) + \
+                   [w.get("within_2x_pct")] + ([w["median_abs_log10_ratio"]] if w.get("median_abs_log10_ratio") is not None else [])
+            got_s = toks(r[2]) + toks(r[3]) + toks(r[4]) + toks(r[5])
+            # compare at the precision each value is printed with (0.132 to 3 decimals, 33.1 to 1)
+            tol = [0.5 * 10 ** -(len(t.split(".")[1]) if "." in t else 0) + 1e-9 for t in got_s]
+            got = [float(t) for t in got_s]
+            if len(got) != len(want) or any(abs(g - float(x)) > e for g, x, e in zip(got, want, tol)):
+                acc_bad.append(f"{key}: table {got} vs registry {want}")
+        if acc_bad:
+            tbl_ok = False
+            for b in acc_bad:
+                print(f"    tab:accuracy {b}")
+        else:
+            print(f"  tab:accuracy: {len(data_rows)} routes match accuracy_summary")
+
     # The pooled deployed-route numbers had no producer at all until compute_deployed_route.py.
     # data/ is gitignored, so these artefacts are absent on a fresh clone and present after their
     # producers run. A missing one must say so: a check that skips in silence is not a check.

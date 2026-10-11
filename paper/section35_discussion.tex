@@ -1,0 +1,111 @@
+% =============================================================================================
+% DISCUSSION. Interpretation, practical guidance and limitations, moved out of Methods and Results
+% (author decision 2026-10-11: separate Results and Discussion). Every number here already appears
+% in Methods or Results and is quoted from data/exports/kappa_v2/paper_numbers.json.
+% =============================================================================================
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{What the offset and the constants mean}
+\label{sec:interpretation}
+
+Phenomenological temperature dependences have been fitted to, or tested against, measured
+half-Heusler curves before~\cite{geng2014lattice,petersen2015critical}; here we fit instead the \emph{ratio} of
+measurement to calculation. The functional form is therefore not new; what this work adds is the
+corpus, the class-wide magnitude and its held-out validation. Only one published tier-1
+calculation in the corpus spans three or more temperatures (log--log slope \num{-1.02}), so for
+nearly every pair the calculated temperature dependence is the assumed $T^{-1}$, and $p$ is in
+effect the measured slope relative to it: $p=\num{0.70}$ implies a corrected
+$\kappa_L \propto T^{-0.30}$.
+
+The correction is empirical, not a boundary-scattering term. Any temperature-independent extrinsic
+scattering (boundaries, point defects or static disorder) added to three-phonon Umklapp scattering
+caps the logarithmic slope of the suppression at $1-c$ (\num{0.58} at $c=\num{0.42}$), for a grey or
+a spectral model~\cite{callaway1959model}. The fitted $p$ exceeds that cap, although its bootstrap
+range straddles it (derivation in Section~S1 of the Supplementary material), and four-phonon
+scattering would lower the slope. A measured lattice conductivity above the three-phonon value of
+the perfect crystal, as some high-temperature curves show, more likely retains an electronic or
+bipolar term that the single-parabolic-band Lorenz number does not remove, or high-temperature
+measurement error: the Lorenz number of a multiband or bipolar semiconductor can depart from the
+single-band value by a factor of two or more~\cite{thesberg2017on}, and a bipolar contribution to the
+thermal conductivity has been measured in a half Heusler of this domain~\cite{li2015synthesis}. The rise of the measured-to-calculated ratio with temperature, and the value of
+$p$, may therefore partly reflect the separation of lattice and electronic conduction rather than
+phonon scattering. We attach no mechanism to the parameters.
+
+A family constant describes the specimens behind it. Several families rest on a single kind of
+specimen (the publications behind each family are counted in Section~S5 of the Supplementary
+material). All three \ce{Sn}--\ce{Pt} references come from one paper, as do three of the four in
+\ce{Sb}--\ce{Pt}, four of the seven in \ce{Ni}--\ce{Sb} and two of the three in each of
+\ce{Bi}--\ce{Pd} and \ce{Sb}--\ce{Pd}; there the held-out test partly measures one paper's internal
+consistency rather than transfer between laboratories. Two \ce{Sb}--\ce{Pd} references are
+annealed arc-melted ingots whose authors attribute the near-linear low-temperature conductivity to
+additional scattering at grain boundaries, lattice defects and
+disorder~\cite{mukhopadhyay2018multifunct}. The two \ce{Co}--\ce{Sn} members were measured on very
+different specimens, \ce{NbCoSn} on a near-fully dense pellet~\cite{thiem2025thermoelec} and
+\ce{TaCoSn} on a heavily ball-milled nanocrystalline, cobalt-rich sample that its authors suggest
+contains cobalt interstitials~\cite{li2019ntype}, and a constant fitted on one cannot describe the other. An
+anchored family inherits its single member's specimen. \ce{ZrNiPb} was measured only on a
+ball-milled sample~\cite{mao2017thermoelec}, so values issued through \ce{Ni}--\ce{Pb} describe a
+milled sample. The \ce{ZrCoBi} reference is a \SI{98.1}{\percent} dense
+pellet~\cite{zhao2018synthesis}, whereas the only other laboratory to measure it reports a value
+\num{1.7} times lower near \SI{300}{\kelvin} on a far more heavily milled
+specimen~\cite{zhu2018discovery}. The \ce{Co}--\ce{Bi} predictions therefore carry a wider uncertainty
+than their conformal band.
+
+\subsection{Which route to use}
+\label{sec:routes}
+
+The results suggest a simple order of preference for estimating the measured $\kappa_L$ of an
+unmeasured half Heusler. Where a full transport calculation has been published and the compound's
+bonding family has been validated, the family constant is the most accurate option tested
+(\SI{21.7}{\percent} median error held out, against \SI{32.3}{\percent} for the shared constant on
+the same compounds). Where a calculation exists but the family has no measured member, only the
+shared constant applies, with the \SI{33.0}{\percent} median error measured on families withheld
+from the fit. Where no calculation exists, the machine-learned model supplies one, and the value
+carries two separate errors: \SI{21.9}{\percent} for the model step and \SI{33.0}{\percent} for the
+shared constant.
+
+Two cautions temper this order. A family that has already been measured well can be described
+almost as accurately by a power law fitted to its own members (\SI{25.4}{\percent} against
+\SI{31.6}{\percent} for the model route, not significantly different), so the method adds most
+where measurements are sparse: in ordering compounds within a family and in families never
+measured. And no route predicts a temperature dependence; every value is a value at a stated
+temperature.
+
+\subsection{Limitations}
+\label{sec:limitations}
+
+Temperature dependence is not predicted. One exponent serves every compound and it is poorly
+determined (bootstrap range \numrange{0.45}{1.15} against \numrange{0.35}{0.55} for $c$;
+Section~\ref{sec:transfer}), and the training labels sit mostly at \SI{300}{\kelvin}. At high
+temperature the measured lattice values may also retain part of the electronic contribution, which
+then enters the fitted exponent (Section~\ref{sec:interpretation}).
+
+Each compound is scored against one reference laboratory. Laboratories measuring the same in-domain
+compound disagree by a median factor of \num{1.33} over all pairs of measurements (\num{1.36} taking
+each compound's median), so a median error of about a third is comparable in size to the
+reproducibility of the field, although the two are different measures. Per-family errors may fall
+below that level partly because each compound is scored against one chosen reference.
+
+The compounds are not independent. They share chemistry clusters, bonding families and, in places, a
+laboratory, so the effective sample is smaller than \num{39}; the cluster-level tests address the
+first, not the shared laboratories.
+
+A family constant is interpolation within the family, and in several families the family-mates are
+one paper's specimens. A family nobody has measured receives only the shared constant, and the
+capped shared correction cannot raise a calculation that already lies below its measurement.
+
+The issued values rest on few calculations. Seven of the ten rest on a single published calculation
+at the quoted temperature, and most on one study. A systematic error there would pass undiluted into
+those values; a transfer function calibrates the scale of a calculation, not its correctness.
+
+The model learns only from full calculations, which leaves \num{284} half Heuslers to learn from;
+where a bond descriptor cannot be computed it is left missing, which the model handles natively.
+Structure-only values carry two errors and assume a structure: neither compound has, as far as we
+could find, been synthesised, so each value is conditional on the cubic phase forming.
+
+Several alternatives were tested and not adopted, because they did not improve held-out accuracy
+consistently: a correction without the temperature term (Section~\ref{sec:blind}), a capped family
+form, a two-stage (hurdle) model, a magnitude-dependent calibration term, and training on
+experimental or doped-composition values.

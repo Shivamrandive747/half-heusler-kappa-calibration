@@ -26,7 +26,7 @@
 %   46.7 / 45.6 / 0.004           in_domain_table.nulls, .paired_p_seed_median
 %   18 / 0.048                    cluster_level_significance (n_clusters, wilcoxon_p_max.power =
 %                                 0.0483); sign_p_range (not significant on every seed)
-%   38.6 / 78.9 / 50              headline.unconditional, blind_test.compounds
+%   37.4 / 78.0 / 50              headline.unscreened_same_protocol, blind_test.compounds
 %   10 / 3 at 500 K / 15          predictions.counts, predictions.issued_quoted_at_500K
 %   10 conditional                conditional.n
 % =============================================================================================
@@ -36,9 +36,11 @@
 
 A thermoelectric generator needs a material that conducts charge freely but obstructs heat. Half
 Heuslers meet the first requirement far better than the second. Their electronic performance is
-established, with figures of merit approaching $zT \approx 1.5$ in $p$-type
-\ce{FeNbSb}~\cite{fu2015realizing} and $zT \approx 1.4$ in \ce{ZrCoBi}~\cite{zhu2018discovery}, and
-the class is mechanically robust, stable to high temperature and made of abundant elements. Their
+well established, with figures of merit approaching $zT \approx 1.5$ in $p$-type
+\ce{NbFeSb}-based~\cite{fu2015realizing} and $zT \approx 1.4$ in \ce{ZrCoBi}-based
+alloys~\cite{zhu2018discovery}, and
+the class is mechanically robust, stable to high temperature and in many cases made of abundant
+elements. Their
 lattice thermal conductivity $\kappa_L$, however, remains high, and because $zT$ varies inversely
 with $\kappa_L$, most advances have come from suppressing it after synthesis. The screening problem
 is to identify compounds with intrinsically low $\kappa_L$ before they are made.
@@ -47,59 +49,73 @@ Solving the phonon Boltzmann transport equation (BTE) from first principles give
 experimental input, and reproduces the measured temperature dependence of a half Heusler without
 being fitted to it~\cite{shiomi2011thermal}. The obstacle is cost. Carrete \emph{et al.} calculated
 \num{32} half Heuslers in full and trained a random-forest model on them to search a far larger
-set~\cite{carrete2014finding}, and much later work has reproduced the calculation more cheaply,
+set~\cite{carrete2014finding}, and much subsequent work has approximated the calculation at lower
+cost,
 through compressed-sensing descriptors~\cite{liu2020a} and machine-learned models trained on
 databases of computed
 conductivities~\cite{luo2023predicting,trans2022lattice,miyazaki2021machine,jaafreh2021lattice,bhattacharjee2022thorough}.
-The most recent, by Paliwal and Alam, trains an ensemble of seven tree-based regressors on
-\num{4127} calculated values for \num{150} compounds and reports $R^2 = \num{0.9994}$ on held-out
-calculated labels~\cite{paliwal2025accelerate}.
+Most recently, Paliwal and Alam compared seven tree-based ensemble regressors trained on \num{4127}
+calculated values for \num{150} compounds; the best, an extra-trees model, reached
+$R^2 = \num{0.9994}$ (on $\log\kappa_L$) on held-out calculated
+labels~\cite{paliwal2025accelerate}.
 
-Such models, which we call \emph{surrogates} because they stand in for the calculation, are
-accurate against the quantity they were trained on, and that quantity is a calculation, not a
-measurement. The field's assessment of the difference has changed. A 2019 review concluded that
+We call such models \emph{surrogates}, because they stand in for the calculation. They are accurate
+against the quantity they were trained on, which is a calculation rather than a measurement. The field's assessment of the difference has changed. An earlier review concluded that
 first-principles transport ``agree[s] with experimental measurements for diverse crystalline
-materials''~\cite{mcgaughey2019phonon}; a controlled multi-code comparison in 2025, by the same
+materials''~\cite{mcgaughey2019phonon}; a later controlled multi-code comparison, by the same
 lead author, found the solvers within \SI{15}{\percent} of their mean values, yet reported that the
 calculated conductivities ``do not generally show agreement with experimental
 measurements''~\cite{mcgaughey2025phonon}. Paliwal and Alam note that computed $\kappa_L$ ``often
 overestimates the experimental values because real samples inevitably contain impurities, defects,
-and grain boundaries''~\cite{paliwal2025accelerate}, but treat it as context rather than as a
-quantity to measure. What has been missing is the magnitude and sign of the disagreement across a
+and grain boundaries''~\cite{paliwal2025accelerate}, but leave the size of the effect
+unmeasured. What has been missing is the magnitude and sign of the disagreement across a
 materials class, and a correction for it validated against held-out experiment.
 
 In our corpus, published transport calculations exceed the measured $\kappa_L$ of the same compound
 by a median factor of \num{1.69} over \num{34} compounds. A surrogate that reproduces the calculation
 therefore carries that offset when its output is read as a prediction of experiment. A published
-neural-network force field, Elemental-SDNNFF~\cite{rodriguez2023millionsca}, shows this
-(Section~\ref{sec:sdnnff}): on the \num{21} in-domain compounds it shares with our validation set,
-its values are a median \num{2.01} times the measurements, while on the \num{18} that carry a
+neural-network force field, Elemental-SDNNFF~\cite{rodriguez2023millionsca}, illustrates the
+problem (Section~\ref{sec:sdnnff}). On the \num{21} compounds it shares with our validation set
+inside the domain of applicability (Section~\ref{sec:domain}), its values are a median \num{2.01} times the measurements, while on the \num{18} that carry a
 published calculation they are a median \num{0.99} times that calculation.
 
 Existing routes across this gap do not correct a full BTE calculation. Zhu \emph{et al.}
 transfer-learned a crystal-graph network from \num{2668} computed conductivities onto \num{132}
-measured values, starting from semi-empirical high-throughput estimates~\cite{zhu2021charting};
-Miller \emph{et al.} fitted a semi-empirical model to experiment~\cite{miller2017capturing}; Chen
-\emph{et al.} trained a Gaussian process on about one hundred measured solids~\cite{chen2019machine};
-and a related study merged empirical estimates, calculations and measurements into one training
-target~\cite{liu2022leveraging}. Keeping experiment and calculation apart is what makes the offset
+measured values, starting from semi-empirical high-throughput estimates~\cite{zhu2021charting}.
+Miller \emph{et al.} fitted a semi-empirical model to experiment~\cite{miller2017capturing}, Chen
+\emph{et al.} trained a Gaussian process on about one hundred measured solids~\cite{chen2019machine},
+and a related study pretrained on empirical-model estimates and then fine-tuned on a single
+high-fidelity target that pools measurements with first-principles
+calculations~\cite{liu2022leveraging}. Keeping experiment and calculation apart is what makes the offset
 measurable. Our correction acts on the transport calculation itself and is closed-form: a magnitude
 and an exponent that can be applied by hand.
 
 Measurements to correct against are scarce. Of the \num{735} half Heuslers in our corpus with any
 thermal-conductivity record, \num{284} have a full first-principles transport calculation and
-\num{50} have been measured. Training directly on measurements is beginning to
-appear~\cite{barua2024interpreta}, but \num{50} compounds are too few to learn a structure--property
-relation from scratch. As we show, they are enough to calibrate one.
+\num{50} have been measured. Models trained on large literature-compiled thermal-conductivity
+datasets are beginning to appear~\cite{barua2024interpreta}, but \num{50} compounds are too few to learn a structure--property
+relation from scratch. In our tests they are enough to calibrate a correction to calculated values.
 
 We predict the measured $\kappa_L$ with two steps used as a pair: a machine-learned model, trained on
 full first-principles calculations, predicts the calculation from crystal structure, and a transfer
 function maps a calculation onto the experimental scale. Measurements and calculations are never
 pooled, and each measured compound is scored against one reference laboratory chosen by a fixed rule
-that never reads a calculation. Writing a half Heusler as XYZ (Section~\ref{sec:method}), a
-\emph{bonding family} shares its Y and Z elements and a \emph{chemistry cluster} its X element. The
-end-to-end test holds each compound's chemistry cluster out of both steps and is compared with
-\emph{null baselines} that use no compound-specific information.
+that never reads a calculation. With a half Heusler written as XYZ (Section~\ref{sec:method}), a
+\emph{bonding family} is the set of compounds that share Y and Z, and a \emph{chemistry cluster} the
+set that share X. The end-to-end test holds each compound's chemistry cluster out of both steps.
+
+A few terms recur throughout. The \emph{median error} is the typical percentage difference between
+a prediction and the measured value: half of the compounds are predicted more closely than this. A
+prediction lies \emph{within a factor of two} when it falls between half and twice the measured
+value. A compound is \emph{held out} when nothing fitted to it has seen its own data, or, for a
+chemistry cluster, the data of any compound in that cluster. The model is trained five times with
+different random \emph{seeds}, and model-based results are the median over these five independently
+trained models unless one seed is named. \emph{Null baselines} predict without any
+compound-specific information, for instance a single constant conductivity, and set the bar a
+useful method must clear. A \emph{conformal interval} is a range around a prediction whose width is
+set by the errors observed on held-out compounds. Finally, every value carries a method
+\emph{tier}: tier~0 for a measurement, tier~1 for a full first-principles transport calculation,
+and tiers~2 and 3 for approximate and semi-empirical estimates (Section~\ref{sec:tiering}).
 
 Our contributions are:
 %
@@ -107,11 +123,12 @@ Our contributions are:
   \item A machine-learned model, trained only on full first-principles calculations, that predicts
         $\kappa_L^{\mathrm{BTE}}$ from crystal structure with \num{45} descriptors, selected among
         four regressors trained on identical rows and folds. With each chemistry cluster held out,
-        it reproduces published calculations to a median error of \SI{21.9}{\percent} (one seed),
+        it reproduces published calculations to a median error of \SI{21.9}{\percent} (reference
+        seed),
         with \SI{88.3}{\percent} of \num{230} compounds within a factor of two, and its
-        \textsc{shap} attribution is consistent with phonon physics.
+        \textsc{shap} (SHapley Additive exPlanations) attribution is consistent with phonon physics.
   \item A closed-form transfer function, $\kappa_L^{\mathrm{exp}} = \kappa_L^{\mathrm{BTE}}
-        \min[c\,(T/300)^p, 1]$, that corrects an offset regular across the class: calculations run
+        \min[c\,(T/300)^p, 1]$, that corrects an offset consistent across the class: calculations run
         high in \num{29} of \num{34} compounds and in \num{10} of \num{12} bonding families. Fitted
         on published calculations, its shared magnitude $c = \num{0.42}$ is well determined and its
         exponent $p = \num{0.70}$ much less so. On families never measured it gives a median error of
@@ -119,7 +136,8 @@ Our contributions are:
         compounds held out of their own family's fit, against \SI{32.3}{\percent} for the shared
         constant on the same \num{31}; it is not significantly better compound by compound (sign
         test $p = \num{0.44}$). Five families are validated held out, at
-        \SIrange{7.4}{24.9}{\percent}; the others are calibrated on their own papers.
+        \SIrange{7.4}{24.9}{\percent}; the rest are fitted only on their own papers
+        (\emph{calibrated} or, with a single member, \emph{anchored}).
   \item An end-to-end blind test from crystal structure to measurement. Inside the domain of
         applicability (18 valence electrons, a cubic $C1_b$ structure, no other polymorph on
         record), the median error is \SI{33.1}{\percent} and \SI{87.2}{\percent} of \num{39}
@@ -127,10 +145,15 @@ Our contributions are:
         \SI{41.9}{\percent} uncorrected and \SI{46.7}{\percent} and \SI{45.6}{\percent} for constant
         and power-law null baselines (paired Wilcoxon $p = \num{0.004}$; marginal when each
         chemistry cluster is counted once). Without the domain screens, over all \num{50} measured
-        compounds, the figures are \SI{38.6}{\percent} and \SI{78.9}{\percent}.
-  \item Ten issued predictions with prediction intervals, three quoted at \SI{500}{\kelvin} where
-        that is the only calculation no independent calculation contradicts; \num{15} flagged
+        compounds, the same test gives \SI{37.4}{\percent} and \SI{78.0}{\percent}.
+  \item Ten issued predictions with prediction intervals, three of them at \SI{500}{\kelvin}, the
+        only temperature with a calculation that no independent calculation contradicts; \num{15} flagged
         candidates, each with its reason; and \num{10} estimates conditional on a measurement in
         their family. From crystal structure alone we also give values for \ce{TmPbAu} and
         \ce{HfTeOs}, for which our literature search finds no published report of any kind.
 \end{enumerate}
+
+Section~\ref{sec:method} describes the corpus, the model and the transfer function;
+Section~\ref{sec:results} reports the offset, the calibration, the held-out test and the
+predictions; Section~\ref{sec:discussion} discusses what the constants mean, which route to use
+and the limits of the method; Section~\ref{sec:conclusions} concludes.

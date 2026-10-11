@@ -117,19 +117,29 @@ def main() -> int:
     import glob
     for f in sorted(glob.glob("paper/evidence/blind_d2_s*.csv")):
         seeds.setdefault(int(f[:-4].split("_s")[-1]), f)
-    per_seed = {}
+    per_seed, per_seed_w2, per_seed_unc = {}, {}, {}
     for s_, f in sorted(seeds.items()):
         Hs = pd.read_csv(f)
         Hs = Hs[Hs.klass == "half"].dropna(subset=["T", "k_ref", "k_pred"])
-        ap = []
+        per_seed_unc[str(s_)] = round(float(Hs.groupby("compound").apply(
+            lambda g: np.median(np.abs(g.k_pred - g.k_ref) / g.k_ref * 100)).median()), 2)
+        ap, ra = [], []
         for cl in sorted(Hs.cluster.unique()):
             c_, p_ = SCN.shared_cp_without_cluster(cl)
             for cp_, g in Hs[Hs.cluster == cl].groupby("compound"):
                 kk = g.k_pred.values * E.apply_cp(g["T"].values, c_, p_)
                 ap.append(float(np.median(np.abs(kk - g.k_ref.values) / g.k_ref.values * 100)))
+                ra.append(float(np.median(kk / g.k_ref.values)))
         per_seed[str(s_)] = round(float(np.median(ap)), 2)
+        # within 2x defined as for the predictors above: the per-compound median ratio in [0.5, 2]
+        per_seed_w2[str(s_)] = round(float(np.mean([(0.5 <= r <= 2.0) for r in ra]) * 100), 1)
     res["model_seed_median"] = dict(median_ape=round(float(np.median(list(per_seed.values()))), 2),
-                                    per_seed=per_seed)
+                                    per_seed=per_seed,
+                                    within_2x_pct=round(float(np.median(list(per_seed_w2.values()))), 1),
+                                    within_2x_per_seed=per_seed_w2,
+                                    uncorrected_median_ape=round(float(np.median(list(per_seed_unc.values()))), 2),
+                                    uncorrected_per_seed=per_seed_unc,
+                                    n_compounds=int(len(R)))
 
     mp = H.groupby("compound").k_pred.median()
     mr = H.groupby("compound").k_ref.median()

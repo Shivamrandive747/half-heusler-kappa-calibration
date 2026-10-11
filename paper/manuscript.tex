@@ -21,8 +21,22 @@
 % below and renders the citations malformed. Every citation in this manuscript is a plain \cite --
 % there is no \citep or \citet anywhere -- so the numeric style is the one we want and the class
 % option is what has to go.
-\documentclass[final,5p,times,twocolumn]{elsarticle}
+% Two builds from one source: manuscript.tex gives the two-column preprint (arXiv); review.tex sets
+% \reviewmode to 1 and gives the single-column, double-spaced, line-numbered copy Elsevier reviews.
+\providecommand{\reviewmode}{0}
+\ifnum\reviewmode=1
+  \documentclass[preprint,12pt]{elsarticle}
+\else
+  \documentclass[final,5p,times,twocolumn]{elsarticle}
+\fi
 
+\ifnum\reviewmode=1
+  \usepackage{lineno}             % continuous line numbers for the review copy
+  \AtBeginDocument{\linenumbers}
+  \usepackage{setspace}           % 1.5 spacing from the Introduction on (see after frontmatter)
+\fi
+\usepackage{adjustbox}            % shrinks a table only if it is wider than the text block
+\setlength{\emergencystretch}{1.5em}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}      % author names carry o-slash, s-caron, l-stroke etc.
 \usepackage{amsmath, amssymb}
@@ -49,7 +63,17 @@
                  experimental validation}}
 
 % Half Heuslers are written as \ce{ZrNiSn}; keep chemistry upright inside bold table cells.
-\sisetup{group-separator = {,}, group-minimum-digits = 4}
+\sisetup{group-separator = {,}, group-minimum-digits = 4, group-digits = integer}
+
+% One figure per page, beside the text that discusses it (author, 2026-10-09): at most one
+% full-width float at the top of a page, and no page made only of floats unless a float fills it.
+\setcounter{dbltopnumber}{1}
+\renewcommand{\dbltopfraction}{0.85}
+\renewcommand{\dblfloatpagefraction}{0.85}
+\setcounter{topnumber}{1}
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\textfraction}{0.10}
+\renewcommand{\floatpagefraction}{0.85}
 
 % =============================================================================================
 % WHAT MUST STILL BE FILLED IN BEFORE SUBMISSION.
@@ -65,7 +89,7 @@
 % both contributed to the figures. If the phonon-stability analysis is later added to the paper,
 % this line should be revised to name that contribution -- but only once the analysis is actually
 % IN the manuscript, since CRediT describes contributions to this work.
-\newcommand{\heetroles}{Visualization, Writing -- review \& editing.}
+\newcommand{\heetroles}{Visualization, Writing -- review \& editing.\ }
 % Zenodo archive of the GitHub repository, minted from release v1.0.0.
 % Zenodo issues TWO DOIs: a version DOI pinned to this exact snapshot, and a concept DOI that
 % always resolves to the newest version. The version DOI is used here so a referee gets precisely
@@ -135,10 +159,12 @@
 \input{section0_abstract}
 
 \end{frontmatter}
+\ifnum\reviewmode=1 \onehalfspacing\fi
 
 \input{section1_introduction}
 \input{section2_methods}
 \input{section3_results}
+\input{section35_discussion}
 \input{section4_conclusions}
 
 \section*{Data availability}
@@ -148,7 +174,7 @@
 % 29 calculation / 26 in the reference list) and corpus.source_dois_behind_measured (152),
 % corpus.half_measured_tier0 (50), in data/exports/kappa_v2/paper_numbers.json. The removed-row
 % records are the release_data/audit/ files copied by build_release_data.py (AUDIT_GLOBS).
-The following are archived at \repourl:
+The following are archived on Zenodo,\\ \repourl:
 \begin{itemize}[itemsep=1pt, topsep=3pt, leftmargin=1.5em]
   \item the prediction lists: for every candidate, the calculated and calibrated values, the quoted
         temperature, the prediction intervals, the status (issued, flagged or conditional on a
@@ -167,10 +193,10 @@ snapshot used is cited~\cite{mato2025starrydata}, so that the corpus can be rege
 
 The measurements analysed here are not ours. Across the whole corpus they come from \num{189}
 publications, \num{152} of which lie behind the \num{50} measured half Heuslers. The transport
-calculations come from \num{29} publications. The supplementary material cites every calculation
-source and every measurement source but one, so the provenance claim of
-Section~\ref{sec:dataset} can be checked rather than taken on trust. We list them there, not here,
-only because they would otherwise outnumber the works this paper discusses. The one uncited
+calculations come from \num{29} publications. The Supplementary material cites every calculation
+source and every measurement source but one, so that the provenance of every value can be checked.
+They are listed there because they would otherwise outnumber the works discussed in the paper. The
+one uncited
 measurement source has a digital object identifier (DOI), \texttt{10.36410/jcpr.2020.21.3.319},
 that is registered with neither Crossref nor DataCite, so it cannot be resolved into a reference.
 Every measured row of the corpus carries the DOI of the work it came from; calculated rows drawn
@@ -208,14 +234,13 @@ that could have appeared to influence the work reported in this paper.
 % model is the one used in the 2026-10 analysis and drafting sessions.
 \section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
 
-Corpus values were extracted from primary publications with Google Gemini models:
-\texttt{gemini-2.5-flash} (483 extractions, 4--13 July 2026) and \texttt{gemini-2.5-pro}
-(695 extractions, 13 July -- 18 September 2026). Every extracted value had to pass the physical
-and provenance gates described in Section~\ref{sec:dataset}, and no value entered the corpus on a
-model's authority alone. Claude Opus 5.5 (Anthropic) was used to write and audit the analysis and
-plotting code, including the code that generates every figure, and to assist in drafting the
-manuscript text. The authors reviewed all code and text, edited
-them as needed, and take full responsibility for the content of the published article.
+Corpus values were extracted from primary publications with Google Gemini models,
+\texttt{gemini-2.5-flash} (483 extractions) and \texttt{gemini-2.5-pro} (695 extractions). No
+extracted value entered the corpus on a model's authority alone: every value had to pass the
+physical and provenance checks described in Section~\ref{sec:dataset}. Claude Opus 5.5 (Anthropic)
+was used to write and audit the analysis and plotting code, including the code that generates every
+figure, and to assist in drafting the manuscript text. The authors reviewed and edited all code and
+text and take full responsibility for the content of this article.
 
 \section*{Acknowledgements}
 

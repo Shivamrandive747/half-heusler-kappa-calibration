@@ -1,11 +1,18 @@
 {
   "_generated_by": "paper/fig03_curves.py",
-  "selection_rule": "held-out family-arm compounds (arm == 'family' in family_deployed_pooled.csv; family constant fitted without the compound, on its leave-one-out fold reference) whose reference curve has >= 5 distinct temperatures spanning >= 300 K; the 3 with the lowest held-out family error",
+  "selection_rule": "held-out family-arm compounds in validated families (Co-Sb, Fe-Sb, Ni-Sb, Sb-Pt, Sn-Pt; family constant fitted without the compound, on its leave-one-out fold reference) whose reference curve has >= 5 distinct temperatures spanning >= 300 K; the 3 with the lowest held-out family error",
   "min_points": 5,
   "min_span_K": 300.0,
   "n_heldout_family_arm": 31,
-  "n_eligible": 21,
-  "eligible_median_heldout_error_pct": 21.7,
+  "n_eligible": 13,
+  "validated_families": [
+    "Co-Sb",
+    "Fe-Sb",
+    "Ni-Sb",
+    "Sb-Pt",
+    "Sn-Pt"
+  ],
+  "eligible_median_heldout_error_pct": 18.0,
   "protocol": "per-family SHAPE_NOCAP calibration held out: c_family_loo, p_family_loo from compute_deployed_route.py, scored on family_calibration.fold_pairs(compound)",
   "not_representative": "the three BEST fits by construction; the full per-compound distribution is family_deployed_pooled.csv",
   "compounds": [
@@ -36,17 +43,17 @@
       "reference_doi": "10.1103/physrevapplied.14.054046"
     },
     {
-      "compound": "LaBiPd",
-      "family": "Bi-Pd",
-      "heldout_error_pct": 10.1,
-      "c_family_loo": 0.8371,
+      "compound": "VFeSb",
+      "family": "Fe-Sb",
+      "heldout_error_pct": 11.4,
+      "c_family_loo": 0.43,
       "p_family_loo": 0.65,
-      "n_temperatures": 9,
+      "n_temperatures": 8,
       "T_range_K": [
-        320,
-        710
+        350,
+        700
       ],
-      "reference_doi": "10.2320/matertrans.e-mra2007807"
+      "reference_doi": "10.1007/s11664-016-4804-y"
     }
   ]
 }

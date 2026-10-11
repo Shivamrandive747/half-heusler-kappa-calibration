@@ -173,7 +173,7 @@ def main() -> int:
     W = F.DOUBLE / MMI                                       # 190 mm
     S = 37.5                                                 # side of the square panels, mm
     WD = 27.0                                                # width of the swarm panel (d)
-    Y0, TT = 8.8, 10.8                                       # bottom offset; title block height
+    Y0, TT = 9.2, 12.4                                       # bottom offset; title block height
     H = Y0 + S + TT
     xa = 10.0
     xb = xa + S + 9.3
@@ -196,7 +196,7 @@ def main() -> int:
     cmap = F.temp_cmap()
     norm = Normalize(vmin=float(d["T"].min()), vmax=float(d["T"].max()))
     renderer = fig.canvas.get_renderer()
-    FS_SUB = 6.3
+    FS_SUB = F.FS_MIN
 
     def _pts_axes(ax, x, y):
         """Plotted points in axes-fraction coordinates (log axes handled by transData)."""
@@ -225,10 +225,7 @@ def main() -> int:
 
     def _panel_letter(ax, letter, pts, cands=None):
         def mk(x, y, ha, va):
-            return ax.text(x, y, f"({letter})", transform=ax.transAxes, fontsize=8.5,
-                           fontweight="bold", va=va, ha=ha, zorder=20,
-                           bbox=dict(boxstyle="square,pad=0.25", fc="white", ec="#BBBBBB",
-                                     lw=0.5, alpha=0.92))
+            return F.panel_text(ax, x, y, letter, ha=ha, va=va)
         return _free_spot(ax, mk, pts, cands or [(0.035, 0.965, "left", "top"),
                                                  (0.035, 0.035, "left", "bottom"),
                                                  (0.965, 0.035, "right", "bottom"),
@@ -241,7 +238,7 @@ def main() -> int:
                     color="#333333", linespacing=1.15)
         rise = 2.0 + (sub.count("\n") + 1) * FS_SUB * 1.15 * 1.18 + 0.8
         ax.annotate(head, xy=(0.5, 1.0), xycoords="axes fraction", xytext=(0, rise),
-                    textcoords="offset points", ha="center", va="bottom", fontsize=7.4,
+                    textcoords="offset points", ha="center", va="bottom", fontsize=F.FS_LABEL,
                     fontweight="bold")
 
     # ---- (a), (b): parity ----------------------------------------------------------------------
@@ -256,7 +253,7 @@ def main() -> int:
         ax.xaxis.labelpad = 1.5
         ax.yaxis.labelpad = 1.0
         F.kappa_ticks(ax)
-        ax.tick_params(labelsize=6.4, pad=1.5)
+        ax.tick_params(labelsize=F.FS_TICK, pad=1.5)
         r = d[col] / d.k_exp
         n_out_hi, n_out_lo = int((r > 2).sum()), int((r < 0.5).sum())
         # SAY WHICH WAY THE RATIO GOES -- the direction is the figure's whole claim.
@@ -270,50 +267,63 @@ def main() -> int:
         if col == "k_dft":
             def mk_n(x, y, ha, va, ax=ax):
                 return ax.text(x, y, f"{n_pts} points\n{n_cmp} compounds\nshaded: 2$\\times$",
-                               transform=ax.transAxes, ha=ha, va=va, fontsize=6.0,
+                               transform=ax.transAxes, ha=ha, va=va, fontsize=F.FS_MIN,
                                color="#555555", linespacing=1.12)
             _free_spot(ax, mk_n, pts, [(0.97, 0.03, "right", "bottom"),
                                        (0.03, 0.03, "left", "bottom")])
 
     # ---- (c): the transfer function and the ratio it was fitted to ------------------------------
-    # measured/calculated is exactly what min[c(T/300)^p, 1] models, so the curve should pass
-    # through the middle of the cloud. Points above unity are compounds whose calculation already
-    # sits below the measurement; no downward correction reaches them.
-    r_obs = (d.k_exp / d.k_dft).values
+    # 2026-10-11: (c) now reads in the SAME direction as (d) -- calculated/measured, on the same
+    # logarithmic ratio scale and ticks -- so the reader never has to invert a ratio between two
+    # neighbouring panels. The transfer function multiplies the calculation by min[c(T/300)^p, 1],
+    # so the calculated/measured ratio it corrects is its reciprocal, 1/min[c(T/300)^p, 1], and that
+    # is the curve drawn: it should pass through the middle of the cloud. Points below unity are
+    # compounds whose calculation already sits below the measurement; no downward correction
+    # reaches them.
+    r_obs = (d.k_dft / d.k_exp).values
     Tgrid = np.linspace(150, 1250, 400)
-    mult = np.minimum(c * (Tgrid / 300.0) ** p, 1.0)
+    inv_mult = 1.0 / np.minimum(c * (Tgrid / 300.0) ** p, 1.0)
     Tcap = 300.0 * (1.0 / c) ** (1.0 / p)
     n_above = int((d["T"] >= Tcap).sum())
-    n_r_above1 = int((r_obs > 1).sum())
+    n_r_below1 = int((r_obs < 1).sum())
+    axc.set_yscale("log")
+    for f_ in (0.5, 2.0):
+        axc.axhline(f_, color="#C4C4C4", lw=0.5, ls=(0, (4, 2.5)), zorder=1)
     axc.axhline(1.0, color="#9A9A9A", lw=0.7, ls=(0, (4, 3)), zorder=1)
     axc.scatter(d["T"], r_obs, c=d["T"], cmap=cmap, norm=norm, s=8, marker="o",
                 lw=0.25, edgecolors="white", zorder=3)
-    axc.plot(Tgrid, mult, color=F.OURS, lw=1.6, zorder=4)
+    axc.plot(Tgrid, inv_mult, color=F.OURS, lw=1.6, zorder=4)
     axc.axvline(Tcap, color=F.OURS, lw=0.8, ls=(0, (2, 2)), zorder=2)
     axc.set_xlabel("$T$ (K)", labelpad=1.5)
-    axc.set_ylabel("measured / calculated", labelpad=1.5)
+    axc.set_ylabel("calculated / measured", labelpad=1.0)
     axc.set_xlim(150, 1250)
     axc.xaxis.set_major_locator(mticker.MultipleLocator(300))
     axc.xaxis.set_minor_locator(mticker.MultipleLocator(100))
-    axc.tick_params(labelsize=6.4, pad=1.5)
-    ytop = float(np.ceil(max(1.25, 1.06 * np.nanmax(r_obs)) * 4) / 4)
-    axc.set_ylim(0, ytop)
-    axc.yaxis.set_major_locator(mticker.MultipleLocator(0.5))
-    axc.yaxis.set_minor_locator(mticker.MultipleLocator(0.25))
+    axc.tick_params(labelsize=F.FS_TICK, pad=1.5)
+    # the y range follows (d)'s rule on this panel's own points and curve; the ticks are (d)'s
+    allc = np.concatenate([r_obs, inv_mult])
+    clo_r = min(0.5, float(np.nanmin(allc))) / 1.18
+    chi_r = max(2.0, float(np.nanmax(allc))) * 1.15
+    cticks = [v for v in (0.25, 0.33, 0.5, 0.7, 1, 1.5, 2, 3, 4, 5, 7) if clo_r <= v <= chi_r]
+    axc.set_ylim(clo_r, chi_r)
+    axc.yaxis.set_major_locator(mticker.FixedLocator(cticks))
+    axc.yaxis.set_major_formatter(mticker.FixedFormatter([f"{v:g}" for v in cticks]))
+    axc.yaxis.set_minor_locator(mticker.NullLocator())
+    axc.grid(axis="y", visible=False)
     # The curve's label goes in the title block, not on the panel: the cloud fills (c) from corner
     # to corner and no position for it covers no point.
     _title(axc, "Transfer function",
-           f"$\\min[c(T/300)^{{p}},1]$, $c={c:.2f}$, $p={p:.2f}$\n"
-           f"cap {Tcap:.0f} K (dotted); {n_above} of {n_pts} points beyond")
+           f"$1/\\min[c(T/300)^{{p}},1]$, $c$ = {c:.2f}, $p$ = {p:.2f}\n"
+           f"cap {Tcap:.0f} K (dotted); {n_above} of {n_pts} beyond")
     pts_c = _pts_axes(axc, d["T"], r_obs)
     # the curve's own pixels count as occupied too, so the letter never sits on the line
-    pts_c = np.vstack([pts_c, _pts_axes(axc, Tgrid, mult)])
+    pts_c = np.vstack([pts_c, _pts_axes(axc, Tgrid, inv_mult)])
     _panel_letter(axc, "c", pts_c)
-    print(f"  (c): {n_r_above1} of {n_pts} points have measured > calculated (ratio above 1)")
+    print(f"  (c): {n_r_below1} of {n_pts} points have calculated < measured (ratio below 1)")
 
     cb = fig.colorbar(sc, cax=cax)
-    cb.set_label("$T$ (K)", fontsize=7, labelpad=1.5)
-    cb.ax.tick_params(labelsize=6.2, width=0.5, length=2, pad=1.2)
+    cb.set_label("$T$ (K)", fontsize=F.FS_LABEL, labelpad=1.5)
+    cb.ax.tick_params(labelsize=F.FS_TICK, width=0.5, length=2, pad=1.2)
     cb.ax.yaxis.set_major_locator(mticker.MultipleLocator(200))
     cb.outline.set_linewidth(0.5)
 
@@ -333,7 +343,7 @@ def main() -> int:
     axd.yaxis.set_minor_locator(mticker.NullLocator())
     axd.grid(axis="x", visible=False)
     axd.set_ylabel("calculated / measured", labelpad=1.0)
-    axd.tick_params(labelsize=6.4, pad=1.5)
+    axd.tick_params(labelsize=F.FS_TICK, pad=1.5)
     XL = (-0.62, 1.62)
     axd.set_xlim(*XL)
     mm_per_x = WD / (XL[1] - XL[0])                         # millimetres per x unit on (d)
@@ -366,7 +376,7 @@ def main() -> int:
                  zorder=3, ls="-" if k else (0, (3, 1.5)), solid_capstyle="butt")
         pts_d.append(_pts_axes(axd, k + off, ser.values))
     axd.set_xticks([0, 1])
-    axd.set_xticklabels([lab for lab, _, _ in rows_d], fontsize=6.6)
+    axd.set_xticklabels([lab for lab, _, _ in rows_d], fontsize=F.FS_TICK)
     axd.tick_params(axis="x", which="both", length=0, top=False, bottom=False)
     _title(axd, f"Per compound ({int(per_c.size)})",
            f"median {per_c.median():.2f} $\\rightarrow$ {per_c_cal.median():.2f}\n"
