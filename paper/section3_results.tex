@@ -376,7 +376,7 @@ screens exclude behave as a separate population, with a median error of \SI{86.4
 Fig.~\ref{fig:modelblind}(c)). Dropping the temperature term
 ($\kappa_L^{\mathrm{exp}} = c\,\kappa_L^{\mathrm{BTE}}$) raises the median error to
 \SI{38.5}{\percent} (median over seeds). Published semi-empirical estimates
-(Slack~\cite{slack1979the} and Debye--Callaway) do far worse, at \SI{91.6}{\percent} on the \num{22}
+(Slack~\cite{slack1979the} and Debye--Callaway~\cite{callaway1959model}) do far worse, at \SI{91.6}{\percent} on the \num{22}
 in-domain compounds that have one. The predictions also order the compounds: Spearman's $\rho$
 between predicted and measured conductivity is \num{0.662}.
 
@@ -403,7 +403,8 @@ compounds of the family test under the weaker, leave-one-compound-out holdout.
 
 Elemental-SDNNFF obtains $\kappa_L$ through the Boltzmann transport equation on a neural-network
 force field~\cite{rodriguez2023millionsca}; its values are tier~2 and were never labels (the same
-paper's ShengBTE values are tier~1 and enter the published median for \num{6} of the \num{18}
+paper's calculations from first-principles force constants are tier~1 and enter the published
+median for \num{6} of the \num{18}
 compounds below, so the two are not wholly independent). On the
 \num{18} in-domain compounds with a published calculation it reproduces that calculation at
 \SI{300}{\kelvin} to a median \SI{18.8}{\percent} (ratio \num{0.99}), yet on the \num{21} it shares
@@ -541,19 +542,20 @@ family's span were predicted to a median of \SI{18.4}{\percent}, but two cases c
 clear extrapolations.
 
 Ten further estimates, in \ce{Ni}--\ce{Bi}, are conditional. The family's only measured member,
-\ce{YNiBi}, reports a lattice conductivity that rises with temperature, which its authors attribute
-to a bipolar contribution~\cite{li2015synthesis}, so the family cannot be calibrated. On the shared
+\ce{YNiBi}, has a thermal conductivity with a significant bipolar contribution, as its authors
+report~\cite{li2015synthesis}, and the lattice term we extract from it rises with temperature, so
+the family cannot be calibrated. On the shared
 constant the ten lie at \SIrange{2.21}{4.95}{\watt\per\meter\per\kelvin} at \SI{300}{\kelvin};
 Section~S12 of the Supplementary material lists them with the two measurements that would allow
-nine of them to be issued. One of the ten, \ce{SmNiBi}, also carries a caveat, because samarium's valence is not
-fixed; it is counted as conditional, not among the fifteen flagged. Across the three statuses the
+nine of them to be issued. One of the ten, \ce{SmNiBi}, also carries a caveat, because samarium's valence can vary
+between compounds; it is counted as conditional, not among the fifteen flagged. Across the three statuses the
 conformal band has the same relative width; what changes is the evidence behind the value, not its
 stated precision.
 
 For one family a measurement of the cubic phase may not be possible at all. The cobalt arsenides
 \ce{XCoAs} (X = Ti, Zr, Hf) have published calculations but no measured family member, and the two
-that have been synthesised, \ce{ZrCoAs} and \ce{HfCoAs}, form the orthorhombic \ce{Co2Si}
-type~\cite{kleinke1998crystal}. We therefore carry none of the three as a candidate, so none has a
+we found reported as synthesised, \ce{ZrCoAs} and \ce{HfCoAs}, crystallise in the orthorhombic
+\ce{Co2Si} type~\cite{kleinke1998crystal}. We therefore carry none of the three as a candidate, so none has a
 status. The polymorph screen alone would have caught only \ce{HfCoAs}, which has an orthorhombic
 record (space group 62), and not \ce{ZrCoAs} or \ce{TiCoAs}, whose records carry only the cubic
 cell.

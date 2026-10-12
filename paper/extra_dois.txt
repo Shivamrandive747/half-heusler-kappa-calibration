@@ -110,8 +110,10 @@
 10.1002/jcc.27216
 # OpenAlex, the literature index used for the novelty search (DataCite record: Priem, Piwowar, Orr 2022).
 10.48550/arXiv.2205.01833
-# DxMag Heusler database (Xiao and Tadano), source of cubic cells and hull distances.
-10.1038/s41524-026-02013-0
+# DxMag Heusler database: Xiao and Tadano, Acta Mater. 297 (2025) 121312, the paper that builds it
+# (106,235 structures incl. 9,396 half Heuslers). Replaced 10.1038/s41524-026-02013-0 on 2026-10-12,
+# a later screening paper that does not describe the half-Heusler entries.
+10.1016/j.actamat.2025.121312
 
 # 2026-10-04: arXiv-only sources whose half-Heusler calculations are in the training corpus but
 # were never cited (the provenance count read only "10." ids). Data sources: \nocite, ledger-exempt.

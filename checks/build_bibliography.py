@@ -336,7 +336,7 @@ def to_bibtex(m: dict, key: str) -> str:
     # the registered figshare title of the Starrydata snapshot is its date stamp; the DOI pins the
     # version, so the reference list carries a descriptive title instead
     if m.get("DOI", "").lower() == "10.6084/m9.figshare.29438735":
-        title = "Starrydata2 dataset snapshot"
+        title = r"20250701\_starrydata2 (Starrydata2 dataset snapshot)"
     # Crossref flattens or mangles subscripts in these registered titles ("Ti $_{1-}$ $_{x}$",
     # "R Ni Sb ( R = Sc , ...", "NbCoNixSn"); the words are Crossref's, only the formula markup is
     # restored so the reference list reads as the article does.
@@ -351,7 +351,9 @@ def to_bibtex(m: dict, key: str) -> str:
         "year": yr,
         "volume": esc(m.get("volume", "")),
         "number": esc(m.get("issue", "")),
-        "pages": esc(m.get("page", "")),
+        # many journals register an article number, not a page range; without this fallback the
+        # reference list omitted it for over twenty entries (citation audit, 2026-10-12)
+        "pages": esc(m.get("page", "") or m.get("article-number", "")),
         "doi": m.get("DOI", ""),
         "publisher": esc(m.get("publisher", "")),
     }

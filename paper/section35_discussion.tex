@@ -11,11 +11,11 @@
 \label{sec:interpretation}
 
 Several effects can make published calculations run high, and our data do not separate them. Real
-specimens contain point defects and antisite disorder that scatter phonons~\cite{kim2017direct},
-and grain boundaries that lower $\kappa_L$ further~\cite{schrade2017the}. Calculation settings such
-as the exchange--correlation functional and force-constant cut-offs matter. And four-phonon
-scattering, which most calculations omit, lowers the true conductivity, so its omission alone makes
-three-phonon calculations run high~\cite{feng2017fourphonon}.
+specimens can contain interstitial and antisite defects that scatter phonons, as imaged directly in
+\ce{TiNiSn}-based alloys~\cite{kim2017direct}, and grain boundaries that lower $\kappa_L$
+further~\cite{schrade2017the}. Calculation settings such as the exchange--correlation functional and
+force-constant cut-offs matter. And four-phonon scattering, which most calculations omit, lowers the
+true conductivity, so omitting it biases three-phonon calculations high~\cite{feng2017fourphonon}.
 
 Phenomenological temperature dependences have been fitted to, or tested against, measured
 half-Heusler curves before~\cite{geng2014lattice,petersen2015critical}; here we fit instead the \emph{ratio} of
@@ -25,17 +25,18 @@ assumed $T^{-1}$ calculated dependence (Section~\ref{sec:transfer}; the one mult
 calculation has a log--log slope of \num{-1.02}), $p$ is in effect the measured slope relative to
 it: $p=\num{0.70}$ implies a corrected $\kappa_L \propto T^{-0.30}$.
 
-The correction is empirical, not a boundary-scattering term. Any temperature-independent extrinsic
-scattering (boundaries, point defects or static disorder) added to three-phonon Umklapp scattering
-caps the logarithmic slope of the suppression at $1-c$ (\num{0.58} at $c=\num{0.42}$), for a grey or
-a spectral model~\cite{callaway1959model}. The fitted $p$ exceeds that cap, although its bootstrap
-range straddles it (derivation in Section~S1 of the Supplementary material), and four-phonon
-scattering would lower the slope. A measured lattice conductivity above the three-phonon value of
+The correction is empirical, not a boundary-scattering term. In a relaxation-time description of
+the conductivity~\cite{callaway1959model}, any temperature-independent extrinsic scattering
+(boundaries, point defects or static disorder) added to three-phonon Umklapp scattering caps the
+logarithmic slope of the suppression at $1-c$ (\num{0.58} at $c=\num{0.42}$), for a grey or a
+spectral model; this bound is our own derivation (Section~S1 of the Supplementary material). The
+fitted $p$ exceeds that cap, although its bootstrap range straddles it, and four-phonon scattering
+would lower the slope. A measured lattice conductivity above the three-phonon value of
 the perfect crystal, as some high-temperature curves show, more likely retains an electronic or
 bipolar term that the single-parabolic-band Lorenz number does not remove, or high-temperature
 measurement error: the Lorenz number of a multiband or bipolar semiconductor can depart from the
 single-band value by a factor of two or more~\cite{thesberg2017on}, and a bipolar contribution to the
-thermal conductivity has been measured in a half Heusler of this domain~\cite{li2015synthesis}. The rise of the measured-to-calculated ratio with temperature, and the value of
+thermal conductivity has been reported in a half Heusler of this domain~\cite{li2015synthesis}. The rise of the measured-to-calculated ratio with temperature, and the value of
 $p$, may therefore partly reflect the separation of lattice and electronic conduction rather than
 phonon scattering. We attach no mechanism to the parameters.
 

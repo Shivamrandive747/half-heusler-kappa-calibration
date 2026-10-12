@@ -118,15 +118,15 @@ the corpus keeps calculations and measurements as separate records. It holds \nu
 values for \num{960} distinct Heusler compounds, \num{735} of them half Heuslers, and every value
 records its source and how it was obtained.
 
-Experimental values come from the Starrydata curated transport database~\cite{katsura2025starrydata},
-read from a fixed published snapshot~\cite{mato2025starrydata}, and from direct extraction
+Experimental values come from the Starrydata database of transport data digitised from the
+literature~\cite{katsura2025starrydata}, read from its public release, and from direct extraction
 from primary publications. Starrydata aggregates curves digitised from primary publications; the
 measured half-Heusler values trace to \num{152} distinct publications. For direct extraction,
 multimodal large language models read the full text, tables and figures: Google Gemini
 \texttt{gemini-2.5-flash} (\num{483} extractions) and \texttt{gemini-2.5-pro}
 (\num{695} extractions). A retrieved record with no body text is never passed to the model, and
 every extracted value must pass the physical and provenance checks below, so no value enters the
-corpus on the model's authority alone. First-principles values come from
+corpus on the model's authority alone. First-principles data come from
 AFLOW~\cite{curtarolo2012aflow} (its AAPL transport module~\cite{plata2017an} and its AGL
 Debye--Gr\"{u}neisen estimates~\cite{toher2014highthroug}, kept apart by the tiering below), the
 Materials Project~\cite{jain2013commentary}, JARVIS~\cite{choudhary2020the},
@@ -143,7 +143,7 @@ by Wiedemann--Franz subtraction,
 \end{equation}
 %
 with $T$ the temperature, $\rho$ the electrical resistivity and the Lorenz number from the
-single-parabolic-band expression of Kim and Snyder~\cite{kim2015characteri},
+single-parabolic-band expression of Kim \emph{et al.}~\cite{kim2015characteri},
 $L = [1.5 + \exp(-|S|/116)]\times\SI{e-8}{\watt\ohm\per\kelvin\squared}$ with the Seebeck coefficient
 $S$ in \si{\micro\volt\per\kelvin}. Rows without a Seebeck coefficient use the degenerate limit,
 \SI{2.44e-8}{\watt\ohm\per\kelvin\squared}, which overstates the electronic part of a semiconductor
@@ -225,7 +225,8 @@ narrow-gap or semimetallic, so for them the electronic subtraction is less secur
 conditions follow because the calculation being calibrated is for the cubic phase.
 
 Two further screens apply to prediction candidates only. A candidate containing \ce{Ce}, \ce{Sm},
-\ce{Eu} or \ce{Yb}, whose valence is not fixed~\cite{lawrence1981valence}, is flagged rather than
+\ce{Eu} or \ce{Yb}, elements whose valence can vary from compound to
+compound~\cite{lawrence1981valence}, is flagged rather than
 issued (the validation compound \ce{YbNiSb} is still scored), and a candidate containing a
 radioactive element is excluded, since the corpus holds no training example of one.
 
@@ -340,8 +341,9 @@ material.
 \label{sec:transfer}
 
 A laboratory specimen scatters phonons at grain boundaries, point defects and pores that a
-calculation of the perfect crystal lacks, as analysed directly against measurement for the
-\ce{XNiSn} half Heuslers~\cite{schrade2017the}. Its conductivity is therefore lower, and the
+calculation of the perfect crystal lacks; for the \ce{XNiSn} half Heuslers, grain-boundary and
+point-defect scattering have been compared directly against measurement~\cite{schrade2017the}. Its
+conductivity is therefore lower, and the
 specimen contribution should grow as temperature falls and intrinsic mean free paths lengthen.
 
 \paragraph{The shared form} We describe the offset empirically with two parameters:
@@ -426,7 +428,7 @@ and what the fitted exponent can and cannot say, is discussed in Section~\ref{se
 \label{sec:structureonly}
 
 For a compound nobody has calculated, the model supplies $\kappa_L^{\mathrm{BTE}}$ and the transfer
-function maps it onto the experimental scale. We searched DxMag~\cite{xiao2026accurate}, AFLOW, OQMD,
+function maps it onto the experimental scale. We searched DxMag~\cite{xiao2025highthroug}, AFLOW, OQMD,
 JARVIS and the Materials Project for cubic $C1_b$ cells inside the domain, took the lattice parameter
 of the lowest-energy site ordering on record, and predicted a candidate only if its family, its X
 element and every element are represented among the training half Heuslers. A prediction is graded
@@ -464,8 +466,10 @@ once. Family constants are tested leave-one-compound-out against the shared cons
 refitted without the same compound, and the shared constant on families never measured is tested
 leave-one-family-out on the \num{34} compounds of the published route.
 
-Prediction intervals are split conformal intervals~\cite{lei2018distributi}, built from out-of-fold
-residuals in logarithmic space. Each in-domain compound contributes one residual, under the
+Prediction intervals follow the cross-validation (jackknife) variant of conformal
+prediction~\cite{lei2018distributi}, built from out-of-fold residuals in logarithmic space. Unlike
+split conformal prediction, this variant carries no finite-sample coverage guarantee, which is why
+coverage is checked empirically below. Each in-domain compound contributes one residual, under the
 calibration it would actually receive (its family constant fitted without it, or else the shared
 constant refitted without its cluster), in the temperature bin nearest the quoted temperature. For a
 nominal level $\alpha$ over $m$ held-out compounds,

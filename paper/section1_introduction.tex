@@ -46,30 +46,30 @@ with $\kappa_L$, most advances have come from suppressing it after synthesis. Th
 is to identify compounds with intrinsically low $\kappa_L$ before they are made.
 
 Solving the phonon Boltzmann transport equation (BTE) from first principles gives $\kappa_L$ with no
-experimental input, and reproduces the measured temperature dependence of a half Heusler without
-being fitted to it~\cite{shiomi2011thermal}. The obstacle is cost. Carrete \emph{et al.} calculated
+experimental input; for the half Heusler \ce{ZrCoSb} the calculated temperature dependence agrees
+reasonably with measurement, running slightly above it, with no fitted parameter~\cite{shiomi2011thermal}.
+The obstacle is cost. Carrete \emph{et al.} calculated
 \num{32} half Heuslers in full and trained a random-forest model on them to search a far larger
 set~\cite{carrete2014finding}, and much subsequent work has approximated the calculation at lower
 cost,
 through compressed-sensing descriptors~\cite{liu2020a} and machine-learned models trained on
-databases of computed
+computed
 conductivities~\cite{luo2023predicting,trans2022lattice,miyazaki2021machine,jaafreh2021lattice,bhattacharjee2022thorough}.
 Most recently, Paliwal and Alam compared seven tree-based ensemble regressors trained on \num{4127}
 calculated values for \num{150} compounds; the best, an extra-trees model, reached
-$R^2 = \num{0.9994}$ (on $\log\kappa_L$) on held-out calculated
+$R^2 = \num{0.9994}$ (on $\log\kappa_L$) in repeated cross-validation on calculated
 labels~\cite{paliwal2025accelerate}.
 
 We call such models \emph{surrogates}, because they stand in for the calculation. They are accurate
 against the quantity they were trained on, which is a calculation rather than a measurement. How
-far calculation and measurement differ has been judged in two ways. An earlier review concluded that
-first-principles transport ``agree[s] with experimental measurements for diverse crystalline
-materials''~\cite{mcgaughey2019phonon}; a later controlled multi-code comparison, by the same
+far calculation and measurement differ has been judged in two ways. An earlier tutorial on the
+method stated that it ``has enabled thermal conductivity predictions that agree with experimental
+measurements for diverse crystalline materials''~\cite{mcgaughey2019phonon}; a later controlled multi-code comparison, by the same
 lead author, found the solvers within \SI{15}{\percent} of their mean values, yet reported that the
 calculated conductivities ``do not generally show agreement with experimental
 measurements''~\cite{mcgaughey2025phonon}. Paliwal and Alam note that computed $\kappa_L$ ``often
 overestimates the experimental values because real samples inevitably contain impurities, defects,
-and grain boundaries''~\cite{paliwal2025accelerate}, but leave the size of the effect
-unmeasured. What has been missing is the magnitude and sign of the disagreement across a
+and grain boundaries''~\cite{paliwal2025accelerate}, but do not quantify the offset. What has been missing is the magnitude and sign of the disagreement across a
 materials class, and a correction for it validated against held-out experiment.
 
 In our corpus, published transport calculations exceed the measured $\kappa_L$ of the same compound
@@ -93,8 +93,8 @@ and an exponent that can be applied by hand.
 
 Measurements to correct against are scarce. Of the \num{735} half Heuslers in our corpus with any
 thermal-conductivity record, \num{284} have a full first-principles transport calculation and
-\num{50} have been measured. Models trained on large literature-compiled thermal-conductivity
-datasets are beginning to appear~\cite{barua2024interpreta}, but \num{50} compounds are too few to learn a structure--property
+\num{50} have been measured. Models trained on large public thermal-conductivity datasets are
+beginning to appear~\cite{barua2024interpreta}, but \num{50} compounds are too few to learn a structure--property
 relation from scratch. In our tests they are enough to calibrate a correction to calculated values.
 
 We predict the measured $\kappa_L$ with two steps used as a pair: a machine-learned model, trained on
