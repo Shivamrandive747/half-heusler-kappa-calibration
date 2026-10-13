@@ -242,6 +242,8 @@ def _new_results(N: dict) -> None:
         tr = tr[tr["T"].between(280, 320) & (tr.k > 0) & tr.r.map(lambda c: bool(c) and is_hh(c))]
         per = tr.groupby(["r", "s"]).k.median().groupby(level=0)
         spread = (per.max() / per.min())[per.size() >= 2]
+        # per-compound spread for the error-budget figure (fig16_error_budget.py)
+        spread.rename("factor").rename_axis("compound").to_csv(f"{EX}/calc_spread_per_compound.csv")
         il = jload(f"{EX}/interlab_ceiling.json")
         N["source_disagreement"] = dict(
             calculations_300K=dict(n_compounds=int(len(spread)), median_factor=round(float(spread.median()), 2),
@@ -1220,6 +1222,33 @@ def main() -> int:
     except Exception as e:  # noqa: BLE001
         N["accuracy_summary"] = {"_unavailable": str(e)}
         print(f"  !! accuracy_summary UNAVAILABLE ({e})")
+    # ERROR BUDGET (2026-10-12): every route's typical per-compound disagreement factor
+    # 10^|log10 r| beside the spread between two sources for the same compound. Re-reads existing
+    # per-compound files only; paper/fig16_error_budget.py draws it and asserts these medians.
+    try:
+        _fac = lambda r: 10 ** np.abs(np.log10(np.asarray(r, float)))
+        _acc_pc = pd.read_csv(f"{EX}/accuracy_per_compound.csv")
+        _off_pc = pd.read_csv(f"{EX}/offset_per_compound.csv")
+        _rows = {
+            "lab_vs_lab": pd.read_csv(f"{EX}/interlab_per_compound.csv").median_factor.values,
+            "calc_vs_calc": pd.read_csv(f"{EX}/calc_spread_per_compound.csv").factor.values,
+            "published_uncorrected": _fac(_off_pc.ratio_uncorrected),
+            "published_shared": _fac(_off_pc.ratio_shared_cluster_out),
+            "published_family": _fac(_acc_pc[_acc_pc.route == "published_calc_family_constant"].ratio),
+            "model_uncorrected": _fac(_acc_pc[_acc_pc.route == "ml_uncorrected_in_domain"].ratio),
+            "model_shared": _fac(_acc_pc[_acc_pc.route == "ml_shared_in_domain"].ratio),
+            "null_constant": _fac(_acc_pc[_acc_pc.route == "null_constant_in_domain"].ratio),
+            "null_power": _fac(_acc_pc[_acc_pc.route == "null_power_law_in_domain"].ratio)}
+        N["error_budget"] = dict(
+            rows={k: dict(n=int(len(v)), median_factor=round(float(np.median(v)), 2)) for k, v in _rows.items()},
+            unit="per-compound factor 10^|log10 r| (>= 1); median over compounds; model rows use each "
+                 "compound's median over the five seeds",
+            HOW_TO_STATE=("lab_vs_lab and calc_vs_calc compare two sources with each other; every other "
+                          "row compares a prediction with one chosen reference. Say 'similar in size', "
+                          "never 'at the noise floor'; the measures differ"))
+    except Exception as e:  # noqa: BLE001
+        N["error_budget"] = {"_unavailable": str(e)}
+        print(f"  !! error_budget UNAVAILABLE ({e})")
 
     # ---- guard: no withdrawn literal may reappear -------------------------------------------
     import re

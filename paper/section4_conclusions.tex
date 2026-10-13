@@ -30,29 +30,29 @@
 \section{Conclusions}
 \label{sec:conclusions}
 
-Used as a pair, machine learning and transfer-function calibration predict the measured lattice
-thermal conductivity of half Heuslers from crystal structure. The machine-learned model reproduces
-published first-principles calculations to a median error of \SI{21.9}{\percent} (reference seed) with each
-chemistry cluster held out, and its attributions are consistent with phonon physics. The transfer
-function is needed because the calculations run high, by a median factor of \num{1.69} and in
-\num{10} of \num{12} bonding families, and it can be closed-form because that offset is regular.
+Published first-principles calculations overestimate the measured lattice thermal conductivity of
+half Heuslers by a median factor of \num{1.69}, in \num{10} of \num{12} bonding families, by more
+than independent calculations disagree with one another, and by less as temperature rises. Because
+the offset is regular, a two-parameter transfer function corrects it, and the correction carries
+over to an independent machine-learned force field, lowering its median error against measurement
+from \SI{101.4}{\percent} to \SI{36.8}{\percent}. Paired with a machine-learned model that
+reproduces published calculations to \SI{21.9}{\percent} (reference seed) with each chemistry
+cluster held out, and whose attributions are consistent with phonon physics, the correction
+predicts measured $\kappa_L$ from crystal structure.
 
 With each compound's chemistry cluster held out of both steps, and inside a domain of applicability
 defined by the screens every candidate must pass, the median error is \SI{33.1}{\percent} and
-\SI{87.2}{\percent} of \num{39} compounds lie within a factor of two, against \SI{41.9}{\percent}
-uncorrected and \SI{46.7}{\percent} and \SI{45.6}{\percent} for constant and power-law null baselines.
-The improvement is significant compound by compound (Holm-corrected $p = \num{0.007}$ at the median
-seed, \num{0.056} on the least favourable) and marginal when each chemistry cluster is counted once.
-Without the domain screens, over all \num{50} measured compounds, the same test gives
-\SI{37.4}{\percent} and still improves on both nulls. Where a family has already been measured, a
-power law fitted to its members is as accurate (\SI{25.4}{\percent} against \SI{31.6}{\percent}, not
-significantly different), so the method adds most in ordering compounds within a family and in
-families never measured. The correction also carries over to an independent machine-learned force
-field, lowering its median error against measurement from \SI{101.4}{\percent} to
-\SI{36.8}{\percent}.
+\SI{87.2}{\percent} of \num{39} compounds lie within a factor of two. Its typical disagreement with
+measurement, a factor of \num{1.35}, is similar in size to the \num{1.36} by which two laboratories
+measuring the same compound differ, so further gains will need better reference measurements as much
+as better models. The route beats compound-blind baselines compound by compound, marginally when each
+chemistry cluster is counted once, and gives \SI{37.4}{\percent} over all \num{50} measured compounds
+without the domain screens. Where a family has already been measured, a power law fitted to its
+members is as accurate, so the method adds most in ordering compounds within a family and in
+families never measured.
 
 A magnitude refitted per bonding family lowers the pooled held-out error from \SI{32.3}{\percent}
-to \SI{21.7}{\percent}, though not significantly compound by compound (sign test $p = \num{0.44}$).
+to \SI{21.7}{\percent}, though not significantly compound by compound.
 It is validated held out in five families, at \SIrange{7.4}{24.9}{\percent}; the best of these,
 \ce{Sb}--\ce{Pt}, rests mainly on one paper. Four further families fit their own papers but do not
 transfer between members, because their members are different materials as made, and no prediction
@@ -69,7 +69,7 @@ published report. Each carries two separate error estimates: \SI{21.9}{\percent}
 The method estimates $\kappa_L$ at a stated temperature but does not predict its temperature
 dependence, because the exponent is poorly determined (bootstrap range \numrange{0.45}{1.15}, against
 \numrange{0.35}{0.55} for the magnitude). Scores depend on the single reference laboratory chosen per
-compound, in a field whose laboratories disagree by a median factor of \num{1.33}; the intervals are
+compound, in a field whose laboratories disagree by a median factor of \num{1.36}; the intervals are
 validated only inside the domain, and the method should not be used outside it.
 
 A single synthesis and measurement of the cubic phase can falsify any issued prediction. Four kinds

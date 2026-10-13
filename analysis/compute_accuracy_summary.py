@@ -406,6 +406,20 @@ def main() -> int:
     with open(OUT, "w", encoding="utf-8") as fh:
         json.dump(out, fh, indent=2)
 
+    # PER-COMPOUND RATIOS for the error-budget figure (paper/fig16_error_budget.py). Model routes:
+    # each compound's median over the five seeds of its per-compound median ratio. Nothing new is
+    # fitted; these are the arrays the statistics above were computed from.
+    pc = []
+    for route, ser in (("ml_shared_in_domain", MR.median(axis=1)),
+                       ("ml_uncorrected_in_domain", UR.median(axis=1)),
+                       ("null_constant_in_domain", NC.r), ("null_power_law_in_domain", NP.r),
+                       ("published_calc_shared_family_test", pd.Series(G.ratio.values.astype(float), index=fam.index)),
+                       ("published_calc_family_constant", fam.ratio)):
+        for cmp_, r_ in ser.items():
+            pc.append(dict(route=route, compound=cmp_, ratio=float(r_)))
+    pd.DataFrame(pc).to_csv(f"{EX}/accuracy_per_compound.csv", index=False)
+    print(f"wrote {EX}/accuracy_per_compound.csv ({len(pc)} rows)")
+
     print(f"\n  {'route':<36}{'n':>4}{'median %':>10}{'CI':>16}{'w2x %':>8}{'CI':>16}{'|log r|':>9}")
     for k, v in R.items():
         ci = lambda x: "-" if x is None else f"[{x[0]:.1f},{x[1]:.1f}]"

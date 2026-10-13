@@ -88,7 +88,7 @@ three prediction statuses (Sections~\ref{sec:screening} and~\ref{sec:refusals}).
 
 \begin{table}[tbp]
   \centering
-  \caption{Symbols and labels.}
+  \caption{Symbols and terms used throughout.}
   \label{tab:notation}
   \footnotesize
   \setlength{\tabcolsep}{3pt}
@@ -101,6 +101,12 @@ three prediction statuses (Sections~\ref{sec:screening} and~\ref{sec:refusals}).
     $c$, $p$ & shared magnitude and exponent of the transfer function (Eq.~\eqref{eq:transfer}) \\
     $c_f$ & magnitude fitted to one bonding family (Eq.~\eqref{eq:family}) \\
     $e_i$, $r_i$ & per-compound median error and median prediction-to-reference ratio (Eq.~\eqref{eq:err}) \\
+    median error & median over compounds of $e_i$: half of the compounds are predicted more closely \\
+    within $2\times$ & share of compounds with $\tfrac12 \le r_i \le 2$ \\
+    held out & nothing fitted to the prediction saw the compound's data (or, for a cluster, any of its compounds' data) \\
+    seeds; reference seed & the model is trained five times; results are the median over the five unless seed~0, the reference seed, is named \\
+    null baseline & a prediction without compound-specific information (a constant, or a power law in $T$) \\
+    conformal interval & a band whose width is set by the errors of held-out compounds (Eq.~\eqref{eq:conformal}) \\
     tier 0--3 & measured; full first-principles BTE; approximate BTE; semi-empirical \\
     chemistry cluster & compounds sharing the X element; the unit held out in the blind test \\
     bonding family & compounds sharing the Y and Z elements \\
@@ -186,7 +192,8 @@ publication, each \SI{100}{\kelvin} bin takes the median of its rows. Section~S1
 full, with its thresholds. Of the \num{50}
 measured compounds, \num{26} have a single publication, so the hierarchy decides the reference only
 for the rest. The sources record little about each specimen, and independent laboratories measuring
-the same compound disagree by a median factor of \num{1.33}. The correction is therefore an average
+the same compound disagree by a median factor of \num{1.36} per compound (\num{1.33} over all pairs
+of measurements). The correction is therefore an average
 over published practice and says nothing about the microstructure of any one specimen; every score
 depends on the choice of reference as well as on the method.
 

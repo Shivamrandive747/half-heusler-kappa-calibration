@@ -29,6 +29,79 @@
     "within_2x_uncorrected_pct": 72.0,
     "within_2x_calibrated_pct": 85.0
   },
+  "binned": [
+    {
+      "T": 200,
+      "n_compounds": 13,
+      "median_calc_over_meas": 2.61,
+      "curve": 3.16
+    },
+    {
+      "T": 300,
+      "n_compounds": 30,
+      "median_calc_over_meas": 1.84,
+      "curve": 2.38
+    },
+    {
+      "T": 400,
+      "n_compounds": 26,
+      "median_calc_over_meas": 1.73,
+      "curve": 1.95
+    },
+    {
+      "T": 500,
+      "n_compounds": 27,
+      "median_calc_over_meas": 1.53,
+      "curve": 1.67
+    },
+    {
+      "T": 600,
+      "n_compounds": 23,
+      "median_calc_over_meas": 1.42,
+      "curve": 1.47
+    },
+    {
+      "T": 700,
+      "n_compounds": 26,
+      "median_calc_over_meas": 1.21,
+      "curve": 1.32
+    },
+    {
+      "T": 800,
+      "n_compounds": 19,
+      "median_calc_over_meas": 1.13,
+      "curve": 1.2
+    },
+    {
+      "T": 900,
+      "n_compounds": 11,
+      "median_calc_over_meas": 0.98,
+      "curve": 1.1
+    },
+    {
+      "T": 1000,
+      "n_compounds": 11,
+      "median_calc_over_meas": 0.94,
+      "curve": 1.03
+    },
+    {
+      "T": 1100,
+      "n_compounds": 3,
+      "median_calc_over_meas": 0.84,
+      "curve": 1.0
+    }
+  ],
+  "at_300K": {
+    "n_compounds": 30,
+    "median_calc_over_meas": 1.84,
+    "matthiessen_extrinsic_over_intrinsic": 0.84,
+    "median_deployed_curve_calibrated_over_meas": 0.77
+  },
+  "scale_free_300K": {
+    "n_compounds": 30,
+    "spearman_kBTE_vs_ratio": -0.0,
+    "p": 0.99
+  },
   "points_above_cap": 3,
   "cap_K": 1036,
   "c": 0.42,

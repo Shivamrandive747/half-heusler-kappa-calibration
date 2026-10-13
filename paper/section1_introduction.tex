@@ -87,69 +87,51 @@ Miller \emph{et al.} fitted a semi-empirical model to experiment~\cite{miller201
 \emph{et al.} trained a Gaussian process on about one hundred measured solids~\cite{chen2019machine},
 and a related study pretrained on empirical-model estimates and then fine-tuned on a single
 high-fidelity target that pools measurements with first-principles
-calculations~\cite{liu2022leveraging}. Pooling the two hides the offset; we keep experiment and
-calculation apart so that it can be measured. Our correction acts on the transport calculation itself and is closed-form: a magnitude
-and an exponent that can be applied by hand.
+calculations~\cite{liu2022leveraging}. Pooling hides the offset. For band gaps, learning the
+difference between calculation and measurement has been shown to work better than pooling mixed
+sources~\cite{hutchinson2017overcoming}; we take the same view for thermal conductivity and keep
+experiment and calculation apart so that the offset can be measured. Our correction acts on the
+transport calculation itself and is closed-form: a magnitude and an exponent that can be applied by
+hand.
 
 Measurements to correct against are scarce. Of the \num{735} half Heuslers in our corpus with any
 thermal-conductivity record, \num{284} have a full first-principles transport calculation and
 \num{50} have been measured. Models trained on large public thermal-conductivity datasets are
-beginning to appear~\cite{barua2024interpreta}, but \num{50} compounds are too few to learn a structure--property
-relation from scratch. In our tests they are enough to calibrate a correction to calculated values.
+beginning to appear~\cite{barua2024interpreta}, but \num{50} compounds are too few to learn a
+structure--property relation from scratch. In our tests they are enough to calibrate a correction
+to calculated values.
 
-We predict the measured $\kappa_L$ with two steps used as a pair: a machine-learned model, trained on
-calculations, predicts the full first-principles value from crystal structure, and a transfer
-function maps a calculation onto the experimental scale. Measurements and calculations are never
-pooled, and each measured compound is scored against one reference laboratory chosen by a fixed rule
-that never reads a calculation. With a half Heusler written as XYZ (Section~\ref{sec:method}), a
-\emph{bonding family} is the set of compounds that share Y and Z, and a \emph{chemistry cluster} the
-set that share X. The end-to-end test holds each compound's chemistry cluster out of both steps.
+We therefore predict the measured $\kappa_L$ in two steps used as a pair: a machine-learned model,
+trained on calculations, predicts the full first-principles value from crystal structure, and a
+transfer function maps a calculation onto the experimental scale. Measurements and calculations are
+never pooled, and each measured compound is scored against one reference laboratory chosen by a
+fixed rule that never reads a calculation. With a half Heusler written as XYZ
+(Section~\ref{sec:method}), a \emph{bonding family} is the set of compounds that share Y and Z, and
+a \emph{chemistry cluster} the set that share X. The end-to-end test holds each compound's chemistry
+cluster out of both steps; Table~\ref{tab:notation} defines the terms used throughout.
 
-A few terms recur throughout. The \emph{median error} is the typical percentage difference between
-a prediction and the measured value: half of the compounds are predicted more closely than this. A
-prediction lies \emph{within a factor of two} when it falls between half and twice the measured
-value. A compound is \emph{held out} when nothing fitted to it has seen its own data, or, for a
-chemistry cluster, the data of any compound in that cluster. The model is trained five times with
-different random \emph{seeds}, and model-based results are the median over these five independently
-trained models unless one seed is named. \emph{Null baselines} predict without any
-compound-specific information, for instance a single constant conductivity; a useful method must
-beat them. A \emph{conformal interval} is a range around a prediction whose width is
-set by the errors observed on held-out compounds. Finally, every value carries a method
-\emph{tier}: tier~0 for a measurement, tier~1 for a full first-principles transport calculation,
-and tiers~2 and 3 for approximate and semi-empirical estimates (Section~\ref{sec:tiering}).
-
-Our contributions are:
+The paper makes four contributions.
 %
 \begin{enumerate}[label=(\roman*), itemsep=1pt, topsep=3pt, leftmargin=2.2em]
-  \item A machine-learned model, trained on calculations and never on measurements (every
-        half-Heusler label a full first-principles calculation), that predicts
-        $\kappa_L^{\mathrm{BTE}}$ from crystal structure with \num{45} descriptors, selected among
-        four regressors trained on identical rows and folds. With each chemistry cluster held out,
-        it reproduces published calculations to a median error of \SI{21.9}{\percent} (reference
-        seed),
-        with \SI{88.3}{\percent} of \num{230} compounds within a factor of two, and its
-        \textsc{shap} (SHapley Additive exPlanations) attribution is consistent with phonon physics.
-  \item A closed-form transfer function, $\kappa_L^{\mathrm{exp}} = \kappa_L^{\mathrm{BTE}}
-        \min[c\,(T/300)^p, 1]$, that corrects an offset consistent across the class (calculations
-        run high in \num{29} of \num{34} compounds). Its shared magnitude $c = \num{0.42}$ is well
-        determined and its exponent $p = \num{0.70}$ much less so. Applied to published
-        calculations, the shared constant gives a median error of \SI{33.0}{\percent} on families
-        never measured. A constant refitted per bonding family lowers the error on held-out family
-        members from \SI{32.3}{\percent} to \SI{21.7}{\percent}, though not significantly compound by
-        compound (sign test $p = \num{0.44}$), and is validated held out in five families.
-  \item An end-to-end blind test from crystal structure to measurement. Inside the domain of
-        applicability (18 valence electrons, a cubic $C1_b$ structure, no other polymorph on
-        record), the median error is \SI{33.1}{\percent} and \SI{87.2}{\percent} of \num{39}
-        compounds lie within a factor of two (median of five model seeds), against
-        \SI{41.9}{\percent} uncorrected and \SIrange{45.6}{46.7}{\percent} for two null baselines
-        (paired Wilcoxon $p = \num{0.004}$; marginal when each chemistry cluster is counted once).
-        Without the domain screens, over all \num{50} measured compounds, the median error is
-        \SI{37.4}{\percent}.
-  \item Ten issued predictions with prediction intervals, three of them at \SI{500}{\kelvin}, the
-        only temperature with a calculation that no independent calculation contradicts; \num{15} flagged
-        candidates, each with its reason; and \num{10} estimates conditional on a measurement in
-        their family. From crystal structure alone we also give values for \ce{TmPbAu} and
-        \ce{HfTeOs}, for which our literature search finds no published report of any kind.
+  \item \emph{The offset, measured.} Published transport calculations run high in \num{29} of
+        \num{34} half Heuslers, by a median factor of \num{1.69}, and the excess shrinks as
+        temperature rises (Section~\ref{sec:offset}).
+  \item \emph{A closed-form correction.} A transfer function with a magnitude and a temperature
+        exponent (Eq.~\eqref{eq:transfer}), fitted on published calculations, has a well-determined
+        magnitude $c = \num{0.42}$ and a poorly determined exponent $p = \num{0.70}$. It carries over to an independent set of calculations, and a
+        magnitude refitted per bonding family is validated held out in five families
+        (Section~\ref{sec:transferresults}).
+  \item \emph{An end-to-end test against experiment.} Paired with a model that reproduces
+        published calculations to \SI{21.9}{\percent} (reference seed), the route predicts measured
+        $\kappa_L$ to a median error of \SI{33.1}{\percent} inside the domain of applicability, with
+        each chemistry cluster held out of both steps. Its typical disagreement with measurement is
+        similar in size to the spread between two laboratories measuring the same compound, and it
+        beats compound-blind baselines (Section~\ref{sec:blind}).
+  \item \emph{Predictions that can be tested.} Ten issued predictions with intervals, \num{15}
+        flagged candidates with their reasons, \num{10} estimates conditional on a measurement in
+        their family, and values from crystal structure alone for \ce{TmPbAu} and \ce{HfTeOs}, for
+        which our literature search finds no published report (Sections~\ref{sec:issued}
+        to~\ref{sec:structonly}).
 \end{enumerate}
 
 Section~\ref{sec:method} describes the corpus, the model and the transfer function;

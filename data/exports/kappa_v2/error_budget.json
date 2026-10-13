@@ -1,0 +1,43 @@
+{
+  "_generated_by": "paper/fig16_error_budget.py",
+  "unit": "per-compound factor 10^|log10 r| (>= 1); median over compounds",
+  "note": "lab_vs_lab and calc_vs_calc compare two sources with each other; every other row compares a prediction with one chosen reference measurement",
+  "rows": {
+    "lab_vs_lab": {
+      "n": 17,
+      "median_factor": 1.36
+    },
+    "calc_vs_calc": {
+      "n": 82,
+      "median_factor": 1.37
+    },
+    "published_uncorrected": {
+      "n": 34,
+      "median_factor": 1.69
+    },
+    "published_shared": {
+      "n": 34,
+      "median_factor": 1.37
+    },
+    "published_family": {
+      "n": 31,
+      "median_factor": 1.28
+    },
+    "model_uncorrected": {
+      "n": 39,
+      "median_factor": 1.48
+    },
+    "model_shared": {
+      "n": 39,
+      "median_factor": 1.35
+    },
+    "null_constant": {
+      "n": 39,
+      "median_factor": 1.53
+    },
+    "null_power": {
+      "n": 39,
+      "median_factor": 1.56
+    }
+  }
+}

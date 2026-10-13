@@ -106,6 +106,8 @@ def select_best(n_show: int = N_SHOW, verbose: bool = True) -> dict:
                        if v.get("loo_family_ape") is not None and v["loo_family_ape"] < 25)
     ok = R[(R.n_T >= MIN_POINTS) & (R.span >= MIN_SPAN) & R.family.isin(validated)] \
         .sort_values("ape").reset_index(drop=True)
+    # THE THREE BEST (author decision 2026-10-13, after a best/median/worst trial): illustrations
+    # of the method at its best, always labelled as such with the median over all eligible fits.
     pick = ok.head(n_show)
     rule = (f"held-out family-arm compounds in validated families ({', '.join(validated)}; family "
             f"constant fitted without the compound, on its leave-one-out fold reference) whose "

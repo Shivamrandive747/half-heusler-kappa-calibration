@@ -1,5 +1,5 @@
 {
-  "_generated": "2026-10-11T04:09:14+00:00",
+  "_generated": "2026-10-13T04:13:12+00:00",
   "_source": "make_paper_numbers.py",
   "_rule": "the manuscript quotes this file; nothing is typed by hand",
   "corpus": {
@@ -307,6 +307,79 @@
       "median_ratio_calibrated": 0.9,
       "within_2x_uncorrected_pct": 72.0,
       "within_2x_calibrated_pct": 85.0
+    },
+    "binned": [
+      {
+        "T": 200,
+        "n_compounds": 13,
+        "median_calc_over_meas": 2.61,
+        "curve": 3.16
+      },
+      {
+        "T": 300,
+        "n_compounds": 30,
+        "median_calc_over_meas": 1.84,
+        "curve": 2.38
+      },
+      {
+        "T": 400,
+        "n_compounds": 26,
+        "median_calc_over_meas": 1.73,
+        "curve": 1.95
+      },
+      {
+        "T": 500,
+        "n_compounds": 27,
+        "median_calc_over_meas": 1.53,
+        "curve": 1.67
+      },
+      {
+        "T": 600,
+        "n_compounds": 23,
+        "median_calc_over_meas": 1.42,
+        "curve": 1.47
+      },
+      {
+        "T": 700,
+        "n_compounds": 26,
+        "median_calc_over_meas": 1.21,
+        "curve": 1.32
+      },
+      {
+        "T": 800,
+        "n_compounds": 19,
+        "median_calc_over_meas": 1.13,
+        "curve": 1.2
+      },
+      {
+        "T": 900,
+        "n_compounds": 11,
+        "median_calc_over_meas": 0.98,
+        "curve": 1.1
+      },
+      {
+        "T": 1000,
+        "n_compounds": 11,
+        "median_calc_over_meas": 0.94,
+        "curve": 1.03
+      },
+      {
+        "T": 1100,
+        "n_compounds": 3,
+        "median_calc_over_meas": 0.84,
+        "curve": 1.0
+      }
+    ],
+    "at_300K": {
+      "n_compounds": 30,
+      "median_calc_over_meas": 1.84,
+      "matthiessen_extrinsic_over_intrinsic": 0.84,
+      "median_deployed_curve_calibrated_over_meas": 0.77
+    },
+    "scale_free_300K": {
+      "n_compounds": 30,
+      "spearman_kBTE_vs_ratio": -0.0,
+      "p": 0.99
     },
     "points_above_cap": 3,
     "cap_K": 1036,
@@ -3859,6 +3932,48 @@
     },
     "source": "compute_accuracy_summary.py -> accuracy_summary.json",
     "HOW_TO_STATE": "one table of every scored route: n, median error, within 2x and the symmetric median |log10 ratio|, each with its holdout; model routes are five-seed medians with the seed range, and their bootstrap CIs bracket that five-seed median; route 8 has no per-compound file, so no symmetric metric or CI"
+  },
+  "error_budget": {
+    "rows": {
+      "lab_vs_lab": {
+        "n": 17,
+        "median_factor": 1.36
+      },
+      "calc_vs_calc": {
+        "n": 82,
+        "median_factor": 1.37
+      },
+      "published_uncorrected": {
+        "n": 34,
+        "median_factor": 1.69
+      },
+      "published_shared": {
+        "n": 34,
+        "median_factor": 1.37
+      },
+      "published_family": {
+        "n": 31,
+        "median_factor": 1.28
+      },
+      "model_uncorrected": {
+        "n": 39,
+        "median_factor": 1.48
+      },
+      "model_shared": {
+        "n": 39,
+        "median_factor": 1.35
+      },
+      "null_constant": {
+        "n": 39,
+        "median_factor": 1.53
+      },
+      "null_power": {
+        "n": 39,
+        "median_factor": 1.56
+      }
+    },
+    "unit": "per-compound factor 10^|log10 r| (>= 1); median over compounds; model rows use each compound's median over the five seeds",
+    "HOW_TO_STATE": "lab_vs_lab and calc_vs_calc compare two sources with each other; every other row compares a prediction with one chosen reference. Say 'similar in size', never 'at the noise floor'; the measures differ"
   },
   "_blocklist_check": "REVIEW THESE: 18.0 at curves_best3.eligible_median_heldout_error_pct (NbGaRu2 'measurement' fabricated from a title-only stub)"
 }

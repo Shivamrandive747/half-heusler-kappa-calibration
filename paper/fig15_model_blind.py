@@ -66,6 +66,7 @@ def ticks(axis, values):
 
 def main() -> int:
     import matplotlib.pyplot as plt
+    import matplotlib.ticker as mticker
     from fig04_blind import blind_points
 
     N = json.load(open(f"{EX}/paper_numbers.json"))
@@ -103,8 +104,7 @@ def main() -> int:
     axc = ax_mm(13.0, YC, SQ, SQ)
     # (d) is two aligned bar charts sharing one row per method: median error and within 2x, so the
     # two statistics a table would carry are both read off an axis rather than off a text column
-    axd = ax_mm(95.0, YC, 54.0, SQ)
-    axw = ax_mm(152.0, YC, XR - 152.0, SQ, sharey=axd)
+    axd = ax_mm(108.0, YC, XR - 108.0 - 17.0, SQ)
     unit = "(W m$^{-1}$ K$^{-1}$)"
 
     # ---- (a) model vs published calculation ----------------------------------------------------
@@ -125,26 +125,35 @@ def main() -> int:
              zorder=6)
     F.panel_label(axa, "a")
 
-    # ---- (b) mean |SHAP| -------------------------------------------------------------------------
+    # ---- (b) mean |SHAP|, signed by the direction of the effect --------------------------------
+    # The bar's side and colour say which way a LARGER descriptor value moves the prediction (the
+    # sign of the value-SHAP correlation); its length is the mean |SHAP|. No arrow glyphs needed.
     top = sh["top"][:TOP]
     y = np.arange(len(top))
+    sgn = [(-1.0 if r["corr_value_shap"] < 0 else 1.0) for r in top]
     vals = [r["mean_abs_shap"] for r in top]
-    axb.barh(y, vals, color=F.OURS, height=0.62, zorder=3)
-    for i, r in enumerate(top):
-        arrow = "$\\downarrow$" if r["corr_value_shap"] < 0 else "$\\uparrow$"
-        axb.text(r["mean_abs_shap"] + max(vals) * 0.02, i, f"{r['mean_abs_shap']:.3f} {arrow}",
-                 va="center", ha="left", fontsize=F.FS_MIN, color="#333333")
+    sv = [g * v for g, v in zip(sgn, vals)]
+    cols = [F.OURS if g < 0 else F.VERMILLION for g in sgn]
+    axb.barh(y, sv, color=cols, height=0.62, zorder=3)
+    vmax = max(vals)
+    for i, (x, v) in enumerate(zip(sv, vals)):
+        axb.text(x + (vmax * 0.03 if x > 0 else -vmax * 0.03), i, f"{v:.3f}", va="center",
+                 ha="left" if x > 0 else "right", fontsize=F.FS_MIN, color="#333333")
+    axb.axvline(0, color="#555555", lw=0.7, zorder=4)
     axb.set_yticks(y)
     axb.set_yticklabels([NAME.get(r["descriptor"], r["label"]) for r in top], fontsize=F.FS_MIN)
-    axb.set_ylim(len(top) - 0.5, -0.6)
-    axb.set_xlim(0, max(vals) * 1.32)
+    axb.set_ylim(len(top) - 0.5, -1.35)
+    axb.set_xlim(-vmax * 1.38, vmax * 0.62)
+    axb.xaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: f"{abs(v):.2f}"))
     axb.tick_params(axis="y", which="both", length=0)
     axb.grid(axis="y", visible=False)
     axb.set_xlabel("mean |SHAP| on log$_{10}\\,\\kappa_L^{\\mathrm{BTE}}$")
-    axb.text(0.985, 0.04,
-             f"CatBoost, {sh['n_rows']} rows, {sh['n_descriptors']} descriptors\n"
-             "$\\downarrow$ larger value lowers $\\kappa_L$",
-             transform=axb.transAxes, ha="right", va="bottom", fontsize=F.FS_MIN, color="#444444",
+    axb.text(-vmax * 0.05, -1.05, "larger value lowers $\\kappa_L$", ha="right", va="center",
+             fontsize=F.FS_MIN, color=F.OURS, fontweight="bold")
+    axb.text(vmax * 0.05, -1.05, "raises", ha="left", va="center", fontsize=F.FS_MIN,
+             color=F.VERMILLION, fontweight="bold")
+    axb.text(0.02, 0.03, f"CatBoost, {sh['n_rows']} rows,\n{sh['n_descriptors']} descriptors",
+             transform=axb.transAxes, ha="left", va="bottom", fontsize=F.FS_MIN, color="#444444",
              linespacing=1.3)
     F.panel_label(axb, "b", loc="upper right")
 
@@ -172,70 +181,52 @@ def main() -> int:
         print(f"  (c) {n_off} point(s) drawn on the axis edge")
     F.panel_label(axc, "c")
 
-    # ---- (d) against the alternatives ----------------------------------------------------------
-    cal, unc = sm["calibrated"], sm["uncorrected_surrogate"]
-    nl_ = it["nulls"]
-    # (label, median error, its seed range, within 2x, its seed range, bar style); nulls are seed-free
-    rows = [
-        ("calibrated\n(this work)", cal["median_ape"]["median"], cal["median_ape"]["range"],
-         cal["within_2x"]["median"], cal["within_2x"]["range"], dict(color=F.OURS)),
-        ("uncorrected\nmodel", unc["median_ape"]["median"], unc["median_ape"]["range"],
-         unc["within_2x"]["median"], unc["within_2x"]["range"],
-         dict(color="white", edgecolor=F.RAW_DFT, hatch="//////", lw=0.8)),
-        ("power-law\nnull", nl_["power"]["median_ape"], None, nl_["power"]["within_2x_pct"], None,
-         dict(color=F.REFUSED)),
-        ("constant-$\kappa$\nnull", nl_["constant"]["median_ape"], None,
-         nl_["constant"]["within_2x_pct"], None, dict(color=F.REFUSED)),
-    ]
-    rows.sort(key=lambda r: r[1])                          # sorted by value, never by name
-    yy = np.arange(len(rows))
-    xmax = max(max(r[1], (r[2] or [0, 0])[1]) for r in rows)
-
-    def whisker(ax_, rng, i):
-        ax_.plot(rng, [i, i], color="#222222", lw=0.8, zorder=4, solid_capstyle="butt")
-        for e in rng:
-            ax_.plot([e, e], [i - 0.13, i + 0.13], color="#222222", lw=0.8, zorder=4)
-
-    for i, (lab, med, rng, w2, w2rng, sty) in enumerate(rows):
-        axd.barh(i, med, height=0.6, zorder=3, **sty)
-        if rng:
-            whisker(axd, rng, i)
-        ours = "this work" in lab
-        tk = dict(fontsize=F.FS_MIN, fontweight="bold" if ours else "normal",
-                  color=F.OURS if ours else "#333333")
-        axd.text(max(med, rng[1] if rng else 0) + xmax * 0.03, i, f"{med:.1f}%", va="center",
-                 ha="left", **tk)
-        # within 2x: the same row, its own axis. The value sits at the bar's root, clear of the
-        # whisker at its tip; on a hatched bar it gets a white ground so the hatch misses the digits
-        axw.barh(i, w2, height=0.6, zorder=3, **sty)
-        if w2rng:
-            whisker(axw, w2rng, i)
-        axw.text(4, i, f"{w2:.1f}%", va="center", ha="left", zorder=6,
-                 **{**tk, "color": "white" if ours else "#222222"},
-                 bbox=(dict(fc="white", ec="none", pad=0.6) if "hatch" in sty else None))
-    axd.set_yticks(yy)
-    axd.set_yticklabels([r[0] for r in rows], fontsize=F.FS_MIN)
-    for ax_ in (axd, axw):
-        ax_.tick_params(axis="y", which="both", length=0)
-        ax_.grid(axis="y", visible=False)
-    axw.tick_params(axis="y", labelleft=False)
-    axd.set_ylim(len(rows) - 0.45, -1.15)
-    axd.set_xlim(0, xmax * 1.22)
-    axd.set_xticks([t for t in (0, 10, 20, 30, 40, 50) if t <= xmax * 1.22])
-    axd.set_xlabel("median error (%)")
-    axw.set_xlim(0, 100)
-    axw.set_xticks([0, 25, 50, 75, 100])
-    axw.set_xlabel("within 2$\\times$ (%)")
+    # ---- (d) against the alternatives: one dot-and-whisker panel (Table 5's numbers) ---------
+    acc = N["accuracy_summary"]["routes"]
+    assert "_unavailable" not in N["accuracy_summary"], "accuracy_summary unavailable"
+    spec = [("ml_shared_in_domain", "calibrated (this work)", F.OURS, True),
+            ("ml_uncorrected_in_domain", "uncorrected model", F.VERMILLION, True),
+            ("null_power_law_in_domain", "power-law null", "#7F868C", False),
+            ("null_constant_in_domain", "constant-$\\kappa$ null", "#7F868C", False)]
+    rows = sorted(spec, key=lambda r: acc[r[0]]["median_ape"])   # by value, never by name
+    for i, (key, lab, col, seeded) in enumerate(rows):
+        r = acc[key]
+        lo_, hi_ = r["ci95_median_ape"]
+        axd.plot([lo_, hi_], [i, i], color=col, lw=0.9, zorder=3, solid_capstyle="butt")
+        for e in (lo_, hi_):
+            axd.plot([e, e], [i - 0.12, i + 0.12], color=col, lw=0.9, zorder=3)
+        if seeded:
+            s0, s1 = r["seed_range"]["median_ape"]
+            axd.plot([s0, s1], [i, i], color=col, lw=4.2, alpha=0.45, zorder=4, solid_capstyle="butt")
+        ours = key == "ml_shared_in_domain"
+        axd.scatter([r["median_ape"]], [i], s=34 if ours else 24, color=col, edgecolors="white",
+                    lw=0.6, zorder=5)
+        axd.annotate(f"{r['median_ape']:.1f}%", (r["median_ape"], i), xytext=(0, 5.5),
+                     textcoords="offset points", ha="center", va="bottom", fontsize=F.FS_MIN,
+                     color=col if ours else "#333333", fontweight="bold" if ours else "normal")
+        axd.text(1.03, i, f"{r['within_2x_pct']:.1f}%", transform=axd.get_yaxis_transform(),
+                 ha="left", va="center", fontsize=F.FS_MIN, color=col if ours else "#333333",
+                 fontweight="bold" if ours else "normal")
+    axd.text(1.03, -0.85, "within\n2$\\times$", transform=axd.get_yaxis_transform(), ha="left",
+             va="center", fontsize=F.FS_MIN, color="#444444", linespacing=1.1)
+    axd.set_yticks(range(len(rows)))
+    axd.set_yticklabels([r[1] for r in rows], fontsize=F.FS_MIN)
+    axd.tick_params(axis="y", which="both", length=0)
+    axd.grid(axis="y", visible=False)
+    axd.set_ylim(len(rows) - 0.2, -1.35)
+    xs = [v for r in rows for v in acc[r[0]]["ci95_median_ape"]]
+    axd.set_xlim(max(0, min(xs) - 6), max(xs) + 6)
+    axd.set_xlabel("median error (%), held out")
     pc, pp = it["paired_p_seed_median"]["constant"], it["paired_p_seed_median"]["power"]
     ptxt = (f"paired Wilcoxon vs each null: p = {pc:g}" if pc == pp
             else f"paired Wilcoxon: p = {pc:g} (constant), {pp:g} (power law)")
-    axd.text(0.03, 0.975, f"{it['n']} in-domain compounds, held out\n" + ptxt,
+    axd.text(0.02, 0.975, f"{it['n']} in-domain compounds, held out\n" + ptxt,
              transform=axd.transAxes, ha="left", va="top", fontsize=F.FS_MIN, color="#444444",
              linespacing=1.25)
-    axw.text(0.04, 0.975, f"model rows: median of\n{it['n_seeds']} seeds; whisker = range",
-             transform=axw.transAxes, ha="left", va="top", fontsize=F.FS_MIN, color="#444444",
+    axd.text(0.02, 0.025, "thin: 95% bootstrap interval\nthick: seed range",
+             transform=axd.transAxes, ha="left", va="bottom", fontsize=F.FS_MIN, color="#444444",
              linespacing=1.25)
-    F.panel_label(axw, "d", loc="lower right")
+    F.panel_label(axd, "d", loc="lower right")
 
     F.save(fig, "fig15_model_blind")
     print(f"  (a) {len(V300)} drawn; registry {mv['median_ape']}% / {mv['within_2x_pct']}% "
@@ -243,7 +234,7 @@ def main() -> int:
     print("  (b) " + ", ".join(f"{r['descriptor']} {r['mean_abs_shap']}" for r in top))
     print(f"  (c) seed-0 within 2x {ins.ratio.between(.5, 2).mean() * 100:.1f}% "
           f"(registry median of seeds {sm['calibrated']['within_2x']['median']})")
-    print("  (d) " + "; ".join(f"{r[0].replace(chr(10), ' ')} {r[1]} / {r[3]}" for r in rows)
+    print("  (d) " + "; ".join(f"{k} {acc[k]['median_ape']} / {acc[k]['within_2x_pct']}" for k, *_ in rows)
           + f"; p {pc}/{pp}")
     return 0
 

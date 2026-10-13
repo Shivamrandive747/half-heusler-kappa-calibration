@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 warnings.filterwarnings("ignore")
 import numpy as np
 import pandas as pd
+from scipy.stats import spearmanr
 from pymatgen.core import Composition
 
 import figlib as F
@@ -93,6 +94,10 @@ def main() -> int:
     per_c = raw.groupby("compound").r_dft.median()
     per_c_cal = raw.groupby("compound").r_cal.median()
     fam_of = raw.groupby("compound").fam.first()
+    # per-compound ratios for the error-budget figure (fig16_error_budget.py)
+    pd.DataFrame({"compound": per_c.index, "ratio_uncorrected": per_c.values,
+                  "ratio_shared_cluster_out": per_c_cal.loc[per_c.index].values}).to_csv(
+        "data/exports/kappa_v2/offset_per_compound.csv", index=False)
     per_f = per_c.groupby(fam_of).median()      # family = median over its compounds' medians
 
     # AGGREGATE TO ONE POINT PER COMPOUND PER 100 K BIN for the panels, so a compound with many
@@ -135,6 +140,30 @@ def main() -> int:
             median_ratio_calibrated=round(float(np.median(d.k_cal / d.k_exp)), 2),
             within_2x_uncorrected_pct=round(float(100 * (d.k_dft / d.k_exp).between(0.5, 2).mean()), 0),
             within_2x_calibrated_pct=round(float(100 * (d.k_cal / d.k_exp).between(0.5, 2).mean()), 0)),
+        # BINNED MEDIANS AGAINST THE CURVE (2026-10-12 review): the deployed curve is fitted per
+        # compound, not to these bin medians, and it lies above them at every temperature -- at
+        # 300 K it implies 2.38 where the bin median is 1.84. The paper states this rather than
+        # quoting 1/c as the 300 K offset.
+        binned=[dict(T=int(T), n_compounds=int(g.compound.nunique()),
+                     median_calc_over_meas=round(float((g.k_dft / g.k_exp).median()), 2),
+                     curve=round(float(1.0 / min(c * (T / 300.0) ** p, 1.0)), 2))
+                for T, g in d.groupby("T")],
+        # AT 300 K: the bin median of calc/meas, the extrinsic-to-intrinsic scattering-rate ratio it
+        # would imply if the whole offset were extra scattering added by Matthiessen's rule
+        # (kexp/kBTE = 1/(1+x) -> x = ratio - 1, grey model), and the median calibrated/measured
+        # ratio in that bin under the deployed curve (the curve sits above the bin medians).
+        at_300K=(lambda g: dict(
+            n_compounds=int(g.compound.nunique()),
+            median_calc_over_meas=round(float((g.k_dft / g.k_exp).median()), 2),
+            matthiessen_extrinsic_over_intrinsic=round(float((g.k_dft / g.k_exp).median()) - 1.0, 2),
+            median_deployed_curve_calibrated_over_meas=round(
+                float((g.k_dft / g.k_exp).median() * min(c, 1.0)), 2)))(d[d["T"] == 300]),
+        # IS THE OFFSET SCALE-FREE? At a fixed temperature (the 300 K bin) a common extrinsic mean
+        # free path would suppress high-kappa compounds more; descriptive Spearman only.
+        scale_free_300K=(lambda g: dict(
+            n_compounds=int(len(g)),
+            spearman_kBTE_vs_ratio=round(float(spearmanr(g.k_dft, g.k_dft / g.k_exp)[0]), 2),
+            p=round(float(spearmanr(g.k_dft, g.k_dft / g.k_exp)[1]), 2)))(d[d["T"] == 300]),
         points_above_cap=above_cap, cap_K=int(round(300.0 * (1.0 / c) ** (1.0 / p))),
         c=round(float(c), 3), p=round(float(p), 3),
         calibrated_protocol=("shared constant fitted on published calculations; each compound's "
@@ -297,6 +326,10 @@ def main() -> int:
                 lw=0.25, edgecolors="white", zorder=3)
     axc.plot(Tgrid, inv_mult, color=F.OURS, lw=1.6, zorder=4)
     axc.axvline(Tcap, color=F.OURS, lw=0.8, ls=(0, (2, 2)), zorder=2)
+    # the bin medians, so the reader sees where the per-compound fit sits relative to the cloud
+    bm = d.assign(r=r_obs).groupby("T").r.median()
+    axc.plot(bm.index, bm.values, color="#1F1F1F", lw=0.8, marker="D", ms=3.2, mfc="#1F1F1F",
+             mec="white", mew=0.4, zorder=5)
     axc.set_xlabel("$T$ (K)", labelpad=1.5)
     axc.set_ylabel("calculated / measured", labelpad=1.0)
     axc.set_xlim(150, 1250)
@@ -316,9 +349,9 @@ def main() -> int:
     # The curve's label goes in the title block, not on the panel: the cloud fills (c) from corner
     # to corner and no position for it covers no point.
     _title(axc, "Transfer function",
-           f"$1/\\min[c(T/300)^{{p}},1]$, $c$ = {c:.2f}, $p$ = {p:.2f}\n"
-           f"cap {Tcap:.0f} K (dotted); {n_above} of {n_pts} beyond")
-    pts_c = _pts_axes(axc, d["T"], r_obs)
+           f"blue: $1/\\min[c(T/300)^{{p}},1]$, $c$ = {c:.2f}, $p$ = {p:.2f}\n"
+           f"black: median per 100 K bin")
+    pts_c = np.vstack([_pts_axes(axc, d["T"], r_obs), _pts_axes(axc, bm.index.values, bm.values)])
     # the curve's own pixels count as occupied too, so the letter never sits on the line
     pts_c = np.vstack([pts_c, _pts_axes(axc, Tgrid, inv_mult)])
     _panel_letter(axc, "c", pts_c)

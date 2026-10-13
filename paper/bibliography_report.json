@@ -1,6 +1,6 @@
 {
-  "n_dois": 290,
-  "n_resolved": 289,
+  "n_dois": 293,
+  "n_resolved": 292,
   "n_failed": 1,
   "failed_dois": [
     "10.36410/JCPR.2020.21.3.319"
@@ -188,6 +188,7 @@
     "10.1063/1.5064602": "mcgaughey2019phonon",
     "10.1063/1.5108636": "landmann2019fabricatio",
     "10.1063/1.5109091": "chauhan2019spinodal",
+    "10.1063/1.5117288": "berland2019thermoelec",
     "10.1063/5.0031512": "jaishi2021electronic",
     "10.1063/5.0289819": "mcgaughey2025phonon",
     "10.1080/01621459.2017.1307116": "lei2018distributi",
@@ -218,6 +219,7 @@
     "10.1103/PhysRevB.90.174107": "toher2014highthroug",
     "10.1103/PhysRevB.95.045202": "eliassen2017lattice",
     "10.1103/PhysRevB.96.161201": "feng2017fourphonon",
+    "10.1103/PhysRevX.10.041029": "xia2020highthroug",
     "10.1103/PhysRevX.4.011019": "carrete2014finding",
     "10.1103/hjtb-zs5w": "agarwal2026thermodyna",
     "10.1103/l92g-tkds": "paliwal2025accelerate",
@@ -286,6 +288,7 @@
     "10.48550/arXiv.1705.04015": "kaur2017pursuit",
     "10.48550/arXiv.1705.07874": "lundberg2017a",
     "10.48550/arXiv.1706.09516": "prokhorenkova2017catboost",
+    "10.48550/arXiv.1711.05099": "hutchinson2017overcoming",
     "10.48550/arXiv.2110.09827": "choudhary2021first",
     "10.48550/arXiv.2205.01833": "priem2022openalex",
     "10.48550/arXiv.2306.07751": "vishwakarma2023ab",

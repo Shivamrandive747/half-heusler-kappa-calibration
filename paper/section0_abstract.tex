@@ -15,23 +15,23 @@
 
 \begin{abstract}
 Screening half-Heusler thermoelectrics needs the lattice thermal conductivity ($\kappa_L$) that a
-laboratory will actually measure. First-principles calculations, and the machine-learning models
-trained on them, reproduce calculated values instead, and how far these lie from experiment has not
-been established across the class. Building a curated corpus that keeps calculations and
-measurements apart, we find that published calculations systematically overestimate measured
-$\kappa_L$, by a median factor of \num{1.69}, in almost every bonding family. We therefore predict
-$\kappa_L$ in two steps: a machine-learning model estimates the calculated value from the crystal
-structure, and a simple two-parameter transfer function maps it onto the experimental scale. Tested
-on compounds whose chemistry was withheld from every fitted step, the method predicts measured
-$\kappa_L$ with a median error of \SI{33.1}{\percent}, and \SI{87.2}{\percent} of compounds fall
-within a factor of two of experiment, inside a stated domain of applicability (18 valence
-electrons, cubic, no other polymorph). It outperforms baselines that ignore the identity of the
-compound; over all 50 measured compounds, without the domain screens, the median error is
-\SI{37.4}{\percent}. Where a bonding family has been measured, a constant fitted to that family
-calibrates published calculations more closely (\SI{21.7}{\percent} against \SI{32.3}{\percent} held
-out), although not significantly compound by compound, and passes a held-out test in five families. We issue ten predictions with uncertainty intervals
-for unmeasured compounds, decline others for stated reasons, and predict two compounds with no
-published report from their crystal structure alone.
+laboratory will measure, yet first-principles calculations, and the machine-learning models trained
+on them, predict the calculated value, and how far the two differ has not been measured across the
+class. Using a curated corpus that keeps calculations and measurements apart, we find that published
+calculations exceed the measured $\kappa_L$ of the same compound by a median factor of \num{1.69},
+in almost every bonding family, and that the excess shrinks as temperature rises. A two-parameter
+transfer function fitted to published calculations removes most of it and carries over to an
+independent machine-learned force field. Paired with a machine-learning model that predicts the
+calculation from crystal structure, and tested with each compound's chemistry withheld from every
+fitted step, the route predicts measured $\kappa_L$ with a median error of \SI{33.1}{\percent}, with
+\SI{87.2}{\percent} of compounds within a factor of two, inside a stated domain of applicability (18
+valence electrons, cubic, no other polymorph). Its typical disagreement with measurement is similar
+in size to the spread between two laboratories measuring the same compound. It beats baselines that
+ignore the compound's identity, although only marginally when each chemistry cluster is counted
+once, and gives \SI{37.4}{\percent} over all 50 measured compounds without the domain screens. We
+issue ten predictions for unmeasured compounds, with uncertainty intervals whose coverage is
+untested for the four that rest on a single measured family member, and decline others for stated
+reasons.
 \end{abstract}
 
 % Keywords: 1-7 allowed (live Guide for Authors); 7 used. Specific terms, no plurals, no "and"/"of".

@@ -10,12 +10,53 @@
 \subsection{What the offset and the constants mean}
 \label{sec:interpretation}
 
-Several effects can make published calculations run high, and our data do not separate them. Real
-specimens can contain interstitial and antisite defects that scatter phonons, as imaged directly in
-\ce{TiNiSn}-based alloys~\cite{kim2017direct}, and grain boundaries that lower $\kappa_L$
-further~\cite{schrade2017the}. Calculation settings such as the exchange--correlation functional and
-force-constant cut-offs matter. And four-phonon scattering, which most calculations omit, lowers the
-true conductivity, so omitting it biases three-phonon calculations high~\cite{feng2017fourphonon}.
+Several effects can make published calculations run high, and they leave different fingerprints
+(Table~\ref{tab:causes}). Real specimens scatter phonons at defects the calculation of a perfect
+crystal lacks: interstitials and antisites, imaged directly in \ce{TiNiSn}-based
+alloys~\cite{kim2017direct}, and grain boundaries~\cite{schrade2017the}; computed for \num{54}
+half-Heusler alloys, alloy and grain-boundary scattering significantly reduce the intrinsic
+conductivity~\cite{berland2019thermoelec}. Such scattering is nearly independent of temperature, so
+it matters less as Umklapp scattering strengthens. Four-phonon scattering, which most calculations
+omit, lowers the true conductivity, so omitting it biases three-phonon calculations
+high~\cite{feng2017fourphonon}; a full treatment of quartic anharmonicity also shifts phonon
+frequencies, however, and its net effect differs between structure types~\cite{xia2020highthroug}.
+The exchange--correlation functional and force-constant cut-offs move a calculation either way. On
+the measurement side, an electronic or bipolar term left in $\kappa_L$ by the Lorenz subtraction
+raises the measured value~\cite{thesberg2017on,li2015synthesis}, and the bipolar part grows with
+temperature as more carriers are excited across the gap.
+
+\begin{table}[!b]
+  \centering
+  \caption{Possible causes of the offset and the signature each would leave. ``Ratio'' is
+  calculated/measured.}
+  \label{tab:causes}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{>{\raggedright\arraybackslash}p{0.42\columnwidth}>{\raggedright\arraybackslash}p{0.18\columnwidth}>{\raggedright\arraybackslash}p{0.30\columnwidth}}
+    \toprule
+    Cause & Ratio & As $T$ rises \\
+    \midrule
+    defects, grain boundaries, pores in the specimen & above 1 & shrinks towards 1 \\
+    four-phonon scattering left out of the calculation & usually above 1 & grows \\
+    functional, cut-offs, convergence & either & weakly dependent \\
+    electronic or bipolar term left in measured $\kappa_L$ & lowers it & effect grows \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Read against Table~\ref{tab:causes}, the three observations of Section~\ref{sec:offset} narrow the
+possibilities without settling them. The offset shrinks with temperature, which fits specimen
+scattering or a residual electronic term better than missing four-phonon scattering, whose effect
+would grow. It exceeds the spread between independent calculations, so differences between codes
+and settings are not enough to explain it. And at \SI{300}{\kelvin} it shows no trend with the
+calculated conductivity: a single boundary mean free path common to every specimen would suppress
+the most conductive compounds, whose intrinsic mean free paths are longest, more strongly. That
+argues against one common grain size as the whole explanation; defect populations that differ from
+specimen to specimen, or errors in the calculations themselves, remain possible. For scale, if the
+whole \SI{300}{\kelvin} offset were extrinsic scattering added by Matthiessen's rule,
+$\kappa_L^{\mathrm{exp}}/\kappa_L^{\mathrm{BTE}} = 1/(1+\tau_{\mathrm{int}}/\tau_{\mathrm{ext}})$ in a
+grey model, the bin median of \num{1.84} would require an extrinsic scattering rate \num{0.84} times
+the intrinsic one.
 
 Phenomenological temperature dependences have been fitted to, or tested against, measured
 half-Heusler curves before~\cite{geng2014lattice,petersen2015critical}; here we fit instead the \emph{ratio} of
@@ -40,7 +81,11 @@ thermal conductivity has been reported in a half Heusler of this domain~\cite{li
 $p$, may therefore partly reflect the separation of lattice and electronic conduction rather than
 phonon scattering. We attach no mechanism to the parameters.
 
-A family constant describes the specimens behind it. Several families rest on a single kind of
+A family constant describes the specimens behind it, and it may also absorb measurement effects. The
+\ce{Bi}--\ce{Pd} constant is close to one, and its rare-earth members are the narrow-gap compounds for
+which the electronic subtraction is least secure (Section~\ref{sec:domain}); part of it may reflect an
+electronic term left in the measured values rather than better crystals. Several families rest on a
+single kind of
 specimen (the publications behind each family are counted in Section~S5 of the Supplementary
 material). All three \ce{Sn}--\ce{Pt} references come from one paper, as do three of the four in
 \ce{Sb}--\ce{Pt}, four of the seven in \ce{Ni}--\ce{Sb} and two of the three in each of
@@ -85,7 +130,13 @@ temperature.
 
 Temperature dependence is not predicted. One exponent serves every compound and it is poorly
 determined (bootstrap range \numrange{0.45}{1.15} against \numrange{0.35}{0.55} for $c$;
-Section~\ref{sec:transfer}), and the training labels sit mostly at \SI{300}{\kelvin}. At high
+Section~\ref{sec:transfer}), and the training labels sit mostly at \SI{300}{\kelvin}. Compound by
+compound, the predicted log--log slopes do not track the measured ones: on \num{33} compounds with a
+physical measured slope, the measured slopes span \numrange{-4.78}{-0.02} and the predicted ones
+\numrange{-0.27}{0.64}, with Spearman $\rho = \num{0.22}$ ($p = \num{0.22}$). For some compounds the
+route therefore predicts a conductivity that rises with temperature, whereas all \num{33} measured
+slopes are negative; every value in this paper is accordingly quoted at one stated temperature. At
+high
 temperature the measured lattice values may also retain part of the electronic contribution, which
 then enters the fitted exponent (Section~\ref{sec:interpretation}).
 

@@ -143,7 +143,7 @@ def main() -> int:
     axa.grid(axis="y", visible=False)
     axa.set_xlim(0, xmax * 1.16)
     axa.set_ylim(y[-1] + 0.65, y[0] - 1.40)               # inverted, room for the group headings
-    axa.text(BAR, y[0] - 0.80, " 25%", fontsize=F.FS_MIN, color="#666666", ha="left",
+    axa.text(BAR, y[0] - 0.80, " 25% bar", fontsize=F.FS_MIN, color="#666666", ha="left",
              va="center")
     axa.set_xlabel("median error per family (%)")
     head = dict(fontsize=F.FS_LABEL, fontweight="bold", ha="left", va="center",

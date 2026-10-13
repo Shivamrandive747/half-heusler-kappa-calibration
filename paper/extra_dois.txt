@@ -126,3 +126,11 @@
 10.48550/arXiv.2608.14302
 10.1002/adma.201702091
 10.1103/physrevb.95.125206
+
+# 2026-10-12 upgrade: abstracts read via OpenAlex; ledger rows carry the supporting sentence.
+# Xia et al. PRX 2020: quartic anharmonicity across 37 binaries, effect differs by structure type.
+10.1103/PhysRevX.10.041029
+# Berland et al. JAP 2019: alloy and grain-boundary scattering reduce computed kappa in 54 half-Heusler alloys.
+10.1063/1.5117288
+# Hutchinson et al. 2017: difference (delta) learning for mixed DFT and experimental band gaps.
+10.48550/arXiv.1711.05099

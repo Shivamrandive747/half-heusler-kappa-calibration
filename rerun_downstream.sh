@@ -102,6 +102,7 @@ STEPS=(
   analysis/make_paper_numbers.py
   paper/fig10_ml.py
   paper/fig15_model_blind.py     # reads the registry (ml_generator_validation, shap_ranking, in_domain_table)
+  paper/fig16_error_budget.py    # reads the per-compound exports; asserts the registry's error_budget medians
   paper/fig_graphical_abstract.py
   # build_release_data.py   # NOT IN RELEASE: working-copy tool, not part of the release
 )
