@@ -83,7 +83,7 @@
 % Authors and affiliations are complete: Shivam Randive, Heet Lungaria and Himanshu Pandey at SVNIT
 % Surat; Ojaswini Randive at NIT Raipur (confirmed 2026-09-18, with ORCID). The department
 % given for NIT Raipur is Metallurgical and Materials Engineering -- confirm it is hers.
-% The \ead is i22ph019@phy.svnit.ac.in, attached to Shivam Randive as corresponding author.
+% Corresponding author: Himanshu Pandey only (author decision, 2026-11-18); no other email is printed.
 \newcommand{\pandeyemail}{hp@phy.svnit.ac.in}
 % Zenodo archive of the GitHub repository, minted from release v1.1.1 (the arXiv version).
 % Zenodo issues TWO DOIs: a version DOI pinned to this exact snapshot, and a concept DOI that
@@ -104,7 +104,7 @@
 \newcommand{\acknowledgementtext}{%
   Google Cloud credits funded the large-language-model extraction of measurements from primary
   publications (Section~\ref{sec:dataset}). We thank the maintainers of the databases this work
-  rests on (Starrydata2, AFLOW, the Materials Project, JARVIS, OQMD, DxMag, the Crystallography Open
+  rests on (Starrydata, AFLOW, the Materials Project, JARVIS, OQMD, DxMag, the Crystallography Open
   Database and the OPTIMADE consortium), whose curation made an experiment-anchored corpus of this
   kind possible. We also thank the authors of the \num{189} experimental and \num{29} computational
   studies whose measurements and calculations make up the corpus analysed here.}
@@ -130,13 +130,12 @@
 %   Ojaswini Randive  0009-0003-3210-8120   (checksum verified)
 %   Heet Lungaria     0009-0007-5249-6764   (checksum verified)
 %   Himanshu Pandey   0000-0002-7380-366X   (checksum verified)
-\author[svnit]{Shivam Randive\corref{cor1}}
-\ead{i22ph019@phy.svnit.ac.in}
+\author[svnit]{Shivam Randive}
 \author[nitrr]{Ojaswini Randive}
 \author[svnit]{Heet Lungaria}
 \author[svnit]{Himanshu Pandey\corref{cor1}}
 \ead{\pandeyemail}
-\cortext[cor1]{Corresponding authors.}
+\cortext[cor1]{Corresponding author.}
 
 \affiliation[svnit]{organization={Department of Physics, Sardar Vallabhbhai National Institute
                                   of Technology},
@@ -165,10 +164,10 @@
 \label{sec:data-availability}
 
 % Counts: provenance_sources.* (189 measurement / 188 in the reference list / 1 with no bib entry;
-% 29 calculation / 26 in the reference list) and corpus.source_dois_behind_measured (152),
+% 29 calculation / 29 in the reference list) and corpus.source_dois_behind_measured (152),
 % corpus.half_measured_tier0 (50), in data/exports/kappa_v2/paper_numbers.json. The removed-row
 % records are the release_data/audit/ files copied by build_release_data.py (AUDIT_GLOBS).
-The following are archived on Zenodo,\\ \repourl:
+{\raggedright The following are archived on Zenodo, \repourl:\par}
 \begin{itemize}[itemsep=1pt, topsep=3pt, leftmargin=1.5em]
   \item the prediction lists: for every candidate, the calculated and calibrated values, the quoted
         temperature, the prediction intervals, the status (issued, flagged or conditional on a

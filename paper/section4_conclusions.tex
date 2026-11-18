@@ -1,82 +1,61 @@
 % =============================================================================================
 % SECTION 4 -- CONCLUSIONS.
 %
-% Condensed 2026-10-05 (research-paper pass). Shape: the pair and what each step does; the
-% end-to-end result with its nulls and the unscreened figure; the family constants (passing the
-% 25% bar and beating the shared constant kept apart); what the method delivers; its limits; the
-% measurements that would most improve it.
+% Rewritten 2026-11-15 (author decision): the findings and what they deliver, without re-arguing
+% caveats that Results and Section 4.3 (Scope and limitations) state once. Removed here because they
+% are stated in their own place: the compound-blind baselines and their cluster-level significance
+% (Results), the sign test for the family route (Results), the power-law comparison for measured
+% families (Discussion), the single-paper and non-transferring families (Results, Supplementary S5-S6),
+% the temperature-dependence and reference-laboratory limits (Section 4.3, Supplementary S17).
 %
 % Numbers from data/exports/kappa_v2/paper_numbers.json:
 %   1.69 / 10 of 12               offset.median_ratio_calc_over_meas, families_with_median_ratio_above_1
-%   21.9                          ml_generator_validation.median_ape (single seed)
-%   33.1 / 87.2 / 39              in_domain_table.seed_medians.calibrated, .n
-%   41.9                          in_domain_table.seed_medians.uncorrected_surrogate
-%   46.7 / 45.6                   in_domain_table.nulls
-%   0.048, sign test              cluster_level_significance.wilcoxon_p_max.power (0.0483); .sign_p_range
-%   33.1 / 86.8 / 38 / 0.005, 0.006   headline_without_YNiBi
-%   37.4 / 78.0 / 50              headline.unscreened_same_protocol, blind_test.compounds
-%   36.4 vs 48.7 / 48.2, p 0.035 / 0.033   nulls.predictors, nulls.paired_tests (reference seed)
-%   32.3 / 31                     deployed_route.held_out.global_on_same_compounds, .n
 %   101.4 -> 36.8                 vs_published_model.sdnnff_median_ape / .sdnnff_calibrated_median_ape
-%   5 of 9; shared better in 3    family_calibration.adopted.*.loo_family_ape vs .loo_global_ape
-%   21.7, 16 / 11 / 4, 0.44       deployed_route.held_out
-%   10 / 15 / 7 / 10 conditional  predictions.counts, predictions.issued_single_calculation_source,
-%                                 conditional.n
-%   1.39 / 5.46; 33.0             structure_only.main_text.*; shared_constant_unseen_family.median_ape
-%   0.35-0.55, 0.45-1.15          calibration.stability.bootstrap c / p (p10-p90)
-%   1.33                          source_disagreement.laboratories.median_factor
+%   33.1 / 87.2 / 39              in_domain_table.seed_medians.calibrated, .n
+%   37.4 / 50                     headline.unscreened_same_protocol, blind_test.compounds
+%   1.35 / 1.36                   error_budget.rows.model_shared / .lab_vs_lab
+%   32.3 -> 21.7                  deployed_route.held_out.global_on_same_compounds / .median_ape
+%   16 of 27, p = 0.44            deployed_route.held_out (n_family_better; sign test) -- restored
+%                                 2026-11-18 after the pre-submission review
+%   10 issued, nine of ten conditional   predictions.counts.ISSUED, conditional.n
 % =============================================================================================
 
 \section{Conclusions}
 \label{sec:conclusions}
 
 Published first-principles calculations overestimate the measured lattice thermal conductivity of
-half Heuslers by a median factor of \num{1.69}, in \num{10} of \num{12} bonding families, by more
-than independent calculations disagree with one another, and by less as temperature rises. Because
-the offset is regular, a two-parameter transfer function corrects it, and the correction carries
-over to an independent machine-learned force field, lowering its median error against measurement
-from \SI{101.4}{\percent} to \SI{36.8}{\percent}. Paired with a machine-learned model that
-reproduces published calculations to \SI{21.9}{\percent} (reference seed) with each chemistry
-cluster held out, and whose attributions are consistent with phonon physics, the correction
-predicts measured $\kappa_L$ from crystal structure.
+half Heuslers by a median factor of \num{1.69}, in \num{10} of \num{12} bonding families, and the
+offset shrinks as temperature rises. Defect and boundary scattering added to intrinsic phonon
+scattering would give such a trend, and so would an electronic contribution left in the measured
+values; the data do not separate them (Section~\ref{sec:interpretation}). Because the offset is systematic,
+a two-parameter transfer function corrects it. For compounds with a measured family-mate,
+refitting its magnitude within the bonding family lowers the median held-out error from
+\SI{32.3}{\percent} to \SI{21.7}{\percent}, although it is the better of the two for only
+\num{16} of the \num{27} compounds on which they differ (sign test $p=\num{0.44}$). The
+two-parameter correction also carries over to the
+calculations of a published machine-learned force field, whose median error against measurement it
+lowers from \SI{101.4}{\percent} to \SI{36.8}{\percent}.
 
-With each compound's chemistry cluster held out of both steps, and inside a domain of applicability
-defined by the screens every candidate must pass, the median error is \SI{33.1}{\percent} and
-\SI{87.2}{\percent} of \num{39} compounds lie within a factor of two. Its typical disagreement with
-measurement, a factor of \num{1.35}, is similar in size to the \num{1.36} by which two laboratories
-measuring the same compound differ, so further gains will need better reference measurements as much
-as better models. The route beats compound-blind baselines compound by compound, marginally when each
-chemistry cluster is counted once, and gives \SI{37.4}{\percent} over all \num{50} measured compounds
-without the domain screens. Where a family has already been measured, a power law fitted to its
-members is as accurate, so the method adds most in ordering compounds within a family and in
-families never measured.
+Combined with a machine-learning model that predicts the calculated value from crystal structure,
+the correction was tested against measurement with each compound's chemistry cluster held out of
+every fitted step. Within the domain of applicability the median error is \SI{33.1}{\percent} and
+\SI{87.2}{\percent} of \num{39} compounds lie within a factor of two (\SI{37.4}{\percent} over all \num{50} measured compounds). A constant fitted in the same way,
+with no information about the compound, has a median error of \SI{35.9}{\percent}, which is not
+significantly worse. Inside the domain the typical disagreement with measurement, a
+factor of \num{1.35},
+is similar in size to the \num{1.36} by which two laboratories measuring the same compound differ,
+so further gains are likely to depend on better reference measurements as much as on better
+models.
 
-A magnitude refitted per bonding family lowers the pooled held-out error from \SI{32.3}{\percent}
-to \SI{21.7}{\percent}, though not significantly compound by compound.
-It is validated held out in five families, at \SIrange{7.4}{24.9}{\percent}; the best of these,
-\ce{Sb}--\ce{Pt}, rests mainly on one paper. Four further families fit their own papers but do not
-transfer between members, because their members are different materials as made, and no prediction
-is issued through them.
+The method turns calculated conductivities into estimates that can be compared directly with
+experiment. We issue \num{10} predictions with intervals for unmeasured compounds, and give values
+from crystal structure alone for \ce{TmPbAu} and \ce{HfTeOs}, which have neither a measurement
+nor a published full calculation in our corpus. Within the domain of Section~\ref{sec:domain} and the limits of
+Section~\ref{sec:limitations}, each issued prediction can be tested by a single synthesis and
+measurement of the cubic phase.
 
-We issue \num{10} predictions with intervals, flag \num{15} candidates with the reason named for each,
-and report \num{10} estimates as conditional on a measurement in their family. From crystal structure
-alone we give $\kappa_L$ at \SI{300}{\kelvin} of \SI{1.39}{\watt\per\meter\per\kelvin} for
-\ce{TmPbAu} and \SI{5.46}{\watt\per\meter\per\kelvin} for \ce{HfTeOs}, compounds for which we find no
-published report. Each carries two separate error estimates: \SI{21.9}{\percent} for the model
-(reference seed) and
-\SI{33.0}{\percent} for the shared constant on families never measured.
-
-The method estimates $\kappa_L$ at a stated temperature but does not predict its temperature
-dependence, because the exponent is poorly determined (bootstrap range \numrange{0.45}{1.15}, against
-\numrange{0.35}{0.55} for the magnitude). Scores depend on the single reference laboratory chosen per
-compound, in a field whose laboratories disagree by a median factor of \num{1.36}; the intervals are
-validated only inside the domain, and the method should not be used outside it.
-
-A single synthesis and measurement of the cubic phase can falsify any issued prediction. Four kinds
-of measurement would most improve the method: a first measurement in a family with no measured
-member, such as \ce{Pb}--\ce{Au} or \ce{Te}--\ce{Os}; a second, bulk member from another laboratory in
-each family that rests on one compound or one paper; wide-range measurements on dense specimens to
-constrain the exponent; and two sound \ce{Ni}--\ce{Bi} measurements, free of the bipolar
-contribution that rules out the existing \ce{YNiBi} curve, which would allow nine of the ten
-conditional estimates to be issued. What holds these estimates back is a missing measured member
-of their family, not a missing calculation.
+The measurements that would most strengthen the method are a first measurement in families with no
+measured member, such as \ce{Pb}--\ce{Au} and \ce{Te}--\ce{Os}; independent bulk measurements in
+families that rest on one compound or one paper; measurements over a wide temperature range on dense
+specimens, to constrain the exponent; and two \ce{Ni}--\ce{Bi} measurements free of the bipolar
+contribution, which would allow nine of the ten conditional estimates to be issued.

@@ -56,17 +56,18 @@ def rows():
     ]
 
 
-def main() -> int:
-    import matplotlib.pyplot as plt
+def draw(ax, R, heads: dict | None = None) -> dict:
+    """Draw the strip on `ax` and return {key: {n, median_factor}}.
+
+    Factored out (2026-11-18) so that fig15_model_blind.py draws the SAME strip as its panel (c):
+    the manuscript no longer carries this as a separate figure. `heads` renames group headings.
+    """
     import matplotlib.ticker as mticker
 
-    R = rows()
-    F.use_style()
-    plt.rcParams["figure.constrained_layout.use"] = False
-    W, H = F.SINGLE / F.MM, 74.0
-    fig = plt.figure(figsize=(W * F.MM, H * F.MM))
-    ax = fig.add_axes([33.0 / W, 9.5 / H, (W - 33.0 - 11.0) / W, (H - 11.0) / H])
-    col = {"ref": "#6E747A", "raw": F.VERMILLION, "ours": F.OURS, "null": "#A9AEB3"}
+    heads = heads or {}
+    # An UNCORRECTED value is grey and open here as in every other figure (2026-11-18 review: it
+    # was vermillion, the colour that means "measurement" everywhere else in the paper).
+    col = {"ref": "#6E747A", "raw": F.RAW_DFT, "ours": F.OURS, "null": "#A9AEB3"}
     XMAX = 5.0
     rng = np.random.default_rng(7)
     summary, ytick, ylab = {}, [], []
@@ -74,21 +75,25 @@ def main() -> int:
     for lab, vals, kind, key in R:
         if vals is None:
             y -= 0.35
-            ax.text(-0.02, y, lab, transform=ax.get_yaxis_transform(), ha="right", va="center",
-                    fontsize=F.FS_MIN, fontweight="bold", color="#1F1F1F")
+            ax.text(-0.02, y, heads.get(lab, lab), transform=ax.get_yaxis_transform(), ha="right",
+                    va="center", fontsize=F.FS_MIN, fontweight="bold", color="#1F1F1F")
             y -= 0.85
             continue
         v = np.asarray(vals, float)
         med = float(np.median(v))
         vc = np.minimum(v, XMAX * 0.985)
         jit = rng.uniform(-0.22, 0.22, size=len(v))
-        ax.scatter(vc, y + jit, s=5, color=col[kind], alpha=0.55, lw=0, zorder=3)
+        if kind == "raw":
+            ax.scatter(vc, y + jit, s=7, facecolors="none", edgecolors=col[kind], lw=0.7, zorder=3)
+        else:
+            ax.scatter(vc, y + jit, s=5, color=col[kind], alpha=0.55, lw=0, zorder=3)
         n_clip = int((v > XMAX).sum())
         if n_clip:
             ax.annotate(f"{n_clip} beyond", xy=(XMAX * 0.985, y), xytext=(0, -10.5),
                         textcoords="offset points", ha="right", va="center", fontsize=F.FS_MIN,
                         color="#555555")
-        ax.plot([med, med], [y - 0.36, y + 0.36], color=col[kind] if kind != "null" else "#6E747A",
+        ax.plot([med, med], [y - 0.36, y + 0.36],
+                color={"null": "#6E747A", "raw": "#7F858B"}.get(kind, col[kind]),
                 lw=2.0, solid_capstyle="butt", zorder=4)
         ax.text(1.015, y, f"{med:.2f}$\\times$", transform=ax.get_yaxis_transform(),
                 ha="left", va="center", fontsize=F.FS_MIN, color="#1F1F1F")
@@ -99,14 +104,14 @@ def main() -> int:
     ref = summary["lab_vs_lab"]["median_factor"]
     ax.axvspan(1.0, ref, color="#E9ECEF", zorder=0, lw=0)
     # say what the band is on the figure itself, in the empty strip under the last row
-    ax.text(np.sqrt(ref), y - 0.05, "within lab\nspread", ha="center", va="center",
+    ax.text(np.sqrt(ref), y - 0.20, "within lab\nspread", ha="center", va="center",
             fontsize=F.FS_MIN, color="#5F6368", linespacing=1.0, zorder=2)
     ax.set_xscale("log")
     ax.set_xlim(1.0, XMAX)
     ax.xaxis.set_major_locator(mticker.FixedLocator([1, 1.5, 2, 3, 5]))
     ax.xaxis.set_major_formatter(mticker.FixedFormatter(["1", "1.5", "2", "3", "5"]))
     ax.xaxis.set_minor_locator(mticker.NullLocator())
-    ax.set_ylim(y - 0.5, 0.0)
+    ax.set_ylim(y - 0.95, 0.0)
     ax.set_yticks(ytick)
     ax.set_yticklabels(ylab, fontsize=F.FS_MIN)
     ax.tick_params(axis="y", which="both", length=0, pad=2, right=False, left=False)
@@ -121,6 +126,19 @@ def main() -> int:
     assert "_unavailable" not in reg, "registry error_budget unavailable -- run make_paper_numbers.py"
     for k, v in summary.items():
         assert reg["rows"][k] == v, f"error_budget.{k}: figure {v} vs registry {reg['rows'][k]}"
+    return summary
+
+
+def main() -> int:
+    import matplotlib.pyplot as plt
+
+    R = rows()
+    F.use_style()
+    plt.rcParams["figure.constrained_layout.use"] = False
+    W, H = F.SINGLE / F.MM, 74.0
+    fig = plt.figure(figsize=(W * F.MM, H * F.MM))
+    ax = fig.add_axes([33.0 / W, 9.5 / H, (W - 33.0 - 11.0) / W, (H - 11.0) / H])
+    summary = draw(ax, R)
     out = F.save(fig, "fig16_error_budget")
     meta = dict(_generated_by="paper/fig16_error_budget.py",
                 unit="per-compound factor 10^|log10 r| (>= 1); median over compounds",

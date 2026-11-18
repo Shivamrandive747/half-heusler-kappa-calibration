@@ -417,7 +417,10 @@ def _new_results(N: dict) -> None:
     except Exception as e:  # noqa: BLE001
         N["model_comparison"] = {"_unavailable": str(e)}
     for key, fn in (("shap_ranking", "shap_ranking.json"), ("training_data", "training_data_summary.json"),
-                    ("curves_best3", "curves_best3.json"), ("corpus_figure", "corpus_figure.json")):
+                    ("curves_best3", "curves_best3.json"), ("corpus_figure", "corpus_figure.json"),
+                    # 2026-11-18: the two null baselines refitted with the route's per-compound
+                    # objective, beside the row-fitted ones (PREREG_null_baselines_per_compound.md)
+                    ("nulls_fitted_per_compound", "nulls_fitted_per_compound.json")):
         try:
             N[key] = jload(f"{EX}/{fn}")
         except Exception as e:  # noqa: BLE001

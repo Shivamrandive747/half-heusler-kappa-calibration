@@ -19,7 +19,6 @@ type: dataset
 authors:
   - given-names: Shivam
     family-names: Randive
-    email: i22ph019@phy.svnit.ac.in
     orcid: "https://orcid.org/0009-0005-1403-4484"
     affiliation: >-
       Department of Physics, Sardar Vallabhbhai National Institute of Technology,
@@ -64,6 +63,6 @@ keywords:
 license: MIT
 license-url: https://github.com/Shivamrandive747/half-heusler-kappa-calibration/blob/main/LICENSE
 repository-code: https://github.com/Shivamrandive747/half-heusler-kappa-calibration
-version: 1.1.1
-date-released: "2026-10-13"
+version: 1.2.0
+date-released: "2026-11-18"
 doi: 10.5281/zenodo.23333947

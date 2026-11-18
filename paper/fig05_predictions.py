@@ -280,22 +280,22 @@ def main() -> int:
     ax.grid(axis="y", visible=False)
     ax.set_xlabel(F.KAPPA_LABEL)
     axt.set_axis_off()
-    axt.text(0.04, -0.62, "$\\kappa_L$ (90% band)", transform=axt.get_yaxis_transform(), ha="left",
+    axt.text(0.04, -0.62, "$\\kappa_L$ (90% interval)", transform=axt.get_yaxis_transform(), ha="left",
              va="bottom", fontsize=7.5, color="#333333", fontweight="bold")
 
     handles = [
         (Line2D([], [], color=F.MEASURED, marker="o", ls="none", ms=3.2), "measured member"),
         (Patch(fc=SPAN, ec="none"), "measured span of family"),
         (Line2D([], [], color=F.OURS, marker="o", ls="-", lw=0.9, ms=4, mec="white", mew=0.5),
-         "prediction, 90% band"),
-        (Line2D([], [], color=F.OURS, alpha=0.40, lw=3.2), "50% band"),
+         "prediction, 90% interval"),
+        (Line2D([], [], color=F.OURS, alpha=0.40, lw=3.2), "50% interval"),
         (Line2D([], [], color=F.OURS, marker="D", ls="none", ms=3.6, mec="white", mew=0.5),
          " / ".join(f"{t} K" for t in sorted(set(iss.quoted_at_K.astype(int)) - {300})) + " (else 300 K)"),
         (Line2D([], [], color=GREY, lw=0.9, ls=(0, (2.5, 1.5))), "anchor, reference lab"),
         (Line2D([], [], color=GREY, marker="o", ls="none", ms=3.2, mfc="none", mew=0.7),
          "anchor, other lab"),
         (Line2D([], [], color=F.OURS, marker="o", ls="none", ms=4, mfc="white", mew=1.1),
-         "model, theory scale"),
+         "model, calculation scale"),
     ]
     fig.legend([h for h, _ in handles], [t for _, t in handles], loc="outside upper center", ncol=2,
                frameon=False, fontsize=F.FS_MIN, handlelength=1.6, columnspacing=1.0, labelspacing=0.3)

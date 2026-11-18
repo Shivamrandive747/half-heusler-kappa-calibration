@@ -23,10 +23,13 @@ $$\kappa_L^{\mathrm{exp}}(T) \;=\; \kappa_L^{\mathrm{BTE}}(T)\;\min\!\left[c\lef
 **End to end**, holding each compound's chemistry cluster out of both steps and inside a predefined
 domain of applicability (18 valence electrons, cubic C1_b, no known polymorph), the median error
 against measurement is **33.1 %** and **87.2 % of 39 compounds** lie within a factor of two (median of
-five model seeds; seed range 24.6–35.4 %). The comparisons are 41.9 % uncorrected, and 46.7 % and
-45.6 % for constant and power-law null baselines (paired Wilcoxon p = 0.004; with each of the 18
-chemistry clusters counted once, p < 0.05 on every seed, the largest 0.048). Without the domain
-screens, all 50 measured compounds give **38.6 %** and **78.9 %**.
+five model seeds; seed range 24.6–35.4 %). The uncorrected model gives 41.9 %. Two null
+baselines that know nothing about the compound, a constant and a power law in temperature, give
+46.7 % and 45.6 % when fitted to the individual measurements (paired Wilcoxon p = 0.004). Fitted
+compound by compound, as the route's own constants are, they give 35.9 % and 42.2 %, and the route
+is then not significantly closer than the constant (p = 0.24; power law p = 0.026, or 0.052 after
+the Holm adjustment). Without the domain screens, all 50 measured compounds give **37.4 %** and
+**78.0 %**.
 
 The two errors are separate and are stated side by side, never merged: **21.9 %** is the model
 against published calculations; **33.1 %** is the full route against measurement, which already
@@ -43,7 +46,7 @@ shared constant, with a held-out median error of 33.0 %.
 |---|---|
 | **Paper** | `paper/manuscript.tex` and `paper/supplementary.tex` (see `paper/README.md` to build them) |
 | **Model step** | 21.9 % median error against published calculations, 230 compounds, one seed |
-| **End-to-end result** | 33.1 % median error, 87.2 % within 2×, Spearman ρ = 0.662, on 39 compounds in 18 chemistry clusters (five-seed medians); 38.6 % and 78.9 % over all 50 without the domain screens |
+| **End-to-end result** | 33.1 % median error, 87.2 % within 2×, Spearman ρ = 0.662, on 39 compounds in 18 chemistry clusters (five-seed medians); 37.4 % and 78.0 % over all 50 without the domain screens |
 | **Corpus** | 735 half Heuslers with a κ_L record: 50 measured, from 152 publications, and 284 with a full transport calculation |
 | **Predictions** | 10 issued with prediction intervals, 15 flagged and 6 refused, each with its reason; 10 conditional on a measurement in their family; TmPbAu and HfTeOs from crystal structure alone |
 | **Licence** | code MIT, data CC BY 4.0 — see `LICENSE` and `LICENSE-DATA` |

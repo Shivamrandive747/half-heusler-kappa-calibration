@@ -60,8 +60,11 @@ N_SHOW = 3
 CALC_MARK = dict(ls="none", marker="s", ms=3.6, mfc="white", mec=F.RAW_DFT, mew=1.0, zorder=4)
 
 
-def select_best(n_show: int = N_SHOW, verbose: bool = True) -> dict:
+def select_best(n_show: int | None = N_SHOW, verbose: bool = True) -> dict:
     """Score every held-out family-arm compound and pick the `n_show` best eligible fits.
+
+    `n_show=None` picks EVERY eligible fit, in order of held-out error (used by fig09_family.py,
+    which draws every second one in the main text and all of them in the supplement).
 
     Returns a dict: R (all held-out compounds), ok (eligible, sorted by error), pick (the shown
     ones), frames (compound -> its fold pairs with k_cal), curves (compound -> (T grid, published
@@ -108,11 +111,13 @@ def select_best(n_show: int = N_SHOW, verbose: bool = True) -> dict:
         .sort_values("ape").reset_index(drop=True)
     # THE THREE BEST (author decision 2026-10-13, after a best/median/worst trial): illustrations
     # of the method at its best, always labelled as such with the median over all eligible fits.
-    pick = ok.head(n_show)
+    pick = ok if n_show is None else ok.head(n_show)
+    which = ("all of them, in order of held-out family error" if n_show is None
+             else f"the {n_show} with the lowest held-out family error")
     rule = (f"held-out family-arm compounds in validated families ({', '.join(validated)}; family "
             f"constant fitted without the compound, on its leave-one-out fold reference) whose "
             f"reference curve has >= {MIN_POINTS} distinct temperatures spanning >= "
-            f"{MIN_SPAN:.0f} K; the {n_show} with the lowest held-out family error")
+            f"{MIN_SPAN:.0f} K; {which}")
     if verbose:
         print(f"  SELECTION RULE: {rule}")
         print(f"  eligible: {len(ok)} of {len(R)} held-out compounds; eligible median error "

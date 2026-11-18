@@ -1,37 +1,35 @@
 % =============================================================================================
 % ABSTRACT + KEYWORDS.
 %
-% Plain-language abstract (author, 2026-10-09): the message first, few numbers, no formula and no
-% test statistics -- those are in the body. Every number here is quoted from
-% data/exports/kappa_v2/paper_numbers.json; none is typed by hand.
-%   1.69                         offset.median_ratio_calc_over_meas
-%   33.1, 87.2                   in_domain_table.seed_medians.calibrated (median over five seeds)
-%   ten                          predictions.counts.ISSUED
-% Honesty conditions kept in words: the headline is scoped to the domain of applicability, it is
-% compared with compound-blind baselines, accuracy is lower outside the domain, and the family
-% constants are described as validated only where they were tested held out.
-% audit_completion.py checks that 33.1 and 87.2 appear here as \SI{..}{\percent}.
+% Author decision (2026-11-15): the abstract tells the story for a specialist reader and carries no
+% numbers. The quantitative results (median factor, headline error, within-2x, the unscreened
+% figure beside the headline, the number of issued predictions) are stated in the Results and the
+% highlights, all from data/exports/kappa_v2/paper_numbers.json. audit_completion.py checks the
+% headline percentages in the Results when the abstract is number-free.
+% Claims kept within the evidence (pre-submission review, 2026-11-18): the family refit "lowers the
+% median error further, though not consistently compound by compound" (sign test p = 0.44); the
+% transfer function removes the MEDIAN offset; no single cause is attached to the temperature trend
+% (Discussion 4.1); the laboratory comparison is stated for this class (factor 1.35 against 1.36
+% between laboratories, in domain); scope stated as 18-electron cubic half Heuslers.
 % =============================================================================================
 
 \begin{abstract}
-Screening half-Heusler thermoelectrics needs the lattice thermal conductivity ($\kappa_L$) that a
-laboratory will measure, yet first-principles calculations, and the machine-learning models trained
-on them, predict the calculated value, and how far the two differ has not been measured across the
-class. Using a curated corpus that keeps calculations and measurements apart, we find that published
-calculations exceed the measured $\kappa_L$ of the same compound by a median factor of \num{1.69},
-in almost every bonding family, and that the excess shrinks as temperature rises. A two-parameter
-transfer function fitted to published calculations removes most of it and carries over to an
-independent machine-learned force field. Paired with a machine-learning model that predicts the
-calculation from crystal structure, and tested with each compound's chemistry withheld from every
-fitted step, the route predicts measured $\kappa_L$ with a median error of \SI{33.1}{\percent}, with
-\SI{87.2}{\percent} of compounds within a factor of two, inside a stated domain of applicability (18
-valence electrons, cubic, no other polymorph). Its typical disagreement with measurement is similar
-in size to the spread between two laboratories measuring the same compound. It beats baselines that
-ignore the compound's identity, although only marginally when each chemistry cluster is counted
-once, and gives \SI{37.4}{\percent} over all 50 measured compounds without the domain screens. We
-issue ten predictions for unmeasured compounds, with uncertainty intervals whose coverage is
-untested for the four that rest on a single measured family member, and decline others for stated
-reasons.
+High-throughput searches for half-Heusler thermoelectrics increasingly rely on lattice thermal
+conductivity ($\kappa_L$) from first-principles calculations, or from machine-learning models trained
+on them. These calculations describe an ideal single crystal, whereas measurements are made on
+polycrystalline samples, in which grain boundaries and defects scatter heat as well. The resulting gap
+between calculated and measured $\kappa_L$ has been noted for individual compounds but not, to our
+knowledge, quantified across a materials class, so the values used for screening carry an unknown, systematic bias. Here we
+quantify and correct this bias for cubic half-Heusler compounds with 18 valence electrons. Using a curated literature corpus that
+keeps calculated and measured values apart, we show that calculations overestimate measured $\kappa_L$
+in most bonding families, and that the excess shrinks with temperature. Scattering by defects, added
+to the intrinsic scattering between lattice vibrations, would give such a trend, but the data do not
+single out one cause. A simple transfer function with this temperature dependence removes the median
+offset, and refitting its magnitude within a bonding family lowers the median error further, though not
+consistently compound by compound. Combined with a machine-learning model that predicts the calculated
+value from crystal structure, and tested on chemistries withheld from all fitting, the method predicts
+measured $\kappa_L$ in this class about as closely as independent laboratories agree with one another, and provides testable predictions
+for compounds not yet measured.
 \end{abstract}
 
 % Keywords: 1-7 allowed (live Guide for Authors); 7 used. Specific terms, no plurals, no "and"/"of".

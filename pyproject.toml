@@ -20,7 +20,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
-    { name = "Shivam Randive", email = "i22ph019@phy.svnit.ac.in" },
+    { name = "Shivam Randive" },
     { name = "Ojaswini Randive" },
     { name = "Himanshu Pandey" },
 ]

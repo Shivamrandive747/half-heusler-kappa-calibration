@@ -113,6 +113,7 @@ def blind_points() -> dict:
 
     per = d.groupby("compound").agg(ape=("ape2", "median"), ratio=("ratio2", "median"),
                                     ref=("k_ref", "median"), cal=("k_cal", "median"),
+                                    raw=("k_pred", "median"),
                                     ind=("ind", "first"), fam=("fam", "first"))
     ins, out = per[per.ind], per[~per.ind]
     print(f"  in domain {len(ins)}   median {ins.ape.median():.1f}%   "

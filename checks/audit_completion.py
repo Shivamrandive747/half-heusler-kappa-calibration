@@ -227,10 +227,14 @@ def main() -> int:
     print(RULE)
     print("5. HEADLINE NUMBERS vs THE FILES THAT PRODUCE THEM")
     print(RULE)
+    # The abstract is number-free by author decision (2026-11-15); the headline percentages are then
+    # checked where the paper first commits to them, the Results.
     ab = body("section0_abstract")
-    claims = dict(re.findall(r"\\SI\{([\d.]+)\}\{\\percent\}", ab) and
-                  [(m, m) for m in re.findall(r"\\SI\{([\d.]+)\}\{\\percent\}", ab)])
-    print(f"  percentages the abstract commits to: {sorted(claims, key=float)}")
+    where = "abstract"
+    if not re.findall(r"\\SI\{([\d.]+)\}\{\\percent\}", ab):
+        ab, where = body("section3_results"), "Results (abstract is number-free)"
+    claims = {m: m for m in re.findall(r"\\SI\{([\d.]+)\}\{\\percent\}", ab)}
+    print(f"  percentages committed to in the {where}: {len(claims)} distinct")
     try:
         sa = json.load(open("data/exports/kappa_v2/seed_averaged_indomain.json"))
         med, w2 = sa["median_ape_median"], sa["within_2x_median"]
@@ -238,7 +242,7 @@ def main() -> int:
               f"(range {sa['median_ape_range']}), within 2x {w2}% "
               f"(range {sa['within_2x_range']})")
         for v in (str(med), str(w2)):
-            print(f"    abstract quotes {v}: {'YES' if v in claims else 'NOT FOUND'}")
+            print(f"    {where} quotes {v}: {'YES' if v in claims else 'NOT FOUND'}")
     except Exception as e:  # noqa: BLE001
         print(f"  seed-averaged file: {e}")
     cf = json.load(open("data/exports/kappa_v2/conformal_indomain.json"))["levels"]
@@ -499,19 +503,28 @@ def main() -> int:
             d = sm[k]
             return [d["median_ape"]["median"], d["within_2x"]["median"],
                     d["within_30"]["median"], d["bias"]["median"]]
+        # Since 2026-11-18 each null is listed twice: fitted to rows (in_domain_table.nulls) and
+        # fitted per compound (nulls_fitted_per_compound, PREREG_null_baselines_per_compound.md).
+        # A key "prefix|word" matches a row label that starts with the prefix and contains the word.
+        pc = (REG.get("nulls_fitted_per_compound") or {}).get("fitted_per_compound") or {}
+        four = ("median_ape", "within_2x_pct", "within_30_pct", "bias")
         want_rows = {
             "Calibrated": seed("calibrated"),
             "Uncorrected": seed("uncorrected_surrogate"),
-            "Null: constant": [nl["constant"][k] for k in ("median_ape", "within_2x_pct",
-                                                           "within_30_pct", "bias")],
-            "Null: $A": [nl["power"][k] for k in ("median_ape", "within_2x_pct",
-                                                  "within_30_pct", "bias")],
+            "Null: constant|rows": [nl["constant"][k] for k in four],
+            "Null: $A|rows": [nl["power"][k] for k in four],
+            "Null: constant|per compound": [pc.get("constant", {}).get(k, float("nan")) for k in four],
+            "Null: $A|per compound": [pc.get("power", {}).get(k, float("nan")) for k in four],
             "One parameter": seed("one_parameter_c_only"),
             "Slack": [se["median_ape"], se["within_2x_pct"], None, se["bias"]],
         }
+
+        def _is(label, k):
+            pre, _, word = k.partition("|")
+            return label.startswith(pre) and (not word or word in label)
         got_rows, bt_bad = 0, []
         for r in bt:
-            key = next((k for k in want_rows if r[0].startswith(k)), None)
+            key = next((k for k in want_rows if _is(r[0], k)), None)
             if key is None or len(r) < 5:
                 continue
             got_rows += 1
@@ -536,9 +549,16 @@ def main() -> int:
     # tab:accuracy (main text, added 2026-10-11): every route's n, median error with its bootstrap
     # interval, within-2x and median |log10 r| against the registry's accuracy_summary, in row order.
     acc_rows = rows_of("tab:accuracy")
-    acc = (json.load(open("data/exports/kappa_v2/paper_numbers.json")).get("accuracy_summary") or {}).get("routes", {})
+    _regj = json.load(open("data/exports/kappa_v2/paper_numbers.json"))
+    acc = dict((_regj.get("accuracy_summary") or {}).get("routes", {}))
+    # the two nulls refitted per compound (2026-11-18) sit under their own registry key
+    _pc = (_regj.get("nulls_fitted_per_compound") or {}).get("fitted_per_compound") or {}
+    if acc and _pc:
+        acc["null_constant_per_compound"] = _pc.get("constant", {})
+        acc["null_power_law_per_compound"] = _pc.get("power", {})
     order = ["ml_shared_in_domain", "ml_shared_all", "ml_uncorrected_in_domain", "null_constant_in_domain",
-             "null_power_law_in_domain", "published_calc_shared_family_test", "published_calc_family_constant",
+             "null_power_law_in_domain", "null_constant_per_compound", "null_power_law_per_compound",
+             "published_calc_shared_family_test", "published_calc_family_constant",
              "shared_constant_unseen_family"]
     if acc_rows is None or not acc:
         print("  tab:accuracy: NOT FOUND (table or registry key)"); tbl_ok = False
@@ -580,10 +600,12 @@ def main() -> int:
         res = flat("section3_results") + "\n" + flat("supplementary")
         fa = dr["family_arm_compounds"]
         want = {
-            "held-out n": (r"On the \\num\{(\d+)\} such compounds the family constant", fa["n"]),
-            "held-out median": (r"such compounds the family constant gives a median error of\s+"
+            # wording of the 2026-11-18 investigation-style rewrite of the pooled paragraph
+            "held-out n": (r"On these \\num\{(\d+)\} the family constant", fa["n"]),
+            "held-out median": (r"On these \\num\{\d+\} the family constant gives a median error of\s+"
                                 r"\\SI\{([\d.]+)\}", fa["median_ape"]),
-            "global on same compounds": (r"scored on the\s+same \\num\{\d+\}, gives \\SI\{([\d.]+)\}",
+            "global on same compounds": (r"the shared constant, refitted\s+without each held-out "
+                                         r"compound, gives \\SI\{([\d.]+)\}",
                                          fa["global_on_same_compounds"]["median_ape"]),
             "family better count": (r"better of the two for \\num\{(\d+)\}", fa["n_family_better"]),
             "pooled n": (r"Over all \\num\{(\d+)\} in-domain compounds", dr["n"]),

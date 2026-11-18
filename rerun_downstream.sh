@@ -99,6 +99,7 @@ STEPS=(
   paper/fig09_family.py
   analysis/compute_shared_constant_stability.py
   "analysis/compute_accuracy_summary.py --chain"   # re-scores existing predictions; make_paper_numbers cross-checks it
+  "analysis/compute_nulls_fitted_per_compound.py --chain"   # null baselines refitted per compound; control vs the step above
   analysis/make_paper_numbers.py
   paper/fig10_ml.py
   paper/fig15_model_blind.py     # reads the registry (ml_generator_validation, shap_ranking, in_domain_table)

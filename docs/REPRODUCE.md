@@ -71,6 +71,7 @@ python analysis/compare_models_production.py     # the four regressors on identi
 python analysis/make_paper_predictions.py        # Table 3: issued, flagged and refused predictions
 python analysis/compute_conditional.py           # Table S1: the conditional estimates
 python analysis/compute_null_baselines.py        # the two compound-blind nulls
+python analysis/compute_nulls_fitted_per_compound.py --chain   # the same nulls refitted per compound, as the route is
 python analysis/compute_results_indomain.py      # in-domain results by family
 python analysis/compute_baselines_ablation.py    # Slack/Debye-Callaway, and the one-parameter ablation
 python analysis/compute_family_null.py           # the family power-law baseline

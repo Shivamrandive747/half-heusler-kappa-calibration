@@ -159,6 +159,55 @@ TITLE_MARKUP = {
         "Thermoelectric Performance of the Half-Heusler Phases $R$NiSb ($R$ = Sc, Dy, Er, Tm, Lu): "
         "High Mobility Ratio between Majority and Minority Charge Carriers"),
     "10.3390/ma18133189": "Thermoelectric Properties of NbCoNi$_{x}$Sn ($x$ = 0--1)",
+    # Added 2026-11-18 (pre-submission review): titles that printed with raw markup, lost spaces or
+    # flattened subscripts in the Supplementary reference list. Wording unchanged, markup restored.
+    "10.1007/s11664-015-4041-9": (
+        "Miscibility Gap in the Phase Diagrams of Thermoelectric Half-Heusler Materials "
+        "CoTi$_{1-x}$Y$_{x}$Sb (Y = Sc, V, Mn, Fe)"),
+    "10.48550/arxiv.1603.08203": (
+        "Thermoelectric properties of half-Heusler ZrNiPb by using first principles calculations"),
+    "10.7567/jjap.56.111202": (
+        "Carrier concentration dependence of thermoelectric properties of "
+        "Fe(V$_{1-x}$,Ti$_{x}$)Sb half-Heusler phase"),
+    "10.1103/physrevmaterials.2.075403": (
+        "Thermoelectric properties of chemically substituted full-Heusler "
+        "Fe$_{2}$TiSn$_{1-x}$Sb$_{x}$ ($x$ = 0, 0.1, and 0.2) compounds"),
+    "10.1103/physrevb.95.045202": (
+        "Lattice thermal conductivity of Ti$_{x}$Zr$_{y}$Hf$_{1-x-y}$NiSn half-Heusler alloys "
+        "calculated from first principles: Key role of nature of phonon modes"),
+    "10.1103/physrevb.75.064204": (
+        "Thermoelectric properties of quaternary Heusler alloys Fe$_{2}$VAl$_{1-x}$Si$_{x}$"),
+    "10.1016/j.stam.2004.02.006": (
+        "Enhancement of high temperature thermoelectric properties of intermetallic compounds "
+        "based on a Skutterudite IrSb$_{3}$ and a half-Heusler TiNiSb"),
+    "10.1103/physrevb.102.075117": (
+        "Stoichiometric and off-stoichiometric full Heusler Fe$_{2}$V$_{1-x}$W$_{x}$Al "
+        "thermoelectric systems"),
+    "10.1103/physrevb.101.180404": (
+        "Anomalous transverse response of Co$_{2}$MnGa and universality of the room-temperature "
+        "$\\alpha^{A}_{ij}/\\sigma^{A}_{ij}$ ratio across topological magnets"),
+    "10.1088/1361-648x/ab8ec6": (
+        "Thermoelectric properties of rare-earth doped Fe$_{2}$VAl Heusler alloys"),
+    "10.1063/1.1776639": (
+        "Thermal and transport properties of the Heusler-type compounds Fe$_{2-x}$Ti$_{1+x}$Sn"),
+    "10.1088/0953-8984/16/24/010": (
+        "Off-stoichiometric effect on the transport and pseudogap characteristics of Fe$_{2}$VGa"),
+    "10.1039/c4ta01380h": (
+        "Enhanced thermoelectric performance of a new half-Heusler derivative "
+        "Zr$_{9}$Ni$_{7}$Sn$_{8}$ bulk nanocomposite: enhanced electrical conductivity and low "
+        "thermal conductivity"),
+    "10.1021/acsami.9b21517": (
+        "Enhanced Thermoelectric Performance of Zr$_{1-x}$Ta$_{x}$NiSn Half-Heusler Alloys by "
+        "Diagonal-Rule Doping"),
+    "10.15541/jim20250041": (
+        "Boosting the Thermoelectric Performance of Full-Heusler Fe$_{2}$VAl Alloy via "
+        "Substituting Al Site with V"),
+    "10.1039/c7cp02744c": (
+        "Band structure modification of the thermoelectric Heusler-phase TiFe$_{2}$Sn via Mn "
+        "substitution"),
+    "10.1103/physrevb.81.064404": (
+        "Itinerant half-metallic ferromagnets Co$_{2}$TiZ (Z = Si, Ge, Sn): Ab initio calculations "
+        "and measurement of the electronic structure and transport properties"),
 }
 
 
@@ -320,8 +369,15 @@ def unrenderable(text: str) -> list[str]:
 
 def to_bibtex(m: dict, key: str) -> str:
     auth = m.get("author") or []
+    # A record registered with EVERY family name in capitals ("ZHENG, Yun") printed that way in the
+    # reference list; restore ordinary capitalisation for such a record only (2026-11-18 review).
+    fams = [a.get("family", "") for a in auth if a.get("family")]
+    shout = bool(fams) and all(f.isupper() and len(f) > 1 for f in fams)
+
+    def _case(s: str) -> str:
+        return s.title() if shout and s.isupper() and len(s) > 1 else s
     names = " and ".join(
-        f"{a.get('family', '')}, {a.get('given', '')}".strip(", ")
+        f"{_case(a.get('family', ''))}, {_case(a.get('given', ''))}".strip(", ")
         for a in auth if a.get("family") or a.get("given"))
     yr = ""
     for f in ("published-print", "published-online", "issued", "created"):
@@ -342,12 +398,16 @@ def to_bibtex(m: dict, key: str) -> str:
     # restored so the reference list reads as the article does.
     title = TITLE_MARKUP.get(m.get("DOI", "").lower(), title)
     container = esc((m.get("container-title") or [""])[0])
+    # a journal registered in capitals ("MATERIALS TRANSACTIONS") printed in capitals
+    if container.isupper() and len(container) > 8:
+        container = container.title()
     fields = {
         "author": esc(names),
         # double braces: elsarticle-num lowercases titles, which turned ZrCoBi into "zrcobi"
         "title": ("{" + title + "}") if title else "",
-        # a book chapter names its book in booktitle; under "journal" elsarticle-num dropped it
-        ("booktitle" if kind == "incollection" else "journal"): container,
+        # a book chapter names its book in booktitle, and so does a conference paper its
+        # proceedings; under "journal" elsarticle-num dropped the name for both
+        ("booktitle" if kind in ("incollection", "inproceedings") else "journal"): container,
         "year": yr,
         "volume": esc(m.get("volume", "")),
         "number": esc(m.get("issue", "")),

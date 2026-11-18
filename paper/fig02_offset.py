@@ -200,21 +200,24 @@ def main() -> int:
     plt.rcParams["figure.constrained_layout.use"] = False   # explicit millimetre layout below
     MMI = F.MM
     W = F.DOUBLE / MMI                                       # 190 mm
-    S = 37.5                                                 # side of the square panels, mm
-    WD = 27.0                                                # width of the swarm panel (d)
+    # THREE PANELS since 2026-11-18: the uncorrected and corrected parity plots are ONE panel (grey
+    # behind, colour in front). Two near-identical panels showed the same before/after that the
+    # per-compound panel shows again; one panel makes the shift itself visible.
+    S = 37.5                                                 # side of the square parity panel, mm
+    WC = 72.0                                                # width of the ratio-against-T panel
+    WD = 34.0                                                # width of the swarm panel
     Y0, TT = 9.2, 12.4                                       # bottom offset; title block height
     H = Y0 + S + TT
     xa = 10.0
-    xb = xa + S + 9.3
-    xc = xb + S + 9.6
-    xcb = xc + S + 1.3                                       # colour bar
+    xc = xa + S + 13.0
+    xcb = xc + WC + 1.3                                      # colour bar
     xd = W - WD - 0.6
     fig = plt.figure(figsize=(W * MMI, H * MMI))
 
     def ax_mm(x, y, w, h):
         return fig.add_axes([x / W, y / H, w / W, h / H])
 
-    axa, axb, axc = ax_mm(xa, Y0, S, S), ax_mm(xb, Y0, S, S), ax_mm(xc, Y0, S, S)
+    axa, axc = ax_mm(xa, Y0, S, S), ax_mm(xc, Y0, WC, S)
     cax = ax_mm(xcb, Y0 + 0.06 * S, 1.8, 0.88 * S)
     axd = ax_mm(xd, Y0, WD, S)
 
@@ -273,36 +276,30 @@ def main() -> int:
     # ---- (a), (b): parity ----------------------------------------------------------------------
     n_cmp, n_pts = d.compound.nunique(), len(d)
     lab_meas = "measured $\\kappa_L$ (W m$^{-1}$ K$^{-1}$)"
-    for ax, col, ttl, who in ((axa, "k_dft", "Uncorrected calculation", "calculated"),
-                              (axb, "k_cal", "After transfer function", "calibrated")):
-        F.band_2x(ax, lo, hi, label=None)
-        sc = ax.scatter(d.k_exp, d[col], c=d["T"], cmap=cmap, norm=norm, s=8,
-                        marker="o", lw=0.25, edgecolors="white", zorder=3)
-        F.parity_axes(ax, lo, hi, lab_meas, who + " $\\kappa_L$ (W m$^{-1}$ K$^{-1}$)")
-        ax.xaxis.labelpad = 1.5
-        ax.yaxis.labelpad = 1.0
-        F.kappa_ticks(ax)
-        ax.tick_params(labelsize=F.FS_TICK, pad=1.5)
-        r = d[col] / d.k_exp
-        n_out_hi, n_out_lo = int((r > 2).sum()), int((r < 0.5).sum())
-        # ONE SET OF STATISTICS PER FIGURE (2026-10-11): per-point medians above (a) and (b) sat
-        # beside the per-compound ones in (d) and the text (1.41 vs 1.69), and readers compared
-        # them. The parity panels now say what they show; the numbers live in (d) only.
-        sub = ("one point per compound per 100 K bin\nstatistics per compound: panel (d)"
-               if col == "k_dft" else
-               "chemistry cluster held out of the fit\nsame points as (a)")
-        _title(ax, ttl, sub)
-        pts = _pts_axes(ax, d.k_exp, d[col])
-        _panel_letter(ax, "ab"[col == "k_cal"], pts)
+    ax = axa
+    F.band_2x(ax, lo, hi, label=None)
+    # uncorrected behind, in grey; corrected in front, coloured by temperature
+    ax.scatter(d.k_exp, d.k_dft, s=7, marker="o", facecolors="none", edgecolors="#9AA0A6",
+               lw=0.5, zorder=2)
+    sc = ax.scatter(d.k_exp, d.k_cal, c=d["T"], cmap=cmap, norm=norm, s=8,
+                    marker="o", lw=0.25, edgecolors="white", zorder=3)
+    F.parity_axes(ax, lo, hi, lab_meas, "calculated $\\kappa_L$ (W m$^{-1}$ K$^{-1}$)")
+    ax.xaxis.labelpad = 1.5
+    ax.yaxis.labelpad = 1.0
+    F.kappa_ticks(ax)
+    ax.tick_params(labelsize=F.FS_TICK, pad=1.5)
+    # ONE SET OF STATISTICS PER FIGURE (2026-10-11): the numbers live in the per-compound panel.
+    _title(ax, "Calculation against measurement",
+           "open grey: uncorrected\ncolour: corrected, chemistry held out")
+    pts = np.vstack([_pts_axes(ax, d.k_exp, d.k_dft), _pts_axes(ax, d.k_exp, d.k_cal)])
+    _panel_letter(ax, "a", pts)
 
-        # n and the band's meaning, said once in (a); (b) plots the same points
-        if col == "k_dft":
-            def mk_n(x, y, ha, va, ax=ax):
-                return ax.text(x, y, f"{n_pts} points\n{n_cmp} compounds\nshaded: 2$\\times$",
-                               transform=ax.transAxes, ha=ha, va=va, fontsize=F.FS_MIN,
-                               color="#555555", linespacing=1.12)
-            _free_spot(ax, mk_n, pts, [(0.97, 0.03, "right", "bottom"),
-                                       (0.03, 0.03, "left", "bottom")])
+    def mk_n(x, y, ha, va, ax=ax):
+        return ax.text(x, y, f"{n_pts} points\n{n_cmp} compounds\nshaded: 2$\\times$",
+                       transform=ax.transAxes, ha=ha, va=va, fontsize=F.FS_MIN,
+                       color="#555555", linespacing=1.12)
+    _free_spot(ax, mk_n, pts, [(0.97, 0.03, "right", "bottom"),
+                               (0.03, 0.03, "left", "bottom")])
 
     # ---- (c): the transfer function and the ratio it was fitted to ------------------------------
     # 2026-10-11: (c) now reads in the SAME direction as (d) -- calculated/measured, on the same
@@ -354,7 +351,7 @@ def main() -> int:
     pts_c = np.vstack([_pts_axes(axc, d["T"], r_obs), _pts_axes(axc, bm.index.values, bm.values)])
     # the curve's own pixels count as occupied too, so the letter never sits on the line
     pts_c = np.vstack([pts_c, _pts_axes(axc, Tgrid, inv_mult)])
-    _panel_letter(axc, "c", pts_c)
+    _panel_letter(axc, "b", pts_c)
     print(f"  (c): {n_r_below1} of {n_pts} points have calculated < measured (ratio below 1)")
 
     cb = fig.colorbar(sc, cax=cax)
@@ -418,7 +415,7 @@ def main() -> int:
            f"median {per_c.median():.2f} $\\rightarrow$ {per_c_cal.median():.2f}\n"
            f"{100 * per_c.between(0.5, 2.0).mean():.0f}% $\\rightarrow$ "
            f"{100 * per_c_cal.between(0.5, 2.0).mean():.0f}% within 2$\\times$")
-    _panel_letter(axd, "d", np.vstack(pts_d))
+    _panel_letter(axd, "c", np.vstack(pts_d))
 
     print(f"  figure size: {W:.0f} x {H:.1f} mm")
     F.save(fig, "fig02_offset")

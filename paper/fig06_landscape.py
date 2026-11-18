@@ -152,7 +152,7 @@ def main() -> int:
             ax.plot([v], [y], marker="|", ms=7, mew=1.3, color=COND_COL, zorder=5)
         ax.text(float(g.hi90.max()) * 1.05, y, f"{lo:.1f}–{hi:.1f}", va="center",
                 fontsize=6.6, color=COND_COL)
-        ax.text(float(g.hi90.max()) * 1.05 * 1.9, y, "no measured member in the family",
+        ax.text(float(g.hi90.max()) * 1.05 * 1.9, y, "no usable measured member",
                 va="center", fontsize=5.9, color="#8A8A8A", fontstyle="italic")
         ticks.append(y); labs.append(f"{len(g)} compounds  ({fam})"); y -= 1
         print(f"  {fam}: {len(g)} conditional rows drawn as one bracket, {lo:.1f}-{hi:.1f}")

@@ -4,30 +4,25 @@
 % Order: why the property matters; the computational route and its cost; calculation vs
 % measurement, ending on the gap; our evidence that the gap matters; prior routes across it and
 % what is different here; the scarcity that makes it hard; what this paper does, with the
-% definitions a reader needs; the contributions. Condensed 2026-10-05 (research-paper pass).
+% definitions a reader needs; the contributions, which double as the roadmap (each names its
+% section). Condensed 2026-10-05 (research-paper pass); repetitions removed 2026-11-18 (the
+% separate roadmap paragraph repeated the contributions; one idea, "a surrogate inherits the
+% offset", was stated three times; an uncited clause on robustness and abundance was cut).
 %
 % Every citation is resolved through Crossref and carries a row in claims_ledger.csv with the
 % sentence from the source that supports it. None was written from memory.
 %
-% Numbers from data/exports/kappa_v2/paper_numbers.json:
-%   1.69 / 34 / 29 of 34 / 10 of 12   offset.*
+% Numbers from data/exports/kappa_v2/paper_numbers.json (only those used in this section):
+%   1.69 / 34 / 29 of 34          offset.*
 %   21, 2.01                      vs_published_model.n_common, .positive_control.sdnnff_vs_measurement
 %   18, 0.99                      .positive_control.sdnnff_vs_published_bte_calculation (n, median_ratio)
 %   735, 284, 50                  corpus.half_heuslers / half_with_dft_tier1 / half_measured_tier0
 %   0.42 / 0.70                   calibration.c / .p
 %   5 of 9                        family_calibration.n_validated_under_25 / n_validated
-%   21.7 vs 32.3 on 31            deployed_route.held_out (.median_ape, .global_on_same_compounds)
-%   0.44                          deployed_route.held_out.sign_test_p_family_vs_shared (0.442)
-%   33.0                          shared_constant_unseen_family.median_ape
-%   21.9 / 88.3 / 230             ml_generator_validation (single seed)
-%   45 descriptors; four regressors   shap_ranking.n_descriptors; model_comparison (4 entries)
-%   33.1 / 87.2 / 39              in_domain_table.seed_medians.calibrated, .n
-%   41.9                          in_domain_table.seed_medians.uncorrected_surrogate
-%   46.7 / 45.6 / 0.004           in_domain_table.nulls, .paired_p_seed_median
-%   18 / 0.048                    cluster_level_significance (n_clusters, wilcoxon_p_max.power =
-%                                 0.0483); sign_p_range (not significant on every seed)
-%   37.4 / 78.0 / 50              headline.unscreened_same_protocol, blind_test.compounds
-%   10 / 3 at 500 K / 15          predictions.counts, predictions.issued_quoted_at_500K
+%   21.9                          ml_generator_validation (single seed: "reference seed")
+%   33.1                          in_domain_table.seed_medians.calibrated
+%   37.4 / 50                     headline.unscreened_same_protocol, blind_test.compounds
+%   10 / 15                       predictions.counts
 %   10 conditional                conditional.n
 % =============================================================================================
 
@@ -38,103 +33,114 @@ A thermoelectric generator needs a material that conducts charge freely but obst
 Heuslers meet the first requirement far better than the second. Their electronic performance is
 well established, with figures of merit approaching $zT \approx 1.5$ in $p$-type
 \ce{NbFeSb}-based~\cite{fu2015realizing} and $zT \approx 1.4$ in \ce{ZrCoBi}-based
-alloys~\cite{zhu2018discovery}, and
-the class is mechanically robust, stable to high temperature and in many cases made of abundant
-elements. Their
-lattice thermal conductivity $\kappa_L$, however, remains high, and because $zT$ varies inversely
-with $\kappa_L$, most advances have come from suppressing it after synthesis. The screening problem
-is to identify compounds with intrinsically low $\kappa_L$ before they are made.
+alloys~\cite{zhu2018discovery}. Their lattice thermal conductivity $\kappa_L$, however, remains
+high, and because $zT$ varies inversely with $\kappa_L$, most advances have come from suppressing
+it after synthesis. The screening problem is to identify compounds with intrinsically low
+$\kappa_L$ before they are made.
 
-Solving the phonon Boltzmann transport equation (BTE) from first principles gives $\kappa_L$ with no
-experimental input; for the half Heusler \ce{ZrCoSb} the calculated temperature dependence agrees
-reasonably with measurement, running slightly above it, with no fitted parameter~\cite{shiomi2011thermal}.
-The obstacle is cost. Carrete \emph{et al.} calculated
-\num{32} half Heuslers in full and trained a random-forest model on them to search a far larger
-set~\cite{carrete2014finding}, and much subsequent work has approximated the calculation at lower
-cost,
-through compressed-sensing descriptors~\cite{liu2020a} and machine-learned models trained on
-computed
+That requires a calculated $\kappa_L$. Solving the phonon Boltzmann
+transport equation (BTE) from first principles gives $\kappa_L$ with no experimental input; for
+the half Heusler \ce{ZrCoSb} the calculated temperature dependence agrees reasonably with
+measurement, running slightly above it, with no fitted parameter~\cite{shiomi2011thermal}. The
+obstacle is cost. Carrete \emph{et al.} calculated \num{32} half Heuslers in full and trained a
+random-forest model on them to search a far larger set~\cite{carrete2014finding}, and much
+subsequent work has approximated the calculation at lower cost, through compressed-sensing
+descriptors~\cite{liu2020a} and machine-learning models trained on computed
 conductivities~\cite{luo2023predicting,trans2022lattice,miyazaki2021machine,jaafreh2021lattice,bhattacharjee2022thorough}.
 Most recently, Paliwal and Alam compared seven tree-based ensemble regressors trained on \num{4127}
 calculated values for \num{150} compounds; the best, an extra-trees model, reached
 $R^2 = \num{0.9994}$ (on $\log\kappa_L$) in repeated cross-validation on calculated
 labels~\cite{paliwal2025accelerate}.
 
-We call such models \emph{surrogates}, because they stand in for the calculation. They are accurate
-against the quantity they were trained on, which is a calculation rather than a measurement. How
-far calculation and measurement differ has been judged in two ways. An earlier tutorial on the
-method stated that it ``has enabled thermal conductivity predictions that agree with experimental
-measurements for diverse crystalline materials''~\cite{mcgaughey2019phonon}; a later controlled multi-code comparison, by the same
-lead author, found the solvers within \SI{15}{\percent} of their mean values, yet reported that the
-calculated conductivities ``do not generally show agreement with experimental
-measurements''~\cite{mcgaughey2025phonon}. Paliwal and Alam note that computed $\kappa_L$ ``often
-overestimates the experimental values because real samples inevitably contain impurities, defects,
-and grain boundaries''~\cite{paliwal2025accelerate}, but do not quantify the offset. What has been missing is the magnitude and sign of the disagreement across a
-materials class, and a correction for it validated against held-out experiment.
+We call such models \emph{surrogates}, because they stand in for the calculation. A surrogate is
+accurate against the quantity it was trained on, and that quantity is a calculation, not a
+measurement. How far the two differ has been judged in two ways. An earlier tutorial on the method
+stated that it ``has enabled thermal conductivity predictions that agree with experimental
+measurements for diverse crystalline materials''~\cite{mcgaughey2019phonon}. A later controlled
+multi-code comparison, by the same lead author, found the solvers within \SI{15}{\percent} of
+their mean values, yet reported that the calculated conductivities ``do not generally show
+agreement with experimental measurements, which is attributed to the limitations of the density
+functional theory calculations''~\cite{mcgaughey2025phonon}. Paliwal and Alam note that
+computed $\kappa_L$ ``often overestimates the experimental values because real samples inevitably
+contain impurities, defects, and grain boundaries''~\cite{paliwal2025accelerate}, but they do not
+quantify this \emph{offset} between calculation and measurement. What has been missing, to our
+knowledge, is the size and sign of the offset across a materials class, and a correction for it
+validated against measurements withheld from its fit.
 
 In our corpus, published transport calculations exceed the measured $\kappa_L$ of the same compound
-by a median factor of \num{1.69} over \num{34} compounds. A surrogate that reproduces the calculation
-therefore carries that offset when its output is read as a prediction of experiment. A published
-neural-network force field, Elemental-SDNNFF~\cite{rodriguez2023millionsca}, illustrates the
-problem (Section~\ref{sec:sdnnff}). On the \num{21} compounds it shares with our validation set
-inside the domain of applicability (Section~\ref{sec:domain}), its values are a median \num{2.01} times the measurements, while on the \num{18} that carry a
-published calculation they are a median \num{0.99} times that calculation.
+by a median factor of \num{1.69} over \num{34} compounds. A recent large-scale model shows what
+that means for a surrogate. The Elemental Spatial Density Neural Network Force Field
+(Elemental-SDNNFF)~\cite{rodriguez2023millionsca} replaces first-principles force calculations with
+a neural network and so predicts the phonon properties of \num{11866} Heusler structures, a scale
+out of reach of direct calculation. For the measured half Heuslers of our validation set that also
+have a published first-principles calculation, its values agree closely with that calculation
+(median ratio \num{0.99} over \num{18} compounds). Against the laboratory measurements of the
+\num{21} it shares with the same set, however, they are a median \num{2.01} times too high
+(Section~\ref{sec:sdnnff}). The force field does well what it was built to do; it is the target
+itself that lies away from experiment.
 
-Existing routes across this gap do not correct a full BTE calculation. Zhu \emph{et al.}
-transfer-learned a crystal-graph network from \num{2668} computed conductivities onto \num{132}
-measured values, starting from semi-empirical high-throughput estimates~\cite{zhu2021charting}.
-Miller \emph{et al.} fitted a semi-empirical model to experiment~\cite{miller2017capturing}, Chen
-\emph{et al.} trained a Gaussian process on about one hundred measured solids~\cite{chen2019machine},
-and a related study pretrained on empirical-model estimates and then fine-tuned on a single
-high-fidelity target that pools measurements with first-principles
-calculations~\cite{liu2022leveraging}. Pooling hides the offset. For band gaps, learning the
-difference between calculation and measurement has been shown to work better than pooling mixed
-sources~\cite{hutchinson2017overcoming}; we take the same view for thermal conductivity and keep
-experiment and calculation apart so that the offset can be measured. Our correction acts on the
-transport calculation itself and is closed-form: a magnitude and an exponent that can be applied by
-hand.
+The data-driven routes from calculation to measurement that we know of do not correct a full
+first-principles calculation.
+Zhu \emph{et al.} transfer-learned a crystal-graph network from \num{2668} computed conductivities
+onto \num{132} measured values, starting from semi-empirical high-throughput
+estimates~\cite{zhu2021charting}. Miller \emph{et al.} fitted a semi-empirical model to
+experiment~\cite{miller2017capturing}, Chen \emph{et al.} trained a Gaussian process on about one
+hundred measured solids~\cite{chen2019machine}, and a related study pretrained on empirical-model
+estimates and then fine-tuned on a single high-fidelity target that pools measurements with
+first-principles calculations~\cite{liu2022leveraging}. Pooling hides the offset. For band gaps,
+learning the difference between calculation and measurement has been shown to work better than
+pooling mixed sources~\cite{hutchinson2017overcoming}; we take the same view for thermal
+conductivity and keep experiment and calculation apart so that the offset can be measured. Our
+correction acts on the first-principles calculation itself.
 
 Measurements to correct against are scarce. Of the \num{735} half Heuslers in our corpus with any
 thermal-conductivity record, \num{284} have a full first-principles transport calculation and
 \num{50} have been measured. Models trained on large public thermal-conductivity datasets are
 beginning to appear~\cite{barua2024interpreta}, but \num{50} compounds are too few to learn a
-structure--property relation from scratch. In our tests they are enough to calibrate a correction
+structure--property relation from scratch; they are, as we show, enough to calibrate a correction
 to calculated values.
 
-We therefore predict the measured $\kappa_L$ in two steps used as a pair: a machine-learned model,
-trained on calculations, predicts the full first-principles value from crystal structure, and a
-transfer function maps a calculation onto the experimental scale. Measurements and calculations are
-never pooled, and each measured compound is scored against one reference laboratory chosen by a
-fixed rule that never reads a calculation. With a half Heusler written as XYZ
-(Section~\ref{sec:method}), a \emph{bonding family} is the set of compounds that share Y and Z, and
-a \emph{chemistry cluster} the set that share X. The end-to-end test holds each compound's chemistry
-cluster out of both steps; Table~\ref{tab:notation} defines the terms used throughout.
+We therefore predict the measured $\kappa_L$ in two steps. A machine-learning model, itself a
+surrogate trained on calculations, predicts the full first-principles value from crystal
+structure, and a transfer function maps a calculation onto the experimental scale; where a
+calculation has been published, the transfer function is applied to it directly. The
+\emph{domain of applicability} of the method is cubic half Heuslers with 18 valence electrons
+(Section~\ref{sec:domain}). Each measured compound is scored against one reference laboratory
+chosen by a fixed rule that never reads a calculation. With a half Heusler written as XYZ
+(Section~\ref{sec:method}), a \emph{bonding family} is the set of compounds that share Y and Z,
+and a \emph{chemistry cluster} the set that share X. The \emph{blind test} runs the two steps end
+to end with each compound's chemistry cluster held out of both; Table~\ref{tab:notation} defines
+the terms used throughout.
 
-The paper makes four contributions.
+The paper makes four contributions, taken in the order of the Results
+(Section~\ref{sec:results}).
 %
 \begin{enumerate}[label=(\roman*), itemsep=1pt, topsep=3pt, leftmargin=2.2em]
   \item \emph{The offset, measured.} Published transport calculations run high in \num{29} of
-        \num{34} half Heuslers, by a median factor of \num{1.69}, and the excess shrinks as
-        temperature rises (Section~\ref{sec:offset}).
+        \num{34} half Heuslers, and the offset shrinks as temperature rises
+        (Section~\ref{sec:offset}).
   \item \emph{A closed-form correction.} A transfer function with a magnitude and a temperature
-        exponent (Eq.~\eqref{eq:transfer}), fitted on published calculations, has a well-determined
-        magnitude $c = \num{0.42}$ and a poorly determined exponent $p = \num{0.70}$. It carries over to an independent set of calculations, and a
-        magnitude refitted per bonding family is validated held out in five families
+        exponent (Eq.~\eqref{eq:transfer}), fitted on published calculations, has magnitude
+        $c = \num{0.42}$, better constrained than the exponent $p = \num{0.70}$. It carries over
+        to a separately computed set of calculations, and a magnitude refitted per bonding family
+        is validated held out in five of the nine families with two or more measured members
         (Section~\ref{sec:transferresults}).
-  \item \emph{An end-to-end test against experiment.} Paired with a model that reproduces
-        published calculations to \SI{21.9}{\percent} (reference seed), the route predicts measured
-        $\kappa_L$ to a median error of \SI{33.1}{\percent} inside the domain of applicability, with
-        each chemistry cluster held out of both steps. Its typical disagreement with measurement is
-        similar in size to the spread between two laboratories measuring the same compound, and it
-        beats compound-blind baselines (Section~\ref{sec:blind}).
+  \item \emph{An end-to-end blind test against experiment.} With a model that reproduces published
+        calculations to \SI{21.9}{\percent} (reference seed; Section~\ref{sec:mlrepro}), the two
+        steps together predict measured $\kappa_L$ in the blind test to a median error of
+        \SI{33.1}{\percent} inside the domain of applicability (\SI{37.4}{\percent} over all
+        \num{50} measured compounds). Their typical disagreement with measurement is similar in
+        size to the spread between two laboratories measuring the same compound. They are closer
+        to measurement than null baselines fitted to the individual measurements, which use no
+        information about the compound, but not significantly closer than a constant fitted
+        compound by compound, as their own constants are (Section~\ref{sec:blind}).
   \item \emph{Predictions that can be tested.} Ten issued predictions with intervals, \num{15}
         flagged candidates with their reasons, \num{10} estimates conditional on a measurement in
-        their family, and values from crystal structure alone for \ce{TmPbAu} and \ce{HfTeOs}, for
-        which our literature search finds no published report (Sections~\ref{sec:issued}
+        their family, and values from crystal structure alone for \ce{TmPbAu} and \ce{HfTeOs}, which have neither a measurement nor a published full calculation in our corpus (Sections~\ref{sec:issued}
         to~\ref{sec:structonly}).
 \end{enumerate}
 
-Section~\ref{sec:method} describes the corpus, the model and the transfer function;
-Section~\ref{sec:results} reports the offset, the calibration, the held-out test and the
-predictions; Section~\ref{sec:discussion} discusses what the constants mean, which route to use
-and the limits of the method; Section~\ref{sec:conclusions} concludes.
+Section~\ref{sec:method} sets out the data and the tests behind these results, and
+Section~\ref{sec:robust} checks the blind test against other choices and baselines.
+Section~\ref{sec:discussion} discusses what the offset is, which route to use and where the method
+stops, and Section~\ref{sec:conclusions} ends with what should be measured next.
